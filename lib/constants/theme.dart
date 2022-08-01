@@ -15,18 +15,21 @@ class TextH1 extends StatelessWidget {
   final Color? color;
   final TextAlign? textAlign;
   final TextOverflow? textOverFlow;
-  const TextH1(String this.text,{Key? key, this.size, this.color, this.textAlign, this.textOverFlow}) : super(key: key);
+  final double? height;
+  const TextH1(String this.text,{Key? key, this.size, this.color, this.textAlign, this.textOverFlow, this.height}) : super(key: key);
 
   Widget build(BuildContext context) {
     return Text(
       text ?? "",
       textAlign: textAlign ?? TextAlign.start,
       style: TextStyle(
+      height: height,
       fontFamily: h1,
       fontSize: size?.w ?? 9.w,
       overflow: textOverFlow,
       color: color ?? kBlack,
       ),
+
     );
   }
 }
@@ -34,12 +37,14 @@ class TextH2 extends StatelessWidget {
   final String? text;
   final double? size;
   final Color? color;
-  const TextH2(String this.text,{Key? key, this.size, this.color}) : super(key: key);
+  final double? height;
+  const TextH2(String this.text,{Key? key, this.size, this.color, this.height}) : super(key: key);
 
   Widget build(BuildContext context) {
     return Text(
       text ?? "",
       style: TextStyle(
+        height: height,
         fontFamily: h2,
         fontSize: size?.w ?? 5.w,
         color: color ?? kBlack,

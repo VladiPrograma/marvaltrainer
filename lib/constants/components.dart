@@ -7,6 +7,11 @@ BoxShadow kMarvalBoxShadow =  BoxShadow(
   offset: Offset(0, 1.3.w),
   blurRadius: 2.1.w,
 );
+BoxShadow kDarkShadow =  BoxShadow(
+  color: kBlack.withOpacity(0.85),
+  offset: Offset(0, 1.3.w),
+  blurRadius: 2.1.w,
+);
 
 /* boxShadow: [
     BoxShadow(

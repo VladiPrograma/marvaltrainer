@@ -63,3 +63,12 @@ extension DateFormat on DateTime{
   }
 }
 
+extension StringFormat on String{
+
+  String maxLength(int num){
+    if(length>num){
+      return substring(0, num);
+    }
+    return this;
+  }
+}
