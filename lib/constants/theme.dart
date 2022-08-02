@@ -16,13 +16,15 @@ class TextH1 extends StatelessWidget {
   final TextAlign? textAlign;
   final TextOverflow? textOverFlow;
   final double? height;
-  const TextH1(String this.text,{Key? key, this.size, this.color, this.textAlign, this.textOverFlow, this.height}) : super(key: key);
+  final List<Shadow>? shadows;
+  const TextH1(String this.text,{Key? key, this.size, this.color, this.textAlign, this.textOverFlow, this.height, this.shadows}) : super(key: key);
 
   Widget build(BuildContext context) {
     return Text(
       text ?? "",
       textAlign: textAlign ?? TextAlign.start,
       style: TextStyle(
+      shadows: shadows,
       height: height,
       fontFamily: h1,
       fontSize: size?.w ?? 9.w,
