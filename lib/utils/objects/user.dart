@@ -1,32 +1,43 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:marvaltrainer/utils/extensions.dart';
-import 'package:marvaltrainer/utils/objects/user_curr.dart';
-import 'package:marvaltrainer/utils/objects/user_daily.dart';
-import 'package:marvaltrainer/utils/objects/user_details.dart';
+
+import '../../utils/extensions.dart';
 import '../../config/log_msg.dart';
 import '../../constants/string.dart';
 import '../marval_arq.dart';
+
+import 'planing.dart';
+import 'user_daily.dart';
+import 'user_details.dart';
 
 class MarvalUser{
   static CollectionReference usersDB = FirebaseFirestore.instance.collection("users");
   String id;
   String name;
+  String? objective;
   String lastName;
   String work;
+  String? hobbie;
+  String? email;
   String? profileImage;
   double lastWeight;
   double currWeight;
   DateTime update;
   DateTime lastUpdate;
   Details? details;
-  CurrentUser? currenTraining;
+  Planing? currenTraining;
   Map<String, Daily>? dailys;
 
-  MarvalUser({required this.id, required this.name, required this.lastName, required this.work,this.profileImage, required this.lastWeight ,required this.currWeight, required this.update,  required this.lastUpdate});
+  MarvalUser({required this.id, required this.name, required this.lastName,required this.email, required this.objective, required this.hobbie, required this.work,this.profileImage, required this.lastWeight ,required this.currWeight, required this.update,  required this.lastUpdate});
 
-  MarvalUser.create(this.name, this.lastName, this.work, this.profileImage, this.lastWeight, this.currWeight)
-     : id = FirebaseAuth.instance.currentUser!.uid,
+  ///@TODO Check if i can delete "dailys"
+  MarvalUser.create(String? uid, this.name, this.email, this.objective)
+     : id = uid ?? FirebaseAuth.instance.currentUser!.uid,
+       lastName = "",
+       work = "",
+       hobbie = "",
+       lastWeight = 0,
+       currWeight = 0,
        dailys = <String, Daily>{},
        update = DateTime.now(),
        lastUpdate = DateTime.now();
@@ -35,6 +46,9 @@ class MarvalUser{
    : id = map["id"],
     name = map["name"],
     lastName = map["last_name"],
+    hobbie = map["hobbie"],
+    objective = map["objective"],
+    email = map["email"],
     work = map["work"],
     profileImage  = map["profile_image"],
     currWeight = map["curr_weight"],
@@ -45,7 +59,7 @@ class MarvalUser{
 
   Future<void> getDetails() async => details = await Details.getFromDB(id);
 
-  Future<void> getCurrentTraining() async => currenTraining = await CurrentUser.getFromBD(id);
+  Future<void> getCurrentTraining() async => currenTraining = await Planing.getFromBD(id);
 
   Future<void> getDaily(DateTime date) async => dailys![date.iDay()]= await Daily.getFromDB(date);
 
@@ -53,6 +67,11 @@ class MarvalUser{
     if(isNull(uid)){ return false;}
     DocumentSnapshot ds = await usersDB.doc(uid).get();
     return ds.exists;
+  }
+  static Future<bool> isNotRegistered(String? email) async{
+    if(isNull(email)){ return false;}
+    return  usersDB.where('email', isEqualTo: email).snapshots().isEmpty;
+
   }
   static Future<MarvalUser> getFromDB(String uid) async {
     DocumentSnapshot doc = await usersDB.doc(uid).get();
@@ -66,6 +85,9 @@ class MarvalUser{
       'id': id, // UID
       'name': name, // Vlad
       'last_name': lastName, // Dumitru
+      'hobbie': hobbie, // Dumitru
+      'objective': objective, // Dumitru
+      'email': email, // Dumitru
       'work': work, // Programador
       'profile_image': profileImage, // Programador
       'last_weight' : lastWeight, // 76.3

@@ -14,7 +14,7 @@ void ResetPassword(BuildContext context, String email){
   });
 }
 
-Future<String?> LogIn(String email, String password) async{
+Future<String?> SignIn(String email, String password) async{
   try {
     final credential = await FirebaseAuth.instance.
     signInWithEmailAndPassword(
@@ -26,6 +26,25 @@ Future<String?> LogIn(String email, String password) async{
     else if (e.code == 'wrong-password') { return kInputErrorPassword; }
   }
   return null;
+}
+Future<String?> SignUp(String email, String password) async{
+  try {
+    UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: password
+    );
+    FirebaseAuth.instance.signOut();
+    await SignIn('mario@gmail.com', 'hector10ten');
+    return userCredential.user!.uid;
+  } on FirebaseAuthException catch (e) {
+    if (e.code == 'weak-password') {
+      print('The password provided is too weak.');
+    } else if (e.code == 'email-already-in-use') {
+      print('The account already exists for that email.');
+    }
+  } catch (e) {
+    print(e);
+  }
 }
 
 bool LogOut() {

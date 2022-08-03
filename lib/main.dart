@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:marvaltrainer/modules/alta/add_users_screen.dart';
 import 'package:sizer/sizer.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -13,6 +14,7 @@ import 'utils/marval_arq.dart';
 ///* @TODO Config Splash Loading Screen for Android and IOS
 ///* @TODO Config Image Picker for IOS
 ///* @TODO Open Home Screen when already logged
+///* @TODO Make the non reusable widgets local variables _MyWidget
 
 void main() async{
     WidgetsFlutterBinding.ensureInitialized();
@@ -34,7 +36,7 @@ class MyApp extends StatelessWidget {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             routes: routes,
-            initialRoute: isNull(authUser) ? LoginScreen.routeName : HomeScreen.routeName,
+            initialRoute: isNull(authUser) ? LoginScreen.routeName : AddUserScreen.routeName,
           );
         }
     );

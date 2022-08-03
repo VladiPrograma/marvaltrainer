@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:marvaltrainer/utils/extensions.dart';
+import 'package:marvaltrainer/widgets/marval_drawer.dart';
 import 'package:marvaltrainer/widgets/marval_textfield.dart';
 import 'package:sizer/sizer.dart';
 
@@ -33,6 +34,7 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: kWhite,
       resizeToAvoidBottomInset: false,
+      drawer: const MarvalDrawer(name: 'Usuarios',),
       body:  Container(
           child: Container( width: 100.w, height: 100.h,
           child: Stack(

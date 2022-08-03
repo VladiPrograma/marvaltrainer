@@ -4,21 +4,21 @@ import '../../config/log_msg.dart';
 import '../../constants/string.dart';
 import '../marval_arq.dart';
 
-class CurrentUser{
-  static CollectionReference currentUserDB = FirebaseFirestore.instance.collection("users_curr");
+class Planing{
+  static CollectionReference currentUserDB = FirebaseFirestore.instance.collection("planing");
   String id;
   int? steps;
   List<String>? habits;
   List<dynamic>? activities;
   DateTime lastUpdate;
 
-  CurrentUser({required this.id, this.habits, this.steps, this.activities,required this.lastUpdate});
+  Planing({required this.id, this.habits, this.steps, this.activities,required this.lastUpdate});
 
-  CurrentUser.create({this.habits, this.steps, this.activities})
+  Planing.create({this.habits, this.steps, this.activities})
       : id = FirebaseAuth.instance.currentUser!.uid,
         lastUpdate = DateTime.now();
 
-  CurrentUser.fromJson(Map<String, dynamic> map)
+  Planing.fromJson(Map<String, dynamic> map)
       : id = map["id"],
         habits = List<String>.from(map["habits"]),
         steps = map["steps"],
@@ -35,10 +35,10 @@ class CurrentUser{
 
 
 
-  static Future<CurrentUser> getFromBD(String uid) async {
+  static Future<Planing> getFromBD(String uid) async {
     DocumentSnapshot doc = await currentUserDB.doc(uid).get();
     Map<String, dynamic>? map  = toMap(doc);
-    return CurrentUser.fromJson(map!);
+    return Planing.fromJson(map!);
   }
 
   Future<void> setInDB(){

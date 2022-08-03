@@ -113,7 +113,7 @@ class _LogInForm extends StatelessWidget {
                   print('Email: $_email\nPassword: $_password');
 
                   /// We try to LogIn
-                  _loginErrors = await LogIn(_email, _password);
+                  _loginErrors = await SignIn(_email, _password);
                   _formKey.currentState!.validate();
 
                   if(isNull(_loginErrors)&&isNotNull(FirebaseAuth.instance.currentUser)){

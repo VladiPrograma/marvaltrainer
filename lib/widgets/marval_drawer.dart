@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:marvaltrainer/modules/alta/add_users_screen.dart';
 import 'package:sizer/sizer.dart';
 
 import '../config/custom_icons.dart';
@@ -6,6 +7,7 @@ import '../constants/colors.dart';
 import '../constants/global_variables.dart';
 import '../constants/theme.dart';
 import '../core/login/login_screen.dart';
+import '../modules/home/home_screen.dart';
 import '../utils/marval_arq.dart';
 
 class MarvalDrawer extends StatelessWidget {
@@ -18,6 +20,7 @@ class MarvalDrawer extends StatelessWidget {
       backgroundColor: kWhite,
       child: Container( height: 100.h,
         child: ListView(
+        physics: NeverScrollableScrollPhysics(),
         padding: EdgeInsets.symmetric(horizontal: 3.w),
         children:  <Widget>[
           SizedBox(height: 39.h,
@@ -37,23 +40,30 @@ class MarvalDrawer extends StatelessWidget {
                 ),
               )),
           GestureDetector(
-            onTap: (){},
+            onTap: () => Navigator.popAndPushNamed(context, AddUserScreen.routeName),
             child: ListTile(
-              leading: Icon(Icons.home_rounded,color: name=="Home" ? kGreen : kBlack, size: 6.w,),
-              title: TextH2('Home', size: 4, color: name=="Home" ? kGreen : kBlack),
+              leading: Icon(CustomIcons.users,color: name=="Dar de alta" ? kGreen : kBlack, size: 6.w,),
+              title: TextH2('Dar de alta', size: 4, color: name=="Dar de alta" ? kGreen : kBlack),
+            ),
+          ),
+          GestureDetector(
+            onTap: () => Navigator.popAndPushNamed(context, HomeScreen.routeName),
+            child: ListTile(
+              leading: Icon(CustomIcons.address_book, color: name=="Usuarios" ? kGreen : kBlack, size: 6.w,),
+              title: TextH2('Usuarios', size: 4, color: name=="Usuarios" ? kGreen : kBlack),
             ),
           ),
           GestureDetector(
             onTap: (){},
             child: ListTile(
-              leading: Icon(Icons.message_outlined,color: name=="Chat" ? kGreen : kBlack, size: 6.w,),
+              leading: Icon(CustomIcons.chat_empty, color: name=="Chat" ? kGreen : kBlack, size: 6.w,),
               title: TextH2('Chat', size: 4, color: name=="Chat" ? kGreen : kBlack),
             ),
           ),
           GestureDetector(
             onTap: (){},
             child: ListTile(
-              leading: Icon(Icons.run_circle_outlined,color: name=="Ejercicios" ? kGreen : kBlack, size: 6.w,),
+              leading: Icon(CustomIcons.gym,color: name=="Ejercicios" ? kGreen : kBlack, size: 6.w,),
               title: TextH2('Ejercicios', size: 4, color: name=="Ejercicios" ? kGreen : kBlack),
             ),
           ),
@@ -62,8 +72,8 @@ class MarvalDrawer extends StatelessWidget {
               Navigator.pop(context);
               Navigator.pushNamed(context, LoginScreen.routeName);},
             child: ListTile(
-              leading: Icon(CustomIcons.person ,color: name=="Perfil" ? kGreen : kBlack, size: 6.w,),
-              title: TextH2('Perfil', size: 4, color: name=="Perfil" ? kGreen : kBlack),
+              leading: Icon(CustomIcons.muscle_up ,color: name=="Entrenos" ? kGreen : kBlack, size: 6.w,),
+              title: TextH2('Entrenos', size: 4, color: name=="Entrenos" ? kGreen : kBlack),
             ),
           ),
           GestureDetector(
@@ -73,7 +83,8 @@ class MarvalDrawer extends StatelessWidget {
               title: TextH2('Ajustes', size: 4, color: name=="Ajustes" ? kGreen : kBlack),
             ),
           ),
-          SizedBox(height: 10.h,),
+
+          SizedBox(height: 3.h,),
           Container( height: 15.h,
             child: Image.asset('assets/images/marval_logo.png'),)
         ],
