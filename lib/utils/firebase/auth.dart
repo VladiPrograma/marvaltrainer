@@ -27,6 +27,20 @@ Future<String?> SignIn(String email, String password) async{
   }
   return null;
 }
+
+
+bool LogOut() {
+  bool success = false;
+   FirebaseAuth.instance.signOut()
+      .whenComplete(() => success =  true)
+      .onError((error, stackTrace) => success = false);
+  return success;
+}
+
+User? getCurrUser(){  return FirebaseAuth.instance.currentUser; }
+
+/// Only MarvalTrainer
+///@TODO Try to change this method with one more logical and clean
 Future<String?> SignUp(String email, String password) async{
   try {
     UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -46,13 +60,3 @@ Future<String?> SignUp(String email, String password) async{
     print(e);
   }
 }
-
-bool LogOut() {
-  bool success = false;
-   FirebaseAuth.instance.signOut()
-      .whenComplete(() => success =  true)
-      .onError((error, stackTrace) => success = false);
-  return success;
-}
-
-User? getCurrUser(){  return FirebaseAuth.instance.currentUser; }

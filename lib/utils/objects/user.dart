@@ -19,6 +19,7 @@ class MarvalUser{
   String work;
   String? hobbie;
   String? email;
+  bool? active;
   String? profileImage;
   double lastWeight;
   double currWeight;
@@ -28,7 +29,7 @@ class MarvalUser{
   Planing? currenTraining;
   Map<String, Daily>? dailys;
 
-  MarvalUser({required this.id, required this.name, required this.lastName,required this.email, required this.objective, required this.hobbie, required this.work,this.profileImage, required this.lastWeight ,required this.currWeight, required this.update,  required this.lastUpdate});
+  MarvalUser({required this.id, required this.name, required this.lastName,required this.email,required this.active, required this.objective, required this.hobbie, required this.work,this.profileImage, required this.lastWeight ,required this.currWeight, required this.update,  required this.lastUpdate});
 
   ///@TODO Check if i can delete "dailys"
   MarvalUser.create(String? uid, this.name, this.email, this.objective)
@@ -36,6 +37,7 @@ class MarvalUser{
        lastName = "",
        work = "",
        hobbie = "",
+       active = true,
        lastWeight = 0,
        currWeight = 0,
        dailys = <String, Daily>{},
@@ -49,6 +51,7 @@ class MarvalUser{
     hobbie = map["hobbie"],
     objective = map["objective"],
     email = map["email"],
+    active = map["active"],
     work = map["work"],
     profileImage  = map["profile_image"],
     currWeight = map["curr_weight"],
@@ -78,6 +81,7 @@ class MarvalUser{
     Map<String, dynamic>? map  = toMap(doc);
     return MarvalUser.fromJson(map!);
   }
+
   Future<void> setInDB(){
     // Call the user's CollectionReference to add a new user
     return usersDB
@@ -88,6 +92,7 @@ class MarvalUser{
       'hobbie': hobbie, // Dumitru
       'objective': objective, // Dumitru
       'email': email, // Dumitru
+      'active': active, // Dumitru
       'work': work, // Programador
       'profile_image': profileImage, // Programador
       'last_weight' : lastWeight, // 76.3
@@ -109,10 +114,12 @@ class MarvalUser{
   @override
   String toString() {
     return " ID: $id"
+        "\n Mail: $email Active: $active"
         "\n Name: $name Last Name: $lastName"
         "\n Job: $work"
         "\n Curr: $currWeight Kg  Last: $lastWeight Kg "
         "\n Update: $update Last Update: $lastUpdate"
+        "\n Hobbie: $hobbie Objective: $objective"
         "\n Profile image URL: $profileImage"
         "\n Details: ${details?.toString()}"
         "\n Current Training: ${currenTraining?.toString()}"
@@ -133,7 +140,6 @@ class MarvalUser{
       "update" : update
     });
   }
-
   void updateLastWeight({required double weight, required DateTime date}){
     lastWeight = weight;
     lastUpdate = date;

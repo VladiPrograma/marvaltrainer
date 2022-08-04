@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:marvaltrainer/utils/extensions.dart';
 import 'package:marvaltrainer/widgets/marval_drawer.dart';
-import 'package:marvaltrainer/widgets/marval_textfield.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../constants/colors.dart';
@@ -16,7 +15,6 @@ import '../../constants/components.dart';
 import '../../utils/decoration.dart';
 import '../../utils/marval_arq.dart';
 import '../../utils/objects/user.dart';
-import '../../utils/objects/user_handler.dart';
 
 
 /// @TODO Configure in Firebase The Reset Password Email
@@ -95,6 +93,7 @@ class HomeScreen extends StatelessWidget {
                               contentPadding: EdgeInsets.zero
                           ),
                           onChanged: (value) {
+                            ///Search logic
                             _listNotifier.value= handler.list.where((element) =>
                                 element.name.
                                 toLowerCase().
@@ -108,7 +107,7 @@ class HomeScreen extends StatelessWidget {
       )));
   }
 }
-
+/// STREAM BUILDER
 class UserInformation extends StatefulWidget {
   @override
   _UserInformationState createState() => _UserInformationState();
@@ -142,6 +141,7 @@ class _UserInformationState extends State<UserInformation> {
 }
 
 
+/// Charging data on INIT
 class UserList extends StatelessWidget {
   const UserList({Key? key}) : super(key: key);
 
@@ -150,6 +150,7 @@ class UserList extends StatelessWidget {
     return ValueListenableBuilder(valueListenable: _listNotifier, builder: (context, value, child) {
       return ListView.builder(
           itemCount: _listNotifier.value.length,
+          physics: BouncingScrollPhysics(),
           itemBuilder: (context, index) {
             return MarvalUserTile(user: _listNotifier.value[index]);
           },
@@ -157,7 +158,6 @@ class UserList extends StatelessWidget {
     });
   }
 }
-
 class MarvalUserTile extends StatelessWidget {
   const MarvalUserTile({required this.user, Key? key}) : super(key: key);
   final MarvalUser user;
@@ -190,7 +190,7 @@ class MarvalUserTile extends StatelessWidget {
           children: [
             TextH2("${user.name.maxLength(20)}", size: 4, ),
             TextP2("  ${user.work.maxLength(19)}", color: kGrey,size: 3),
-            TextP2("  Recomposicion", color: kGrey, size: 3,),
+            TextP2("  ${user.hobbie?.maxLength(19)}", color: kGrey, size: 3,),
           ],
         )],)),
         Container(width: 35.w,

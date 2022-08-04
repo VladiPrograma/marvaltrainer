@@ -10,7 +10,7 @@ class UserHandler{
   UserHandler.create() : list = <MarvalUser>[];
 
   Future<void> getFromDB() async {
-    QuerySnapshot querySnapshot = await usersDB.get();
+    QuerySnapshot querySnapshot = await usersDB.orderBy('hobbie',descending: true).get();
     final allData = querySnapshot.docs.map((doc) => doc.data()).toList();
     for(var data in allData){
       Map<String, dynamic> map = data as Map<String, dynamic>;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:marvaltrainer/constants/components.dart';
+import 'package:marvaltrainer/constants/global_variables.dart';
 import 'package:marvaltrainer/constants/theme.dart';
 import 'package:marvaltrainer/widgets/marval_snackbar.dart';
 import 'package:sizer/sizer.dart';
@@ -96,25 +97,24 @@ class _LogInForm extends StatelessWidget {
               onSaved: (value){_email = value!;},
             ),
             SizedBox(height: 3.h),
-             Container(width: 100.w, height: 12.h, child:
-             ValueListenableBuilder(
+            _DropDown(),
+            Container(width: 63.w, height: 3.h,
+             padding: EdgeInsets.only(top: 1.h),
+             child: ValueListenableBuilder(
               valueListenable: _notifier,
               builder: (context, value, child) {
-              return Column(children: [
-              _DropDown(),
-              Container(width: 63.w,
-              padding: EdgeInsets.only(top: 1.h),
-                child:Visibility(
-                visible: _notifier.value == _list.first && _validated,
+              return Visibility(
+                visible: _notifier.value.isEmpty,
                 child: Text('Campo requerido',
                 style: TextStyle(fontSize: 3.w, fontFamily: h2, color: kRed, overflow: TextOverflow.visible),)
-              ))]);})),
+              );
+            })),
             SizedBox(height: 5.h),
             MarvalElevatedButton(
               "Dar de Alta",
               onPressed:  () async{
                 // Validate returns true if the form is valid, or false otherwise.
-                if (_formKey.currentState!.validate()&&_notifier.value!=_list.first) {
+                if (_formKey.currentState!.validate()&&_notifier.value!=_list.first&&_notifier.value.isNotEmpty) {
                   _formKey.currentState!.save();
                   _validated = false;
                   bool isRegistered =await MarvalUser.isNotRegistered(_email);
@@ -127,16 +127,18 @@ class _LogInForm extends StatelessWidget {
                     }
                     MarvalUser _newUser = MarvalUser.create(_uid, normalize(_name)!, _email, _notifier.value);
                     _newUser.setInDB();
+                    handler.addUser(_newUser);
                     // Refresh Screen
                     _notifier.value = _list.first;
                     _mailController.clear();
                     _nameController.clear();
+                    // SnackBar
                     MarvalSnackBar(context, SNACKTYPE.success, title: "Usuario registrado con exito", subtitle: 'Ya puedes configurar el entrenamiento del usuario.');
-
+                  }else{
+                    MarvalSnackBar(context, SNACKTYPE.alert, title: "Error al registrar usuario", subtitle: 'El email proporcionado se encuentra actualmente registrado en la base de datos');
                   }
                 }else{
-                  _validated = true;
-                  MarvalSnackBar(context, SNACKTYPE.alert, title: "Error al registrar usuario", subtitle: 'El email proporcionado se encuentra actualmente registrado en la base de datos');
+                  _notifier.value = "";
                 }
               },
             ),
@@ -152,6 +154,7 @@ final TextEditingController _nameController = TextEditingController();
 final TextEditingController _mailController = TextEditingController();
 final ValueNotifier<String> _notifier = ValueNotifier(_list.first);
 bool _validated = false;
+
 class _DropDown extends StatefulWidget {
   const _DropDown({Key? key}) : super(key: key);
   @override
@@ -177,7 +180,7 @@ class _DropDownState extends State<_DropDown> {
           borderRadius:BorderRadius.all(Radius.circular(4.w)),
           icon:  const Icon(Icons.arrow_drop_down, color: kBlack),
           underline: Container(),
-          value: _notifier.value,
+          value: _notifier.value.isEmpty ? _list.first : _notifier.value,
           items: _list.map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(
               value: value,

@@ -5,7 +5,7 @@ import '../../constants/string.dart';
 import '../marval_arq.dart';
 
 class Planing{
-  static CollectionReference currentUserDB = FirebaseFirestore.instance.collection("planing");
+  static CollectionReference planingDB = FirebaseFirestore.instance.collection("users_curr");
   String id;
   int? steps;
   List<String>? habits;
@@ -26,9 +26,9 @@ class Planing{
         lastUpdate = map["last_update"].toDate();
 
 
-  static Future<bool> currentUserExists(String? uid) async{
+  static Future<bool> PlaningExists(String? uid) async{
     if(isNull(uid)){ return false;}
-    DocumentSnapshot ds = await currentUserDB.doc(uid).get();
+    DocumentSnapshot ds = await planingDB.doc(uid).get();
     return ds.exists;
 
   }
@@ -36,14 +36,14 @@ class Planing{
 
 
   static Future<Planing> getFromBD(String uid) async {
-    DocumentSnapshot doc = await currentUserDB.doc(uid).get();
+    DocumentSnapshot doc = await planingDB.doc(uid).get();
     Map<String, dynamic>? map  = toMap(doc);
     return Planing.fromJson(map!);
   }
 
   Future<void> setInDB(){
     // Call the user's CollectionReference to add a new user
-    return currentUserDB
+    return planingDB
         .doc(id).set({
       'id': id, // UID
       'steps': steps, // 1012
@@ -55,9 +55,9 @@ class Planing{
         .catchError((error) => logError("$logErrorPrefix Failed to Add User Current Training: $error"));
   }
 
-  Future<void> uploadCurrentUser(Map<String, Object> map){
+  Future<void> uploadPlaning(Map<String, Object> map){
     // Call the user's CollectionReference to add a new user
-    return currentUserDB
+    return planingDB
         .doc(id).update(map)
         .then((value) => logSuccess("$logSuccessPrefix User Current Training Uploaded"))
         .catchError((error) => logError("$logErrorPrefix Failed to Upload User Current Training: $error"));
