@@ -84,7 +84,7 @@ class TextP2 extends StatelessWidget {
       textAlign: TextAlign.justify,
       style: TextStyle(
         fontFamily: p2,
-        fontSize: size?.w,
+        fontSize: size?.w ?? 4.w,
         color: color ?? kBlack,
       ),
     );

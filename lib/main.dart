@@ -1,5 +1,5 @@
+import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
-import 'package:marvaltrainer/modules/alta/add_users_screen.dart';
 import 'package:sizer/sizer.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -23,7 +23,7 @@ void main() async{
   );
    authUser = getCurrUser();
    await handler.getFromDB();
-   runApp(MyApp());
+   runApp(CreatorGraph(child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {

@@ -1,5 +1,6 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 import '../../constants/string.dart';
@@ -42,21 +43,20 @@ User? getCurrUser(){  return FirebaseAuth.instance.currentUser; }
 /// Only MarvalTrainer
 ///@TODO Try to change this method with one more logical and clean
 Future<String?> SignUp(String email, String password) async{
+  FirebaseApp app = await Firebase.initializeApp(
+      name: 'Secondary', options: Firebase.app().options);
   try {
-    UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: email,
-        password: password
-    );
-    FirebaseAuth.instance.signOut();
-    await SignIn('mario@gmail.com', 'hector10ten');
+    UserCredential userCredential = await FirebaseAuth.instanceFor(app: app)
+        .createUserWithEmailAndPassword(email: email, password: password);
     return userCredential.user!.uid;
   } on FirebaseAuthException catch (e) {
     if (e.code == 'weak-password') {
+
       print('The password provided is too weak.');
     } else if (e.code == 'email-already-in-use') {
       print('The account already exists for that email.');
     }
-  } catch (e) {
-    print(e);
+
   }
+  await app.delete();
 }

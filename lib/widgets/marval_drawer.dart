@@ -7,6 +7,7 @@ import '../constants/colors.dart';
 import '../constants/global_variables.dart';
 import '../constants/theme.dart';
 import '../core/login/login_screen.dart';
+import '../modules/chat/chat_global_screen.dart';
 import '../modules/home/home_screen.dart';
 import '../utils/marval_arq.dart';
 
@@ -54,14 +55,14 @@ class MarvalDrawer extends StatelessWidget {
             ),
           ),
           GestureDetector(
-            onTap: (){},
+            onTap: (){ Navigator.popAndPushNamed(context, ChatGlobalScreen.routeName);},
             child: ListTile(
               leading: Icon(CustomIcons.chat_empty, color: name=="Chat" ? kGreen : kBlack, size: 6.w,),
               title: TextH2('Chat', size: 4, color: name=="Chat" ? kGreen : kBlack),
             ),
           ),
           GestureDetector(
-            onTap: (){},
+            onTap: (){ Navigator.popAndPushNamed(context, LoginScreen.routeName);},
             child: ListTile(
               leading: Icon(CustomIcons.gym,color: name=="Ejercicios" ? kGreen : kBlack, size: 6.w,),
               title: TextH2('Ejercicios', size: 4, color: name=="Ejercicios" ? kGreen : kBlack),

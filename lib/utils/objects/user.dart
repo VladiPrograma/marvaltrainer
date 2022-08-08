@@ -60,6 +60,20 @@ class MarvalUser{
     lastUpdate = map["last_update"].toDate(),
     dailys = <String, Daily>{};
 
+  MarvalUser.empty()
+      : id = "",
+        email = "",
+        name = "",
+        lastName = "",
+        work = "",
+        hobbie = "",
+        active = true,
+        lastWeight = 0,
+        currWeight = 0,
+        dailys = <String, Daily>{},
+        update = DateTime.now(),
+        lastUpdate = DateTime.now();
+
   Future<void> getDetails() async => details = await Details.getFromDB(id);
 
   Future<void> getCurrentTraining() async => currenTraining = await Planing.getFromBD(id);

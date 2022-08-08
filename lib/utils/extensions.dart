@@ -1,3 +1,13 @@
+extension StringFormat on String{
+
+  String maxLength(int num){
+    if(length>num){
+      return substring(0, num);
+    }
+    return this;
+  }
+}
+
 extension DateFormat on DateTime{
   String toStringMonth(){
     switch(month){
@@ -28,6 +38,9 @@ extension DateFormat on DateTime{
       default : return "";
     }
   }
+  String toFormatStringDate(){ return '$day-$month-$year';}
+  String toFormatStringHour(){ return '$hour:${minute>10 ? minute : '0$minute'} ${hour<12? 'am' : 'pm'}';}
+
   String iDay(){
     String dayValue = day.toString();
     if(dayValue.length == 1){
@@ -63,12 +76,3 @@ extension DateFormat on DateTime{
   }
 }
 
-extension StringFormat on String{
-
-  String maxLength(int num){
-    if(length>num){
-      return substring(0, num);
-    }
-    return this;
-  }
-}

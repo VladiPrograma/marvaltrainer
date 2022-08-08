@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:marvaltrainer/constants/components.dart';
 import 'package:marvaltrainer/utils/extensions.dart';
 import 'package:marvaltrainer/widgets/marval_drawer.dart';
 import 'package:sizer/sizer.dart';
@@ -10,7 +11,6 @@ import '../../constants/colors.dart';
 import '../../constants/global_variables.dart';
 import '../../constants/string.dart';
 import '../../constants/theme.dart';
-import '../../constants/components.dart';
 
 import '../../utils/decoration.dart';
 import '../../utils/marval_arq.dart';
@@ -21,7 +21,7 @@ import '../../utils/objects/user.dart';
 /// @TODO Add common Profile Photo to Storage and let URL on User.create
 /// @TODO Change the Details hobbie to User Hobbie
 
-ValueNotifier<List<MarvalUser>> _listNotifier = ValueNotifier(handler.list);
+ValueNotifier<List<MarvalUser>> listNotifier = ValueNotifier(handler.list);
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
   static String routeName = "/home";
@@ -94,7 +94,7 @@ class HomeScreen extends StatelessWidget {
                           ),
                           onChanged: (value) {
                             ///Search logic
-                            _listNotifier.value= handler.list.where((element) =>
+                            listNotifier.value= handler.list.where((element) =>
                                 element.name.
                                 toLowerCase().
                                 contains(value.toLowerCase()))
@@ -144,15 +144,14 @@ class _UserInformationState extends State<UserInformation> {
 /// Charging data on INIT
 class UserList extends StatelessWidget {
   const UserList({Key? key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(valueListenable: _listNotifier, builder: (context, value, child) {
+    return ValueListenableBuilder(valueListenable: listNotifier, builder: (context, value, child) {
       return ListView.builder(
-          itemCount: _listNotifier.value.length,
+          itemCount: listNotifier.value.length,
           physics: BouncingScrollPhysics(),
           itemBuilder: (context, index) {
-            return MarvalUserTile(user: _listNotifier.value[index]);
+            return MarvalUserTile(user: listNotifier.value[index]);
           },
         );
     });
@@ -175,7 +174,7 @@ class MarvalUserTile extends StatelessWidget {
         children: [
         Container(
         decoration: BoxDecoration(
-          boxShadow: [kDarkShadow],
+          boxShadow: [kMarvalHardShadow],
           borderRadius: BorderRadius.circular(100.w)
         ),
         child: CircleAvatar(
