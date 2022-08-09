@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 
 import '../../config/custom_icons.dart';
+import '../../config/log_msg.dart';
 import '../../constants/colors.dart';
 import '../../constants/string.dart';
 import '../../constants/global_variables.dart';
@@ -47,7 +48,7 @@ class LoginScreen extends StatelessWidget {
                           color: kGrey
                       )),
                   SizedBox(height: 5.h,),
-                  _LogInForm(),
+                  const _LogInForm(),
                 ])),
       )
       ),
@@ -55,16 +56,16 @@ class LoginScreen extends StatelessWidget {
   }
 }
 
+String _email= "";
+String _password= "";
+String? _loginErrors;
 
 class _LogInForm extends StatelessWidget {
   const _LogInForm({Key? key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     final _formKey = GlobalKey<FormState>();
-    String _email= "";
-    String _password= "";
-    String? _loginErrors;
+    logInfo('Login Page rebuilt');
     return Form(
         key: _formKey,
         child: Column(
@@ -77,9 +78,9 @@ class _LogInForm extends StatelessWidget {
               keyboardType: TextInputType.emailAddress,
               validator: (value){
                 if(isNullOrEmpty(value)){
-                  return kInputErrorEmptyValue;
+                  return kEmptyValue;
                 }if(!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(value!)){
-                  return kInputErrorEmailMissmatch;
+                  return kEmailMissmatch;
                 }
                 return null;
               },
@@ -87,26 +88,11 @@ class _LogInForm extends StatelessWidget {
               onChanged: (value){ _loginErrors = null; },
             ),
             SizedBox(height: 5.h,),
-            MarvalInputTextField(
-              labelText: 'Contraseña',
-              hintText: "********",
-              prefixIcon: CustomIcons.lock,
-              keyboardType: TextInputType.visiblePassword,
-              obscureText: true,
-              validator: (value){
-                if(isNullOrEmpty(value)){
-                  return kInputErrorEmptyValue;
-                }
-                return _loginErrors;
-              },
-              onSaved: (value){ _password = value!;},
-              onChanged: (value){ _loginErrors = null; },
-            ),
+            PasswordTextField(),
             SizedBox(height: 5.h),
             MarvalElevatedButton(
               "Comenzar",
               onPressed:  () async{
-
                 // Validate returns true if the form is valid, or false otherwise.
                 if (_formKey.currentState!.validate()) {
                   _formKey.currentState!.save();
@@ -123,7 +109,7 @@ class _LogInForm extends StatelessWidget {
                 }
               },
             ),
-            ResetPasswordButton(),
+            const ResetPasswordButton(),
             SizedBox(height: 5.h,),
           ],
         ));
@@ -168,9 +154,9 @@ class ResetPasswordButton extends StatelessWidget {
               keyboardType: TextInputType.emailAddress,
               validator: (value){
                 if(isNullOrEmpty(value)){
-                  return kInputErrorEmptyValue;
+                  return kEmptyValue;
                 }if(!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(value!)){
-                  return kInputErrorEmailMissmatch;
+                  return kEmailMissmatch;
                 }
                 return null;
               },
@@ -188,6 +174,51 @@ class ResetPasswordButton extends StatelessWidget {
   }
 }
 
+bool _hidePassword = true;
+class PasswordTextField extends StatefulWidget {
+  const PasswordTextField({Key? key}) : super(key: key);
+
+  @override
+  State<PasswordTextField> createState() => _PasswordTextFieldState();
+}
+class _PasswordTextFieldState extends State<PasswordTextField> {
+  @override
+  Widget build(BuildContext context) {
+    return Focus(
+      child: Builder(
+      builder: (context) {
+      final bool hasFocus = Focus.of(context).hasFocus;
+      return MarvalInputTextField(
+      labelText: 'Contraseña',
+      hintText:  '********',
+      prefixIcon: CustomIcons.lock,
+      suffixIcon: GestureDetector(
+        onLongPress: (){ setState(() {
+          _hidePassword = false;
+          final bool hasFocus = Focus.of(context).hasFocus;
+          logInfo(hasFocus);
+        }); },
+        onLongPressEnd: (details) {
+          setState(() {
+            _hidePassword = true;
+          });
+        },
+        child:  Icon( Icons.remove_red_eye, color: hasFocus ?  kWhite : kGreen,size: 7.w,),
+      ),
+      keyboardType: TextInputType.visiblePassword,
+      obscureText: _hidePassword,
+      validator: (value){
+        if(isNullOrEmpty(value)){
+          return kEmptyValue;
+        }
+        return _loginErrors;
+      },
+      onSaved: (value){ _password = value!;},
+      onChanged: (value){ _loginErrors = null; },
+    );
+    }));
+  }
+}
 
 
 

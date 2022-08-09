@@ -126,7 +126,6 @@ class _UserInformationState extends State<UserInformation> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: Text("Loading"),);
         }
-
         return ListView(
           children:  snapshot.data!.docs.map((DocumentSnapshot document) {
             Map<String, dynamic> map = document.data()! as Map<String, dynamic>;
@@ -142,6 +141,7 @@ class _UserInformationState extends State<UserInformation> {
 
 
 /// Charging data on INIT
+/// @TODO Change ValueListenable with Creator and Emitter states.
 class UserList extends StatelessWidget {
   const UserList({Key? key}) : super(key: key);
   @override
@@ -149,7 +149,7 @@ class UserList extends StatelessWidget {
     return ValueListenableBuilder(valueListenable: listNotifier, builder: (context, value, child) {
       return ListView.builder(
           itemCount: listNotifier.value.length,
-          physics: BouncingScrollPhysics(),
+          physics: const BouncingScrollPhysics(),
           itemBuilder: (context, index) {
             return MarvalUserTile(user: listNotifier.value[index]);
           },
@@ -157,6 +157,7 @@ class UserList extends StatelessWidget {
     });
   }
 }
+
 class MarvalUserTile extends StatelessWidget {
   const MarvalUserTile({required this.user, Key? key}) : super(key: key);
   final MarvalUser user;

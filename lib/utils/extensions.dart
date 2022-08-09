@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 extension StringFormat on String{
 
   String maxLength(int num){
@@ -5,6 +7,27 @@ extension StringFormat on String{
       return substring(0, num);
     }
     return this;
+  }
+
+  String normalize(){
+    String res = toLowerCase();
+    res = res.replaceFirst(res.characters.first, res.characters.first.toUpperCase());
+    return res;
+  }
+
+  String toCamellCase(){
+    List<String> _list = toLowerCase().split(" ");
+    String res = "";
+    for(String x in _list){
+      res+= x.replaceFirst(x.characters.first, x.characters.first.toUpperCase());
+      res+=" ";
+    }
+    return res.trim();
+  }
+
+  double? toDouble(){
+    try{  return  double.parse(replaceAll(',', '.')); }
+    catch(E){ return null;  }
   }
 }
 

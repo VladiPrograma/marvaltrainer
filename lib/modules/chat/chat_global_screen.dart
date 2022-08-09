@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:marvaltrainer/config/log_msg.dart';
+import 'package:marvaltrainer/modules/chat/chat_logic.dart';
 import 'package:marvaltrainer/utils/extensions.dart';
 import 'package:marvaltrainer/widgets/marval_drawer.dart';
 import 'package:sizer/sizer.dart';
@@ -20,22 +21,6 @@ import '../home/home_screen.dart';
 import 'chat_user_screen.dart';
 
 
-  Emitter createChatGlobalEmitter(String uid){
-    return Emitter.stream((ref) async {
-    return FirebaseFirestore.instance.collection('users/$uid/chat')
-        .orderBy('date',descending: true)
-        .limit(1)
-        .snapshots();
-  });
-  }
-  Message? getMsg(Ref ref, String uid){
-    if(isNull(emitterMap[uid])){return null;}
-    final query = ref.watch(emitterMap[uid]!.asyncData).data;
-    if(isNull(query)||query!.size==0){ return null; }
-    return Message.fromJson(query.docs.first.data());
-  }
-  Map<String, Emitter> emitterMap = {};
-
 class ChatGlobalScreen extends StatelessWidget {
   const ChatGlobalScreen({Key? key}) : super(key: key);
   static String routeName = "/chat_global";
@@ -46,17 +31,17 @@ class ChatGlobalScreen extends StatelessWidget {
         backgroundColor: kWhite,
         resizeToAvoidBottomInset: false,
         drawer: const MarvalDrawer(name: 'Chat',),
-        body:  Container( width: 100.w, height: 100.h,
+        body:  SizedBox( width: 100.w, height: 100.h,
         child: Stack(  children: [
         /// Grass Image
         Positioned( top: 0,
-          child: Container(width: 100.w, height: 30.h,
+          child: SizedBox(width: 100.w, height: 30.h,
             child: Image.asset('assets/images/grass.png', fit: BoxFit.cover,),
           )
         ),
         /// Home Text H1
         Positioned( top: 0,
-        child: Container(width: 100.w, height: 17.5.h,
+        child: SizedBox(width: 100.w, height: 17.5.h,
           child: Center(child: TextH1('Chat', size: 13,
           color: Colors.black.withOpacity(0.7),
           shadows: [
@@ -80,7 +65,7 @@ class ChatGlobalScreen extends StatelessWidget {
         Positioned(
             top: 14.5.h,
             left: 12.5.w,
-            child: Container(width: 75.w, height: 10.h,
+            child: SizedBox(width: 75.w, height: 10.h,
                 child:  TextField(
                   cursorColor: kWhite,
                   style: TextStyle( fontFamily: p1, color: kBlack, fontSize: 4.w),
@@ -119,12 +104,15 @@ class ChatGlobalScreen extends StatelessWidget {
 }
 
 /// Charging data on INIT
+///@TODO Make list appears ordered by the last msg sent.
 class UserList extends StatelessWidget {
   const UserList({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(valueListenable: listNotifier, builder: (context, value, child) {
-      return ListView.builder(
+    return ValueListenableBuilder(
+        valueListenable: listNotifier,
+        builder: (context, value, child) {
+        return ListView.builder(
         itemCount: listNotifier.value.length,
         physics: BouncingScrollPhysics(),
         itemBuilder: (context, index) {
@@ -134,8 +122,7 @@ class UserList extends StatelessWidget {
                 Navigator.pushNamed(context, ChatScreen.routeName);
               },
               child: MarvalChatTile(user: listNotifier.value[index])
-          );
-        }
+          );}
       );
     });
   }
@@ -146,17 +133,12 @@ class MarvalChatTile extends StatelessWidget {
   final MarvalUser user;
   @override
   Widget build(BuildContext context) {
-    if(isNull(emitterMap[user.id])){
-      emitterMap[user.id] = createChatGlobalEmitter(user.id);
-      logSuccess('Creao');
-
-    }
     return Container(width: 100.w, height: 12.h,
         padding: EdgeInsets.symmetric(horizontal: 2.5.w),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container( width: 92.w,
+            SizedBox( width: 92.w,
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -178,28 +160,38 @@ class MarvalChatTile extends StatelessWidget {
                         TextH2(user.name.maxLength(20), size: 4, ),
                         SizedBox(height: 0.5.h,),
                         Watcher((context, ref, _){
-                          final data = getMsg(ref, user.id);
-                          return TextP2( isNull(data) ? "" : data!.message.maxLength(40), size: 3.5, color: kGrey, );
+                          final data = getLastMessage(ref, user.id);
+                          return SizedBox(width: 53.w, child: TextP2( isNull(data) ? "" : data!.message, size: 3.5, color: kGrey, maxLines: 2, textAlign: TextAlign.start, ));
                         })
                       ]),
-                    Spacer(),
-                    Container(width: 14.w ,child:
+                    const Spacer(),
+                    SizedBox(width: 14.w ,child:
                     Watcher((context, ref, _){
-                      final data = getMsg(ref, user.id);
+                      final int notifications = getUnreadMessages(ref, user.id) ?? 0;
+                      final data = getLastMessage(ref, user.id);
                       return Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        TextH2( isNull(data) ? "" : data!.date.toFormatStringHour(), size: 2.5, color: kGrey, ),
-                        Visibility(
-                            visible: isNotNull(data),
-                            child: Container(width: 10.w, height: 8.w,
+                            isNotNull(notifications) && notifications != 0 ?
+                            Container(width: 5.w, height: 5.w,
                             decoration: BoxDecoration(
-                                color: kGreen.withOpacity(0.9),
-                                boxShadow: [kMarvalBoxShadow],
-                                borderRadius: BorderRadius.circular(10.w)
+                                color: kGreen,
+                                borderRadius: BorderRadius.circular(7.w)
                             ),
-                            child: Center(child:  TextH2('3', color: kWhite,),)
-                        )),
+                            child: Center(child:
+                            TextH1(isNotNull(notifications)
+                                ? notifications.toString() : '',
+                                color: kWhite,
+                                size: 2.5,
+                            ))
+                        ): SizedBox(width: 5.w, height: 5.w,),
+                        SizedBox(height: 1.5.h,),
+                        TextH2(
+                          isNull(data) ? "" : data!.date.toFormatStringHour(),
+                          size: 2.5,
+                          color: kGrey,
+                        ),
                       ]);}))
                   ])),
           ]));

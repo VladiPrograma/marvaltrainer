@@ -1,5 +1,8 @@
+import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
+import 'package:marvaltrainer/config/log_msg.dart';
 import 'package:marvaltrainer/modules/alta/add_users_screen.dart';
+import 'package:marvaltrainer/modules/chat/chat_logic.dart';
 import 'package:sizer/sizer.dart';
 
 import '../config/custom_icons.dart';
@@ -19,9 +22,9 @@ class MarvalDrawer extends StatelessWidget {
     final String userName = authUser!.displayName!;
     return Drawer(
       backgroundColor: kWhite,
-      child: Container( height: 100.h,
+      child: SizedBox( height: 100.h,
         child: ListView(
-        physics: NeverScrollableScrollPhysics(),
+        physics: const NeverScrollableScrollPhysics(),
         padding: EdgeInsets.symmetric(horizontal: 3.w),
         children:  <Widget>[
           SizedBox(height: 39.h,
@@ -58,7 +61,19 @@ class MarvalDrawer extends StatelessWidget {
             onTap: (){ Navigator.popAndPushNamed(context, ChatGlobalScreen.routeName);},
             child: ListTile(
               leading: Icon(CustomIcons.chat_empty, color: name=="Chat" ? kGreen : kBlack, size: 6.w,),
-              title: TextH2('Chat', size: 4, color: name=="Chat" ? kGreen : kBlack),
+              title: Watcher((context, ref, _) {
+                int notifications = 0;
+                handler.list.forEach((user) =>
+                  notifications += getUnreadMessages(ref, user.id) ?? 0);
+                return Row( children: [
+                  TextH2('Chat', size: 4, color: name == "Chat" ? kGreen : kBlack),
+                  SizedBox(width: 3.w,),
+                  notifications == 0 ?
+                  const SizedBox()
+                  :
+                  CircleAvatar( radius: 2.w, backgroundColor: kRed, child: TextH1('$notifications', color: kWhite, size: 2,),)
+                ]);
+              }),
             ),
           ),
           GestureDetector(
@@ -86,7 +101,7 @@ class MarvalDrawer extends StatelessWidget {
           ),
 
           SizedBox(height: 3.h,),
-          Container( height: 15.h,
+          SizedBox( height: 15.h,
             child: Image.asset('assets/images/marval_logo.png'),)
         ],
       ),

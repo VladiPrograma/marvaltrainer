@@ -1,52 +1,30 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:creator/creator.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:marvaltrainer/constants/global_variables.dart';
-import 'package:marvaltrainer/constants/theme.dart';
-import 'package:marvaltrainer/utils/decoration.dart';
-import 'package:marvaltrainer/utils/extensions.dart';
-import 'package:marvaltrainer/utils/marval_arq.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../config/custom_icons.dart';
 import '../../constants/colors.dart';
 import '../../constants/components.dart';
+import '../../constants/global_variables.dart';
 import '../../constants/string.dart';
+import '../../constants/theme.dart';
+
+import '../../utils/extensions.dart';
+import '../../utils/decoration.dart';
+import '../../utils/marval_arq.dart';
 import '../../utils/objects/message.dart';
 import '../../utils/objects/user.dart';
 import '../../widgets/marval_drawer.dart';
 
+import 'chat_logic.dart';
 
 
-final _page = Creator.value(1);
-void fetchMore(Ref ref) => ref.update<int>(_page, (n) => n + 1);
-
-final chatCreator = Emitter.stream((ref) async {
-  return FirebaseFirestore.instance.collection('users/${chatUser.id}/chat')
-      .orderBy('date',descending: true)
-      .limit(10*ref.watch(_page))
-      .snapshots();
-});
-List<Message>? getMsg(Ref ref){
-  final query = ref.watch(chatCreator.asyncData).data;
-  if(isNull(query)||query!.size==0){ return null; }
-  List<Message> list = [];
-  for (var element in [...query.docs]){
-    list.add(Message.fromJson(element.data()));
-  }
-  return list;
-}
 
 final TextEditingController _controller = TextEditingController();
 
 ScrollController returnController(Ref ref){
   ScrollController  res = ScrollController();
-  res.addListener((){
-    if(res.position.maxScrollExtent==res.offset){
-      fetchMore(ref);
-    }
-  });
+  res.addListener((){ if(res.position.maxScrollExtent==res.offset){ fetchMoreMessages(ref); }});
   return res;
 }
 
@@ -60,21 +38,28 @@ class ChatScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: kWhite,
       drawer: const MarvalDrawer(name: 'Chat',),
-      body:  Container( width: 100.w, height: 100.h,
+      body:  SizedBox( width: 100.w, height: 100.h,
           child: Stack(
               children: [
                 /// Grass Image */
                 Positioned( top: 0,
-                    child: Container(width: 100.w, height: 12.h,
-                        child: Image.asset('assets/images/grass.png', fit: BoxFit.cover))
+                 child: SizedBox(width: 100.w, height: 12.h,
+                 child: Image.asset(
+                    'assets/images/grass.png',
+                    fit: BoxFit.cover
+                 )),
                 ),
                 ///White Container */
                 Positioned( top: 8.h,
-                    child: Container(width: 100.w, height: 10.h,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(topLeft: Radius.circular(10.w), topRight: Radius.circular(10.w)),
-                            color: kWhite
-                        ))),
+                child: Container(width: 100.w, height: 10.h,
+                decoration: BoxDecoration(
+                    color: kWhite,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10.w),
+                      topRight: Radius.circular(10.w)
+                    ),
+                ))
+                ),
                 /// Marval Trainer Data */
                 Positioned(  top: 1.h, left: 8.w,
                     child: SafeArea(
@@ -97,72 +82,71 @@ class ChatScreen extends StatelessWidget {
                     child:  Container(width: 100.w, height: 72.h,
                         padding: EdgeInsets.only( bottom: MediaQuery.of(context).viewInsets.bottom),
                         child: ClipRRect(
-                            borderRadius: BorderRadius.vertical(top: Radius.circular(15.w)),
-                            child: Watcher((context, ref, child) {
-                              final data = getMsg(ref);
-                              if(isNull(data)||data!.isEmpty){
-                                return SizedBox();
-                              }
+                        borderRadius: BorderRadius.vertical( top: Radius.circular(15.w) ),
+                        child: Watcher((context, ref, child) {
+                              //Logic
+                              final data = getLoadMessages(ref);
+                              if(isNull(data)||data!.isEmpty){ return const SizedBox(); }
                               DateTime firstDate = data.first.date;
+                              //Widgets
                               return ListView.separated(
-                                  reverse: true,
-                                  controller: returnController(ref),
-                                  itemCount: data.length,
-                                  separatorBuilder: (context, index) {
-                                    if(isNotNull(data[index+1])&& firstDate.day != data[index+1].date.day){
-                                      firstDate = data[index+1].date;
-                                      return Container(
-                                          padding: EdgeInsets.only(bottom: 1.h),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              Container(width: 30.w, height: 0.5.w, color: kGrey, ),
-                                              TextP2(' ${firstDate.toFormatStringDate()} ', color: kGrey,),
-                                              Container(width: 30.w, height: 0.5.w, color: kGrey, )
-                                            ],
-                                          ));
-                                    }
-                                    return SizedBox();
-                                  },
-                                  itemBuilder: (context, index){
-                                    Message msg = data[index];
-                                    return MessageBox(msg: msg);
-                                  });
-                            })))),
+                              reverse: true,
+                              itemCount: data.length,
+                              controller: returnController(ref),
+                              separatorBuilder: (context, index) {
+                                Message? message  = data[index+1];
+                                if(isNotNull(message) && firstDate.day != message.date.day){
+                                  firstDate = message.date;
+                                  return Container(
+                                   padding: EdgeInsets.only(bottom: 1.h),
+                                   child: Row(  mainAxisAlignment: MainAxisAlignment.center,
+                                   children: [
+                                     Container(width: 30.w, height: 0.5.w, color: kGrey, ),
+                                     TextP2(' ${firstDate.toFormatStringDate()} ', color: kGrey,),
+                                     Container(width: 30.w, height: 0.5.w, color: kGrey, )
+                                   ]));
+                                }
+                                return const SizedBox();
+                              },
+                              itemBuilder: (context, index){
+                                Message message = data[index];
+                                return MessageBox(message: message);
+                              });
+                })))),
                 /// TextField */
                 Positioned(bottom: 3.w, left: 5.w,
                   child: SizedBox( width: 90.w,
                     child: TextField(
-                      onTap: () {
-                        fetchMore(context.ref);
-                      },
+                      onTap: () { fetchMoreMessages(context.ref); },
                       controller: _controller,
+                      cursorColor: kGreen,
+                      style: TextStyle(fontSize: 4.w, fontFamily: p2, color: kBlack),
                       decoration: InputDecoration(
-                          fillColor: kWhite,
                           filled: true,
+                          fillColor: kWhite,
                           border: OutlineInputBorder(
                             borderSide: BorderSide.none,
                             borderRadius: BorderRadius.all(Radius.circular(4.w)),
                           ),
                           hintText: 'Escribe algo',
                           hintStyle: TextStyle(fontSize: 4.w, fontFamily: p2, color: kGrey),
+                          ///@TODO Let user send Audios
+                          ///@TODO Let user send Images
                           prefixIcon: Icon(CustomIcons.camera, color: kBlack, size: 6.w,),
                           suffixIcon: GestureDetector(
                             onTap:(){
                               if(isNotEmpty(_controller.text)){
-                                Message newMsg = Message.create(_controller.text, MessageType.text);
-                                newMsg.setInDBMessageFromTrainer();
+                                Message newMessage = Message.create(
+                                    message: _controller.text,
+                                    type: MessageType.text
+                                );
+                                newMessage.setInDBFromTrainer();
                               }
                               _controller.text="";
                             },
                             child: Icon(Icons.send_rounded, color: kBlack, size: 7.w,),
-                          )
-
-                      ),
-                      style: TextStyle(fontSize: 4.w, fontFamily: p2, color: kBlack),
-                      cursorColor: kGreen,
-                    ),
-                  ),),
+                      )),
+                    ))),
               ])),
     );
   }
@@ -176,18 +160,18 @@ class BoxUserData extends StatelessWidget {
     return Row(
       children: [
         Container(
-            decoration: BoxDecoration(
-              boxShadow: [kMarvalHardShadow],
-              borderRadius: BorderRadius.all(Radius.circular(100.w)),
-            ),
-            child: CircleAvatar(
-                backgroundColor: kBlack,
-                radius: 6.h,
-                backgroundImage:  isNullOrEmpty(user.profileImage) ?
-                null
-                    :
-                Image.network(user.profileImage!, fit: BoxFit.fitHeight).image
-            )),
+          decoration: BoxDecoration(
+            boxShadow: [kMarvalHardShadow],
+            borderRadius: BorderRadius.all(Radius.circular(100.w)),
+          ),
+          child: CircleAvatar(
+              radius: 6.h,
+              backgroundColor: kBlack,
+              backgroundImage:  isNotNullOrEmpty(user.profileImage)   ?
+              Image.network(user.profileImage!, fit: BoxFit.fitHeight).image
+              :
+              null
+          )),
         SizedBox(width: 2.w),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -203,21 +187,21 @@ class BoxUserData extends StatelessWidget {
 }
 
 class MessageBox extends StatelessWidget {
-  const MessageBox({required this.msg, Key? key}) : super(key: key);
-  final Message msg;
+  const MessageBox({required this.message, Key? key}) : super(key: key);
+  final Message message;
   int getMarginSize(){
     const List<int> sizes = [0, 4, 8, 12, 16, 20];
-    const List<int> margins = [77,70,61,53,42,29];
+    const List<int> margins = [77,70,58,48,38,28];
     int labelSize = 0;
     for (var element in sizes) {
-      if(msg.message.length>=element) labelSize++;
+      if(message.message.length>=element) labelSize++;
     }
     return margins[labelSize-1];
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool fromUser = msg.user != authUser!.uid;
+    final bool fromUser = message.user != authUser!.uid;
 
     return Column(
         crossAxisAlignment: fromUser ? CrossAxisAlignment.start : CrossAxisAlignment.end,
@@ -236,10 +220,10 @@ class MessageBox extends StatelessWidget {
             ),
             color: fromUser ? kBlack : kBlue,
           ),
-          child: TextH2(msg.message, color: kWhite, size: 4),
+          child: TextH2(message.message, color: kWhite, size: 4),
         ),
           Padding(padding: EdgeInsets.only(left: 4.w, right: 4  .w, bottom: 1.h,),
-              child: TextP2(msg.date.toFormatStringHour(), color: kGrey,))
+              child: TextP2(message.date.toFormatStringHour(), color: kGrey,))
         ]);
   }
 }

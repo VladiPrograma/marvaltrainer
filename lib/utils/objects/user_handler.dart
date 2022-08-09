@@ -19,10 +19,8 @@ class UserHandler{
     }
   }
 
-  void addUser(MarvalUser user){
-    ///@TODO add Logic for make sure that we dont add one user 2 times
-    list.add(user);
-  }
+  ///@TODO add Logic for make sure that we dont add one user 2 times
+  void addUser(MarvalUser user){  list.add(user); }
 
   @override
   String toString() {

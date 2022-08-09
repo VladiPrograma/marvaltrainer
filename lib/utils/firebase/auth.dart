@@ -23,8 +23,8 @@ Future<String?> SignIn(String email, String password) async{
         password: password
     );
   } on FirebaseAuthException catch (e) {
-    if (e.code == 'user-not-found') { return kInputErrorEmail; }
-    else if (e.code == 'wrong-password') { return kInputErrorPassword; }
+    if (e.code == 'user-not-found') { return kEmail; }
+    else if (e.code == 'wrong-password') { return kPassword; }
   }
   return null;
 }
@@ -51,7 +51,6 @@ Future<String?> SignUp(String email, String password) async{
     return userCredential.user!.uid;
   } on FirebaseAuthException catch (e) {
     if (e.code == 'weak-password') {
-
       print('The password provided is too weak.');
     } else if (e.code == 'email-already-in-use') {
       print('The account already exists for that email.');

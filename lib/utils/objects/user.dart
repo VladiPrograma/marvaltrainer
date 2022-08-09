@@ -11,7 +11,9 @@ import 'user_daily.dart';
 import 'user_details.dart';
 
 class MarvalUser{
+
   static CollectionReference usersDB = FirebaseFirestore.instance.collection("users");
+
   String id;
   String name;
   String? objective;
@@ -29,50 +31,64 @@ class MarvalUser{
   Planing? currenTraining;
   Map<String, Daily>? dailys;
 
-  MarvalUser({required this.id, required this.name, required this.lastName,required this.email,required this.active, required this.objective, required this.hobbie, required this.work,this.profileImage, required this.lastWeight ,required this.currWeight, required this.update,  required this.lastUpdate});
+  MarvalUser({
+    required this.id,
+    required this.name,
+    required this.lastName,
+    required this.work,
+    required this.email,
+    required this.active,
+    required this.hobbie,
+    required this.objective,
+    required this.lastWeight,
+    required this.currWeight,
+    required this.update,
+    required this.lastUpdate,
+    this.profileImage,
+  });
 
   ///@TODO Check if i can delete "dailys"
-  MarvalUser.create(String? uid, this.name, this.email, this.objective)
-     : id = uid ?? FirebaseAuth.instance.currentUser!.uid,
-       lastName = "",
-       work = "",
+  MarvalUser.create({String? uid, required this.name, required this.email, required this.objective})
+        : id = uid ?? FirebaseAuth.instance.currentUser!.uid,
+     lastName = "",
+         work = "",
        hobbie = "",
        active = true,
-       lastWeight = 0,
-       currWeight = 0,
+   lastWeight = 0,
+   currWeight = 0,
        dailys = <String, Daily>{},
        update = DateTime.now(),
-       lastUpdate = DateTime.now();
+   lastUpdate = DateTime.now();
 
   MarvalUser.fromJson(Map<String, dynamic> map)
-   : id = map["id"],
-    name = map["name"],
-    lastName = map["last_name"],
-    hobbie = map["hobbie"],
-    objective = map["objective"],
-    email = map["email"],
-    active = map["active"],
-    work = map["work"],
-    profileImage  = map["profile_image"],
+          : id = map["id"],
+          name = map["name"],
+      lastName = map["last_name"],
+        hobbie = map["hobbie"],
+     objective = map["objective"],
+         email = map["email"],
+        active = map["active"],
+          work = map["work"],
+  profileImage = map["profile_image"],
     currWeight = map["curr_weight"],
     lastWeight = map["last_weight"],
-    update = map["update"].toDate(),
+        update = map["update"].toDate(),
     lastUpdate = map["last_update"].toDate(),
-    dailys = <String, Daily>{};
+        dailys = <String, Daily>{};
 
   MarvalUser.empty()
-      : id = "",
-        email = "",
-        name = "",
-        lastName = "",
-        work = "",
+         : id  = "",
+         email = "",
+          name = "",
+      lastName = "",
+          work = "",
         hobbie = "",
-        active = true,
-        lastWeight = 0,
-        currWeight = 0,
+    lastWeight = 0,
+    currWeight = 0,
         dailys = <String, Daily>{},
+        active = true,
         update = DateTime.now(),
-        lastUpdate = DateTime.now();
+    lastUpdate = DateTime.now();
 
   Future<void> getDetails() async => details = await Details.getFromDB(id);
 
@@ -80,20 +96,12 @@ class MarvalUser{
 
   Future<void> getDaily(DateTime date) async => dailys![date.iDay()]= await Daily.getFromDB(date);
 
-  static Future<bool> existsInDB(String? uid) async{
-    if(isNull(uid)){ return false;}
-    DocumentSnapshot ds = await usersDB.doc(uid).get();
-    return ds.exists;
-  }
-  static Future<bool> isNotRegistered(String? email) async{
-    if(isNull(email)){ return false;}
-    return  usersDB.where('email', isEqualTo: email).snapshots().isEmpty;
-
-  }
-  static Future<MarvalUser> getFromDB(String uid) async {
-    DocumentSnapshot doc = await usersDB.doc(uid).get();
-    Map<String, dynamic>? map  = toMap(doc);
-    return MarvalUser.fromJson(map!);
+  Future<void> uploadInDB(Map<String, Object> map){
+    // Call the user's CollectionReference to add a new user
+    return usersDB
+        .doc(id).update(map)
+        .then((value) => logSuccess("$logSuccessPrefix User Uploaded"))
+        .catchError((error) => logError("$logErrorPrefix Failed to Upload user: $error"));
   }
 
   Future<void> setInDB(){
@@ -117,13 +125,25 @@ class MarvalUser{
         .then((value) => logSuccess("$logSuccessPrefix User Added"))
         .catchError((error) => logError("$logErrorPrefix Failed to add user: $error"));
   }
-  Future<void> uploadInDB(Map<String, Object> map){
-    // Call the user's CollectionReference to add a new user
-    return usersDB
-        .doc(id).update(map)
-        .then((value) => logSuccess("$logSuccessPrefix User Uploaded"))
-        .catchError((error) => logError("$logErrorPrefix Failed to Upload user: $error"));
+
+  static Future<bool> existsInDB(String? uid) async{
+    if(isNull(uid)){ return false;}
+    DocumentSnapshot ds = await usersDB.doc(uid).get();
+    return ds.exists;
   }
+
+  static Future<bool> isNotRegistered(String? email) async{
+    if(isNull(email)){ return false;}
+    return  usersDB.where('email', isEqualTo: email).snapshots().isEmpty;
+  }
+
+  static Future<MarvalUser> getFromDB(String uid) async {
+    DocumentSnapshot doc = await usersDB.doc(uid).get();
+    Map<String, dynamic>? map  = toMap(doc);
+    return MarvalUser.fromJson(map!);
+  }
+
+
 
   @override
   String toString() {
@@ -141,11 +161,14 @@ class MarvalUser{
 
   }
 
+  ///@TODO Align this methods
   void updateWeight({required double weight, DateTime? date}){
     lastWeight = currWeight;
     currWeight = weight;
+
     lastUpdate = update;
     update = date ?? DateTime.now();
+
     if(lastWeight == 0){ lastWeight = weight; }
     uploadInDB({
       "last_weight" : lastWeight,
@@ -154,6 +177,7 @@ class MarvalUser{
       "update" : update
     });
   }
+
   void updateLastWeight({required double weight, required DateTime date}){
     lastWeight = weight;
     lastUpdate = date;

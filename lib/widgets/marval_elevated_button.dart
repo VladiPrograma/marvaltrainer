@@ -7,10 +7,12 @@ import '../constants/theme.dart';
 
 class MarvalElevatedButton extends StatefulWidget {
   const MarvalElevatedButton(String this.text,{required this.onPressed, this.backgroundColor, this.textColor, Key? key}) : super(key: key);
-  final Function() onPressed;
+
   final MaterialStateProperty<Color>? backgroundColor;
+  final Function() onPressed;
   final Color? textColor;
   final String? text;
+
   @override
   State<MarvalElevatedButton> createState() => _MarvalElevatedButtonState();
 }
