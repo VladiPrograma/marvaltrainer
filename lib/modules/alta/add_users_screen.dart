@@ -144,7 +144,7 @@ class _LogInForm extends StatelessWidget {
                     _formKey.currentState!.save();
                     if(!isRegistered){
                     // Backend
-                    String? _uid = await SignUp(_email, 'temporal1');
+                    String? _uid = await signUp(_email, 'temporal1');
                     if(isNull(_uid)){
                       MarvalSnackBar(context, SNACKTYPE.alert,
                           title: "Error al registrar usuario",

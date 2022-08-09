@@ -64,17 +64,12 @@ extension DateFormat on DateTime{
   String toFormatStringDate(){ return '$day-$month-$year';}
   String toFormatStringHour(){ return '$hour:${minute>10 ? minute : '0$minute'} ${hour<12? 'am' : 'pm'}';}
 
-  String iDay(){
-    String dayValue = day.toString();
-    if(dayValue.length == 1){
-      dayValue = '0$day';
-    }
-    return '$dayValue-$month-$year';
-  }
+  get id => '${day<10 ? '0$day' : '$day'}-$month-$year';
+
   DateTime lastMonday(){
     DateTime res = this;
     while(res.weekday!=1){
-      res= res.add(Duration(days: -1));
+      res= res.add(const Duration(days: -1));
     }
     return res;
   }

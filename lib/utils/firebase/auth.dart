@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import '../../constants/string.dart';
 import '../../widgets/marval_snackbar.dart';
 
-void ResetPassword(BuildContext context, String email){
+void resetPassword(BuildContext context, String email){
   FirebaseAuth.instance.sendPasswordResetEmail(email: email)
       .then((value) {
     MarvalSnackBar(context, SNACKTYPE.success, title: kResetPasswordSuccesTitle, subtitle: kResetPasswordSucessSubtitle);
@@ -15,7 +15,7 @@ void ResetPassword(BuildContext context, String email){
   });
 }
 
-Future<String?> SignIn(String email, String password) async{
+Future<String?> signIn(String email, String password) async{
   try {
     final credential = await FirebaseAuth.instance.
     signInWithEmailAndPassword(
@@ -30,9 +30,9 @@ Future<String?> SignIn(String email, String password) async{
 }
 
 
-bool LogOut() {
+bool logOut() {
   bool success = false;
-   FirebaseAuth.instance.signOut()
+  FirebaseAuth.instance.signOut()
       .whenComplete(() => success =  true)
       .onError((error, stackTrace) => success = false);
   return success;
@@ -42,7 +42,7 @@ User? getCurrUser(){  return FirebaseAuth.instance.currentUser; }
 
 /// Only MarvalTrainer
 ///@TODO Try to change this method with one more logical and clean
-Future<String?> SignUp(String email, String password) async{
+Future<String?> signUp(String email, String password) async{
   FirebaseApp app = await Firebase.initializeApp(
       name: 'Secondary', options: Firebase.app().options);
   try {

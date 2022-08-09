@@ -1,19 +1,17 @@
-import 'package:flutter/material.dart';
-import 'package:marvaltrainer/modules/home/home_screen.dart';
-
-import 'package:sizer/sizer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:sizer/sizer.dart';
 
-
-import '../../config/custom_icons.dart';
 import '../../config/log_msg.dart';
-import '../../constants/colors.dart';
-import '../../constants/string.dart';
-import '../../constants/global_variables.dart';
-import '../../constants/theme.dart';
-
+import '../../config/custom_icons.dart';
+import '../../modules/home/home_screen.dart';
 import '../../utils/firebase/auth.dart';
 import '../../utils/marval_arq.dart';
+
+import '../../constants/theme.dart' ;
+import '../../constants/string.dart';
+import '../../constants/colors.dart';
+import '../../constants/global_variables.dart';
 
 import '../../widgets/marval_dialogs.dart';
 import '../../widgets/marval_elevated_button.dart';
@@ -27,7 +25,6 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: kWhite,
       body: SafeArea(child:
@@ -40,13 +37,15 @@ class LoginScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset("assets/images/logo.png"),
-                  Container(width: 70.w, margin: EdgeInsets.only(right: 10.w),
-                      child: const TextH1( "Bienvenido!")),
-                  Container(width: 70.w,margin: EdgeInsets.only(right:10.w),
-                      child: const TextH2(
-                          'La forma de predecir el futuro es creándolo.',
-                          color: kGrey
-                      )),
+                  Container(width: 70.w,
+                   margin: EdgeInsets.only(right: 10.w),
+                   child: const TextH1( "Bienvenido!")),
+                  Container(width: 70.w,
+                   margin: EdgeInsets.only(right:10.w),
+                   child: const TextH2(
+                       'La forma de predecir el futuro es creándolo.',
+                       color: kGrey
+                   )),
                   SizedBox(height: 5.h,),
                   const _LogInForm(),
                 ])),
@@ -99,7 +98,7 @@ class _LogInForm extends StatelessWidget {
                   print('Email: $_email\nPassword: $_password');
 
                   /// We try to LogIn
-                  _loginErrors = await SignIn(_email, _password);
+                  _loginErrors = await signIn(_email, _password);
                   _formKey.currentState!.validate();
 
                   if(isNull(_loginErrors)&&isNotNull(FirebaseAuth.instance.currentUser)){
@@ -116,6 +115,7 @@ class _LogInForm extends StatelessWidget {
   }
 }
 
+bool _hidePassword = true;
 class ResetPasswordButton extends StatelessWidget {
   const ResetPasswordButton({Key? key}) : super(key: key);
 
@@ -168,13 +168,11 @@ class ResetPasswordButton extends StatelessWidget {
               height: 48,
               form: _form,
               richText: _richText,
-              onSucess: (){ ResetPassword(context, _email!); }
+              onSucess: (){ resetPassword(context, _email!); }
           );
         });
   }
 }
-
-bool _hidePassword = true;
 class PasswordTextField extends StatefulWidget {
   const PasswordTextField({Key? key}) : super(key: key);
 
@@ -193,18 +191,13 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
       hintText:  '********',
       prefixIcon: CustomIcons.lock,
       suffixIcon: GestureDetector(
-        onLongPress: (){ setState(() {
-          _hidePassword = false;
-          final bool hasFocus = Focus.of(context).hasFocus;
-          logInfo(hasFocus);
-        }); },
-        onLongPressEnd: (details) {
-          setState(() {
-            _hidePassword = true;
-          });
-        },
-        child:  Icon( Icons.remove_red_eye, color: hasFocus ?  kWhite : kGreen,size: 7.w,),
-      ),
+        onLongPress: () => setState(() => _hidePassword = false),
+        onLongPressEnd: (details) => setState(() => _hidePassword = true),
+        child:  Icon(
+          Icons.remove_red_eye,
+          size: 7.w,
+          color: hasFocus ?  kWhite : kGreen,
+        )),
       keyboardType: TextInputType.visiblePassword,
       obscureText: _hidePassword,
       validator: (value){

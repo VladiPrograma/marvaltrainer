@@ -39,14 +39,14 @@ class TextH2 extends StatelessWidget {
   final String? text;
   final double? size;
   final Color? color;
-  final double? height;
-  const TextH2(String this.text,{Key? key, this.size, this.color, this.height}) : super(key: key);
+  final TextAlign? textAlign;
+  const TextH2(String this.text,{Key? key,this.textAlign, this.size, this.color}) : super(key: key);
 
   Widget build(BuildContext context) {
     return Text(
       text ?? "",
+      textAlign: textAlign,
       style: TextStyle(
-        height: height,
         fontFamily: h2,
         fontSize: size?.w ?? 5.w,
         color: color ?? kBlack,

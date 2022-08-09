@@ -1,30 +1,34 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:marvaltrainer/utils/extensions.dart';
+
+import    '../marval_arq.dart';
 import '../../config/log_msg.dart';
-import '../../constants/global_variables.dart';
+import '../../utils/extensions.dart';
+
 import '../../constants/string.dart';
-import '../marval_arq.dart';
+import '../../constants/global_variables.dart';
 
 class Daily {
+
   static CollectionReference dailyDB = FirebaseFirestore.instance.collection("users/${authUser!.uid}/daily");
 
-  String id;
-  int sleep;
+  String   id;
   DateTime day;
-  double weight;
-  Map activities;
+  int      sleep;
+  double   weight;
+  Map      activities;
   List<String> habits;
 
-  Daily(
-      {required this.id,
-      required this.day,
-      required this.sleep,
-      required this.weight,
-      required this.habits,
-      required this.activities});
+  Daily({
+    required this.id,
+    required this.day,
+    required this.sleep,
+    required this.weight,
+    required this.habits,
+    required this.activities
+  });
 
   Daily.create({required this.day})
-      : id = day.iDay(),
+      : id = day.id(),
         sleep = 0,
         weight = 0,
         habits = [],
@@ -40,41 +44,32 @@ class Daily {
 
   Future<void> setInDB() {
     // Call the user's CollectionReference to add a new user
-    return dailyDB
-        .doc(id)
-        .set({
-          'id': id, // UID
-          'day': day, // 12/05/2022
-          'sleep': sleep, //1
-          'weight': weight, // 75.5
-          'habits': habits, // [Sol, Frio, Agradecer]
-          'activities': activities, // {}
-        })
-        .then((value) => logSuccess("$logSuccessPrefix User Daily  Added"))
-        .catchError((error) =>
-            logError("$logErrorPrefix Failed to add User Daily : $error"));
+    return dailyDB.doc(id).set({
+      'id': id, // UID
+      'day': day, // 12/05/2022
+      'sleep': sleep, //1
+      'weight': weight, // 75.5
+      'habits': habits, // [Sol, Frio, Agradecer]
+      'activities': activities, // {}
+    }).then((value) => logSuccess("$logSuccessPrefix User Daily  Added"))
+        .catchError((error) => logError("$logErrorPrefix Failed to add User Daily : $error"));
   }
 
   Future<void> uploadInDB(Map<String, Object> map) {
     // Call the user's CollectionReference to add a new user
-    return dailyDB
-        .doc(id)
-        .update(map)
+    return dailyDB.doc(id).update(map)
         .then((value) => logSuccess("$logSuccessPrefix User Daily Uploaded"))
-        .catchError((error) =>
-            logError("$logErrorPrefix Failed to Upload User Daily : $error"));
+        .catchError((error) => logError("$logErrorPrefix Failed to Upload User Daily : $error"));
   }
 
-  static Future<bool> existsInDB(DateTime value) async {
-    if (isNull(authUser)) {
-      return false;
-    }
-    DocumentSnapshot ds = await dailyDB.doc(value.iDay()).get();
+  static Future<bool> existsInDB(DateTime date) async {
+    if (isNull(authUser)) { return false; }
+    DocumentSnapshot ds = await dailyDB.doc(date.id).get();
     return ds.exists;
   }
 
   static Future<Daily> getFromDB(DateTime date) async {
-    DocumentSnapshot doc = await dailyDB.doc(date.iDay()).get();
+    DocumentSnapshot doc = await dailyDB.doc(date.id).get();
     Map<String, dynamic>? map = toMap(doc);
     return Daily.fromJson(map!);
   }

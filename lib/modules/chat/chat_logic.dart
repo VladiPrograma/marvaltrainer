@@ -39,8 +39,8 @@ import '../../constants/global_variables.dart';
         .snapshots();
   });
 
-  void _readMessages(List<Message> list ) =>
-         list.where((element) => element.user == chatUser.id && !element.read)
+  void _readMessages(List<Message> data ) =>
+        data.where((element) => element.user == chatUser.id && !element.read)
         .forEach((element) => element.updateRead() );
 
   Emitter createChatEmitter(String uid){

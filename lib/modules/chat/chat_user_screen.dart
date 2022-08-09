@@ -186,30 +186,28 @@ class BoxUserData extends StatelessWidget {
   }
 }
 
+const List<int> _sizes = [0, 4, 8, 12, 16, 20];
+const List<int> _margins = [77,65,53,41,29,15];
+
+int _getMarginSize(Message msg){
+  int labelSize = 0;
+  _sizes.where((size) => msg.message.length>=size).forEach((element)=> labelSize++);
+  return _margins[labelSize-1];
+}
 class MessageBox extends StatelessWidget {
   const MessageBox({required this.message, Key? key}) : super(key: key);
   final Message message;
-  int getMarginSize(){
-    const List<int> sizes = [0, 4, 8, 12, 16, 20];
-    const List<int> margins = [77,70,58,48,38,28];
-    int labelSize = 0;
-    for (var element in sizes) {
-      if(message.message.length>=element) labelSize++;
-    }
-    return margins[labelSize-1];
-  }
 
   @override
   Widget build(BuildContext context) {
     final bool fromUser = message.user != authUser!.uid;
-
     return Column(
         crossAxisAlignment: fromUser ? CrossAxisAlignment.start : CrossAxisAlignment.end,
         children:[ Container(
           padding: EdgeInsets.all(3.w),
           margin: EdgeInsets.only(
-              right: fromUser ? getMarginSize().w : 4.w,
-              left : fromUser ? 4.w : getMarginSize().w
+              right: fromUser ? _getMarginSize(message).w : 4.w,
+              left : fromUser ? 4.w : _getMarginSize(message).w
           ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.only(
@@ -220,7 +218,7 @@ class MessageBox extends StatelessWidget {
             ),
             color: fromUser ? kBlack : kBlue,
           ),
-          child: TextH2(message.message, color: kWhite, size: 4),
+          child: TextH2(message.message, color: kWhite, size: 4,textAlign: TextAlign.start),
         ),
           Padding(padding: EdgeInsets.only(left: 4.w, right: 4  .w, bottom: 1.h,),
               child: TextP2(message.date.toFormatStringHour(), color: kGrey,))

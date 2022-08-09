@@ -18,11 +18,13 @@ import 'utils/marval_arq.dart';
 ///* @TODO Open Home Screen when already logged
 ///* @TODO Make the non reusable widgets local variables _MyWidget
 ///* @TODO Normalize BoxShadows [ ]
+///* @TODO Add localizationsDelegates Logic
 
 void main() async{
    WidgetsFlutterBinding.ensureInitialized();
    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
    authUser = getCurrUser();
+   ///@TODO only fetch data is is already logged.
    await handler.getFromDB();
    handler.list.forEach((user) => chatEmitterMap[user.id]= createChatEmitter(user.id));
 
