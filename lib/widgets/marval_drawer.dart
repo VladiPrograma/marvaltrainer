@@ -1,6 +1,7 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:marvaltrainer/config/log_msg.dart';
+import 'package:marvaltrainer/modules/ajustes/settings_screen.dart';
 import 'package:marvaltrainer/modules/alta/add_users_screen.dart';
 import 'package:marvaltrainer/modules/chat/chat_logic.dart';
 import 'package:sizer/sizer.dart';
@@ -85,15 +86,18 @@ class MarvalDrawer extends StatelessWidget {
           ),
           GestureDetector(
             onTap: (){
-              Navigator.pop(context);
-              Navigator.pushNamed(context, LoginScreen.routeName);},
+              Navigator.popAndPushNamed(context, LoginScreen.routeName);},
             child: ListTile(
               leading: Icon(CustomIcons.muscle_up ,color: name=="Entrenos" ? kGreen : kBlack, size: 6.w,),
               title: TextH2('Entrenos', size: 4, color: name=="Entrenos" ? kGreen : kBlack),
             ),
           ),
           GestureDetector(
-            onTap: (){ },
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.of(context).pushNamedAndRemoveUntil(SettingScreen.routeName, (Route r) => r.settings.name == HomeScreen.routeName);
+
+            },
             child: ListTile(
               leading: Icon(Icons.settings_rounded,color: name=="Ajustes" ? kGreen : kBlack, size: 6.w,),
               title: TextH2('Ajustes', size: 4, color: name=="Ajustes" ? kGreen : kBlack),

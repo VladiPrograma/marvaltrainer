@@ -108,9 +108,9 @@ void MarvalDialogsAlert(BuildContext context, {required MarvalDialogAlertType ty
                 Spacer(),
                 TextButton(
                     onPressed: (){
-                      if(isNotNull(onAccept)){  onAccept!();  }
                       Navigator.pop(context);
-                      },
+                      if(isNotNull(onAccept)){  onAccept!();  }
+                    },
                     child: Container(
                         padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.3.h),
                         decoration: BoxDecoration(

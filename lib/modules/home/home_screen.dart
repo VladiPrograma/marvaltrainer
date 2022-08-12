@@ -2,12 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:marvaltrainer/constants/components.dart';
 import 'package:marvaltrainer/utils/extensions.dart';
-import 'package:marvaltrainer/widgets/marval_drawer.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../constants/colors.dart';
+import '../../constants/components.dart';
 import '../../constants/global_variables.dart';
 import '../../constants/string.dart';
 import '../../constants/theme.dart';
@@ -15,39 +14,40 @@ import '../../constants/theme.dart';
 import '../../utils/decoration.dart';
 import '../../utils/marval_arq.dart';
 import '../../utils/objects/user.dart';
+import '../../widgets/marval_drawer.dart';
 
 
 /// @TODO Configure in Firebase The Reset Password Email
 /// @TODO Add common Profile Photo to Storage and let URL on User.create
 /// @TODO Change the Details hobbie to User Hobbie
 
-ValueNotifier<List<MarvalUser>> listNotifier = ValueNotifier(handler.list);
+ValueNotifier<List<MarvalUser>> _listNotifier = ValueNotifier(handler.list);
+
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
   static String routeName = "/home";
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: kWhite,
       resizeToAvoidBottomInset: false,
-      drawer: const MarvalDrawer(name: 'Usuarios',),
+      drawer: MarvalDrawer(name: 'Usuarios',),
       body:  Container(
-          child: Container( width: 100.w, height: 100.h,
+          child: SizedBox( width: 100.w, height: 100.h,
           child: Stack(
             children: [
               /// Grass Image
               Positioned(
                   top: 0,
-                  child: Container(width: 100.w, height: 30.h,
+                  child: SizedBox(width: 100.w, height: 30.h,
                   child: Image.asset('assets/images/grass.png', fit: BoxFit.cover,),
                   )
               ),
               /// Home Text H1
               Positioned(
                   top: 0,
-                  child: Container(width: 100.w, height: 20.h,
+                  child: SizedBox(width: 100.w, height: 20.h,
                     child: Center(child: TextH1('Home', size: 13,
                       color: Colors.black.withOpacity(0.7),
                       shadows: [
@@ -69,9 +69,9 @@ class HomeScreen extends StatelessWidget {
               Positioned(
                   top: 16.5.h,
                   left: 12.5.w,
-                  child: Container(width: 75.w, height: 10.h,
+                  child: SizedBox(width: 75.w, height: 10.h,
                     child:  TextField(
-                          cursorColor: kWhite,
+                          cursorColor: kGreen,
                           style: TextStyle( fontFamily: p1, color: kBlack, fontSize: 4.w),
                           decoration: InputDecoration(
                               filled: true,
@@ -94,7 +94,7 @@ class HomeScreen extends StatelessWidget {
                           ),
                           onChanged: (value) {
                             ///Search logic
-                            listNotifier.value= handler.list.where((element) =>
+                            _listNotifier.value= handler.list.where((element) =>
                                 element.name.
                                 toLowerCase().
                                 contains(value.toLowerCase()))
@@ -146,12 +146,15 @@ class UserList extends StatelessWidget {
   const UserList({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(valueListenable: listNotifier, builder: (context, value, child) {
+    return ValueListenableBuilder(valueListenable: _listNotifier, builder: (context, value, child) {
       return ListView.builder(
-          itemCount: listNotifier.value.length,
+          itemCount: _listNotifier.value.length,
           physics: const BouncingScrollPhysics(),
           itemBuilder: (context, index) {
-            return MarvalUserTile(user: listNotifier.value[index]);
+            return _listNotifier.value[index].active ?
+            MarvalUserTile(user: _listNotifier.value[index])
+                :
+            const SizedBox();
           },
         );
     });
@@ -169,7 +172,7 @@ class MarvalUserTile extends StatelessWidget {
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-       Container( width: 60.w,
+       SizedBox( width: 60.w,
         child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -188,12 +191,12 @@ class MarvalUserTile extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TextH2("${user.name.maxLength(20)}", size: 4, ),
+            TextH2(user.name.maxLength(20), size: 4, ),
             TextP2("  ${user.work.maxLength(19)}", color: kGrey,size: 3),
             TextP2("  ${user.hobbie?.maxLength(19)}", color: kGrey, size: 3,),
           ],
         )],)),
-        Container(width: 35.w,
+        SizedBox(width: 35.w,
           child: Row(children: [
         TextH1(user.currWeight.toString(), size: 7, height: 0.5.w, textAlign: TextAlign.end),
         Spacer(),

@@ -1,6 +1,5 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
-import 'package:marvaltrainer/modules/chat/chat_global_screen.dart';
 import 'package:sizer/sizer.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -22,12 +21,13 @@ import 'utils/marval_arq.dart';
 
 void main() async{
    WidgetsFlutterBinding.ensureInitialized();
-   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+   await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform
+   );
    authUser = getCurrUser();
    ///@TODO only fetch data is is already logged.
    await handler.getFromDB();
    handler.list.forEach((user) => chatEmitterMap[user.id]= createChatEmitter(user.id));
-
    runApp(CreatorGraph(child: const MyApp()));
 }
 

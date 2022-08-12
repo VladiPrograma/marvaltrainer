@@ -1,7 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
-import 'package:marvaltrainer/config/log_msg.dart';
 import 'package:marvaltrainer/modules/chat/chat_logic.dart';
 import 'package:marvaltrainer/utils/extensions.dart';
 import 'package:marvaltrainer/widgets/marval_drawer.dart';
@@ -15,12 +13,10 @@ import '../../constants/theme.dart';
 
 import '../../utils/decoration.dart';
 import '../../utils/marval_arq.dart';
-import '../../utils/objects/message.dart';
 import '../../utils/objects/user.dart';
-import '../home/home_screen.dart';
 import 'chat_user_screen.dart';
 
-
+ValueNotifier<List<MarvalUser>> _listNotifier = ValueNotifier(handler.list);
 class ChatGlobalScreen extends StatelessWidget {
   const ChatGlobalScreen({Key? key}) : super(key: key);
   static String routeName = "/chat_global";
@@ -90,7 +86,7 @@ class ChatGlobalScreen extends StatelessWidget {
                   ),
                   onChanged: (value) {
                     ///Search logic
-                    listNotifier.value= handler.list.where((element) =>
+                    _listNotifier.value= handler.list.where((element) =>
                         element.name.
                         toLowerCase().
                         contains(value.toLowerCase()))
@@ -110,18 +106,18 @@ class UserList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
-        valueListenable: listNotifier,
+        valueListenable: _listNotifier,
         builder: (context, value, child) {
         return ListView.builder(
-        itemCount: listNotifier.value.length,
+        itemCount: _listNotifier.value.length,
         physics: BouncingScrollPhysics(),
         itemBuilder: (context, index) {
           return GestureDetector(
               onTap: (){
-                chatUser = listNotifier.value[index];
+                chatUser = _listNotifier.value[index];
                 Navigator.pushNamed(context, ChatScreen.routeName);
               },
-              child: MarvalChatTile(user: listNotifier.value[index])
+              child: MarvalChatTile(user: _listNotifier.value[index])
           );}
       );
     });

@@ -2,6 +2,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:marvaltrainer/config/log_msg.dart';
 
 import '../../constants/string.dart';
 import '../../widgets/marval_snackbar.dart';

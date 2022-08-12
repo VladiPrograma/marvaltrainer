@@ -1,3 +1,4 @@
+import 'package:creator/creator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
@@ -15,8 +16,8 @@ import '../../constants/global_variables.dart';
 
 import '../../widgets/marval_dialogs.dart';
 import '../../widgets/marval_elevated_button.dart';
+import '../../widgets/marval_password_textfield.dart';
 import '../../widgets/marval_textfield.dart';
-
 /// TODO Configure in Firebase The Reset Password Email
 
 class LoginScreen extends StatelessWidget {
@@ -25,27 +26,28 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: kWhite,
       body: SafeArea(child:
       Container( width: 100.w, height: 100.h,
-        padding: EdgeInsets.only(top: 6.h),
         child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  SizedBox(height: 6.h,),
                   Image.asset("assets/images/logo.png"),
                   Container(width: 70.w,
-                   margin: EdgeInsets.only(right: 10.w),
-                   child: const TextH1( "Bienvenido!")),
+                      margin: EdgeInsets.only(right: 10.w),
+                      child: const TextH1( "Bienvenido!")),
                   Container(width: 70.w,
-                   margin: EdgeInsets.only(right:10.w),
-                   child: const TextH2(
-                       'La forma de predecir el futuro es creándolo.',
-                       color: kGrey
-                   )),
+                      margin: EdgeInsets.only(right:10.w),
+                      child: const TextH2(
+                          'La forma de predecir el futuro es creándolo.',
+                          color: kGrey
+                      )),
                   SizedBox(height: 5.h,),
                   const _LogInForm(),
                 ])),
@@ -57,7 +59,11 @@ class LoginScreen extends StatelessWidget {
 
 String _email= "";
 String _password= "";
-String? _loginErrors;
+
+Creator<String?> _loginErrors = Creator.value(null);
+void _clear(Ref ref) => ref.update(_loginErrors, (t) => null);
+void _update(Ref ref, String? text) => ref.update(_loginErrors, (t) => text);
+String? _watch(Ref ref) => ref.watch(_loginErrors);
 
 class _LogInForm extends StatelessWidget {
   const _LogInForm({Key? key}) : super(key: key);
@@ -84,26 +90,32 @@ class _LogInForm extends StatelessWidget {
                 return null;
               },
               onSaved: (value){_email = value!;},
-              onChanged: (value){ _loginErrors = null; },
+              onChanged: (value){ _clear(context.ref); },
             ),
             SizedBox(height: 5.h,),
-            PasswordTextField(),
+            PasswordTextField(
+              onSaved: (value) => _password = value!,
+              loginErrors: _loginErrors,
+            ),
             SizedBox(height: 5.h),
             MarvalElevatedButton(
               "Comenzar",
               onPressed:  () async{
                 // Validate returns true if the form is valid, or false otherwise.
+                _clear(context.ref);
                 if (_formKey.currentState!.validate()) {
                   _formKey.currentState!.save();
                   print('Email: $_email\nPassword: $_password');
 
                   /// We try to LogIn
-                  _loginErrors = await signIn(_email, _password);
+                   String? error = await signIn(_email, _password);
+                   logInfo('ERROR: $error ');
+                  _update(context.ref, error);
                   _formKey.currentState!.validate();
 
-                  if(isNull(_loginErrors)&&isNotNull(FirebaseAuth.instance.currentUser)){
+                  if(isNull(_watch(context.ref)) &&isNotNull(FirebaseAuth.instance.currentUser)){
                     authUser = FirebaseAuth.instance.currentUser!;
-                    Navigator.popAndPushNamed(context, HomeScreen.routeName);
+                    Navigator.pushNamed(context, HomeScreen.routeName);
                   }
                 }
               },
@@ -115,7 +127,6 @@ class _LogInForm extends StatelessWidget {
   }
 }
 
-bool _hidePassword = true;
 class ResetPasswordButton extends StatelessWidget {
   const ResetPasswordButton({Key? key}) : super(key: key);
 
@@ -173,45 +184,7 @@ class ResetPasswordButton extends StatelessWidget {
         });
   }
 }
-class PasswordTextField extends StatefulWidget {
-  const PasswordTextField({Key? key}) : super(key: key);
 
-  @override
-  State<PasswordTextField> createState() => _PasswordTextFieldState();
-}
-class _PasswordTextFieldState extends State<PasswordTextField> {
-  @override
-  Widget build(BuildContext context) {
-    return Focus(
-      child: Builder(
-      builder: (context) {
-      final bool hasFocus = Focus.of(context).hasFocus;
-      return MarvalInputTextField(
-      labelText: 'Contraseña',
-      hintText:  '********',
-      prefixIcon: CustomIcons.lock,
-      suffixIcon: GestureDetector(
-        onLongPress: () => setState(() => _hidePassword = false),
-        onLongPressEnd: (details) => setState(() => _hidePassword = true),
-        child:  Icon(
-          Icons.remove_red_eye,
-          size: 7.w,
-          color: hasFocus ?  kWhite : kGreen,
-        )),
-      keyboardType: TextInputType.visiblePassword,
-      obscureText: _hidePassword,
-      validator: (value){
-        if(isNullOrEmpty(value)){
-          return kEmptyValue;
-        }
-        return _loginErrors;
-      },
-      onSaved: (value){ _password = value!;},
-      onChanged: (value){ _loginErrors = null; },
-    );
-    }));
-  }
-}
 
 
 

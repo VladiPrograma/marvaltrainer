@@ -21,8 +21,8 @@ class MarvalUser {
   String work;
   String? hobbie;
   String? email;
-  bool? active;
   String? profileImage;
+  bool active;
   double lastWeight;
   double currWeight;
   DateTime update;
@@ -202,7 +202,21 @@ class MarvalUser {
     });
   }
 
-  void updateBasicData( {required String name, required String lastName, required String work}) {
+  void updateEmail({required String email}) {
+    this.email = email;
+    uploadInDB({
+      "email": email,
+    });
+  }
+
+  void updateActive() {
+    active = !active;
+    uploadInDB({
+      "active": active,
+    });
+  }
+
+  void updateBasicData({required String name, required String lastName, required String work}) {
     this.name = name;
     this.lastName = lastName;
     this.work = work;
