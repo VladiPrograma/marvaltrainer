@@ -1,5 +1,6 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
+import 'package:marvaltrainer/modules/chat/chat_global_screen.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../config/custom_icons.dart';
@@ -13,7 +14,6 @@ import '../../utils/extensions.dart';
 import '../../utils/decoration.dart';
 import '../../utils/marval_arq.dart';
 import '../../utils/objects/message.dart';
-import '../../utils/objects/user.dart';
 import '../../widgets/box_user_data.dart';
 import '../../widgets/marval_drawer.dart';
 
@@ -36,7 +36,11 @@ class ChatScreen extends StatelessWidget {
   static String routeName = '/chat';
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: () async{
+        Navigator.popAndPushNamed(context, ChatGlobalScreen.routeName);
+        return true; },
+      child: Scaffold(
       backgroundColor: kWhite,
       drawer: const MarvalDrawer(name: 'Chat',),
       body:  SizedBox( width: 100.w, height: 100.h,
@@ -149,7 +153,7 @@ class ChatScreen extends StatelessWidget {
                       )),
                     ))),
               ])),
-    );
+    ));
   }
 }
 
@@ -169,7 +173,7 @@ class MessageBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool fromUser = message.user != authUser!.uid;
+    final bool fromUser = message.user != authUser.uid;
     return Column(
         crossAxisAlignment: fromUser ? CrossAxisAlignment.start : CrossAxisAlignment.end,
         children:[ Container(

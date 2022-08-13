@@ -1,5 +1,7 @@
 import 'package:creator/creator.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:sizer/sizer.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -24,10 +26,14 @@ void main() async{
    await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform
    );
-   authUser = getCurrUser();
-   ///@TODO only fetch data is is already logged.
-   await handler.getFromDB();
-   handler.list.forEach((user) => chatEmitterMap[user.id]= createChatEmitter(user.id));
+   ///@TODO only fetch data if is already logged.
+   User? user = getCurrUser();
+   if(isNotNull(user)){
+     authUser = user!;
+     ///@TODO Delete this line so bad...
+     await handler.getFromDB();
+     handler.list.forEach((user) => chatEmitterMap[user.id] = createChatEmitter(user.id));
+   }
    runApp(CreatorGraph(child: const MyApp()));
 }
 
@@ -39,9 +45,17 @@ class MyApp extends StatelessWidget {
     return Sizer(
         builder: (context, orientation, deviceType) {
           return MaterialApp(
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate
+            ],
+            supportedLocales: const [
+              Locale('en'),
+              Locale('es_ES')
+            ],
             routes: routes,
             debugShowCheckedModeBanner: false,
-            initialRoute: isNull(authUser) ?
+            initialRoute: isNull(getCurrUser()) ?
             LoginScreen.routeName
             :
             HomeScreen.routeName,

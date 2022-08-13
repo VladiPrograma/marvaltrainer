@@ -69,7 +69,7 @@ class SettingScreen extends StatelessWidget {
               /// User Box Data
               Positioned(  top: 1.h, left: 8.w,
                   child: SafeArea(
-                      child: BoxUserData(user: handler.list.where((user) => user.id == authUser!.uid).first)
+                      child: BoxUserData(user: handler.list.where((user) => user.id == authUser.uid).first)
                   )),
             ])),
           SizedBox(width: 100.w, height: 80.h,

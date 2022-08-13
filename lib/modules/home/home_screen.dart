@@ -1,7 +1,5 @@
-import 'dart:async';
-
+import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:marvaltrainer/utils/extensions.dart';
 import 'package:sizer/sizer.dart';
 
@@ -21,7 +19,17 @@ import '../../widgets/marval_drawer.dart';
 /// @TODO Add common Profile Photo to Storage and let URL on User.create
 /// @TODO Change the Details hobbie to User Hobbie
 
-ValueNotifier<List<MarvalUser>> _listNotifier = ValueNotifier(handler.list);
+List<MarvalUser>? _getMarvalUserList(Ref ref){
+  final query = ref.watch(handlerEmitter.asyncData).data;
+  if(isNull(query)||query!.size==0){ return null; }
+
+  //Pass data from querySnapshot to Messages
+  final List<MarvalUser> list = queryToData(query).whereType<MarvalUser>().toList();
+  String name = ref.watch(_searchCreator);
+  return list.where((user) => user.name.toLowerCase().contains(name)).toList();
+}
+Creator<String> _searchCreator = Creator.value('');
+
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -32,9 +40,8 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: kWhite,
       resizeToAvoidBottomInset: false,
-      drawer: MarvalDrawer(name: 'Usuarios',),
-      body:  Container(
-          child: SizedBox( width: 100.w, height: 100.h,
+      drawer: const MarvalDrawer(name: 'Usuarios',),
+      body:   SizedBox( width: 100.w, height: 100.h,
           child: Stack(
             children: [
               /// Grass Image
@@ -56,107 +63,69 @@ class HomeScreen extends StatelessWidget {
                   )
               ),
               /// List Tiles
-              Positioned(
-                  bottom: 0,
+              Positioned( bottom: 0,
                   child: ClipRRect(
-                    borderRadius: BorderRadius.only(topRight:  Radius.circular(10.w), topLeft: Radius.circular(10.w)),
+                    borderRadius: BorderRadius.only(
+                    topRight:     Radius.circular(10.w),
+                    topLeft:      Radius.circular(10.w)
+                    ),
                     child: Container( width: 100.w, height: 80.5.h,
                       color: kWhite,
-                      child: UserList()
+                      child: const _UsersList()
                     )),
               ),
               ///TextField
-              Positioned(
-                  top: 16.5.h,
-                  left: 12.5.w,
+              Positioned( top: 16.5.h,  left: 12.5.w,
                   child: SizedBox(width: 75.w, height: 10.h,
-                    child:  TextField(
-                          cursorColor: kGreen,
-                          style: TextStyle( fontFamily: p1, color: kBlack, fontSize: 4.w),
-                          decoration: InputDecoration(
-                              filled: true,
-                              fillColor: kWhite,
-                              border: DecoratedInputBorder(
-                                child:  OutlineInputBorder(
-                                  borderSide: BorderSide.none,
-                                  borderRadius: BorderRadius.all(Radius.circular(4.w)),
-                                ),
-                                shadow: BoxShadow(
-                                  color: kBlack.withOpacity(0.45),
-                                  offset: Offset(0, 1.3.w),
-                                  blurRadius: 2.1.w,
-                                ),
-                              ),
-                              hintText: 'Buscar',
-                              hintStyle:  TextStyle(fontFamily: p1, color: kGrey, fontSize: 4.w),
-                              prefixIcon: Icon(Icons.search_rounded, color: kGrey,size: 8.w,),
-                              contentPadding: EdgeInsets.zero
+                    child: TextField(
+                    style: TextStyle(
+                      fontFamily: p1,
+                      color: kBlack,
+                      fontSize: 4.w
+                      ),
+                      cursorColor: kGreen,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: kWhite,
+                        border: DecoratedInputBorder(
+                          child:  OutlineInputBorder(
+                            borderSide: BorderSide.none,
+                            borderRadius: BorderRadius.all(Radius.circular(4.w)),
                           ),
-                          onChanged: (value) {
-                            ///Search logic
-                            _listNotifier.value= handler.list.where((element) =>
-                                element.name.
-                                toLowerCase().
-                                contains(value.toLowerCase()))
-                                .toList();
-                          },
-                        )),
-                  )
-            ],
-          ),
-      )));
-  }
-}
-/// STREAM BUILDER
-class UserInformation extends StatefulWidget {
-  @override
-  _UserInformationState createState() => _UserInformationState();
-}
-class _UserInformationState extends State<UserInformation> {
-  final Stream<QuerySnapshot> _usersStream =  FirebaseFirestore.instance.collection('users').snapshots();
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: _usersStream,
-      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        if (snapshot.hasError) {
-          return Text('Something went wrong');
-        }
-
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: Text("Loading"),);
-        }
-        return ListView(
-          children:  snapshot.data!.docs.map((DocumentSnapshot document) {
-            Map<String, dynamic> map = document.data()! as Map<String, dynamic>;
-            MarvalUser user = MarvalUser.fromJson(map);
-            handler.addUser(user);
-            return MarvalUserTile(user: user);
-            }).toList(),
-        );
-      },
-    );
+                          shadow: BoxShadow(
+                            color: kBlack.withOpacity(0.45),
+                            offset: Offset(0, 1.3.w),
+                            blurRadius: 2.1.w,
+                          ),
+                        ),
+                        hintText: 'Buscar',
+                        hintStyle:  TextStyle(fontFamily: p1, color: kGrey, fontSize: 4.w),
+                        prefixIcon: Icon(Icons.search_rounded, color: kGrey,size: 8.w,),
+                        contentPadding: EdgeInsets.zero
+                    ),
+                      onChanged: (value) {
+                        context.ref.update(_searchCreator, (name) => value.toLowerCase());
+                    })
+                ))
+            ]),
+      ));
   }
 }
 
+class _UsersList extends StatelessWidget {
+  const _UsersList({Key? key}) : super(key: key);
 
-/// Charging data on INIT
-/// @TODO Change ValueListenable with Creator and Emitter states.
-class UserList extends StatelessWidget {
-  const UserList({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(valueListenable: _listNotifier, builder: (context, value, child) {
+    return Watcher((context, ref, child){
+      var data = _getMarvalUserList(ref);
+      if(isNullOrEmpty(data)){ return const SizedBox(); }
       return ListView.builder(
-          itemCount: _listNotifier.value.length,
-          physics: const BouncingScrollPhysics(),
-          itemBuilder: (context, index) {
-            return _listNotifier.value[index].active ?
-            MarvalUserTile(user: _listNotifier.value[index])
-                :
-            const SizedBox();
-          },
-        );
+        itemCount: data!.length,
+        itemBuilder: (context, index) {
+          return MarvalUserTile(user: data[index]);
+        },
+      );
     });
   }
 }

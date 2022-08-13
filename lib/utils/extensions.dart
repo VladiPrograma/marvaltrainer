@@ -62,7 +62,7 @@ extension DateFormat on DateTime{
     }
   }
   String toFormatStringDate(){ return '$day-$month-$year';}
-  String toFormatStringHour(){ return '$hour:${minute>10 ? minute : '0$minute'} ${hour<12? 'am' : 'pm'}';}
+  String toFormatStringHour(){ return '$hour:${minute>9 ? minute : '0$minute'} ${hour<12? 'am' : 'pm'}';}
 
   get id => '${day<10 ? '0$day' : '$day'}-$month-$year';
 

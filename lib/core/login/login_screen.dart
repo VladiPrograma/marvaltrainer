@@ -5,6 +5,7 @@ import 'package:sizer/sizer.dart';
 
 import '../../config/log_msg.dart';
 import '../../config/custom_icons.dart';
+import '../../modules/chat/chat_logic.dart';
 import '../../modules/home/home_screen.dart';
 import '../../utils/firebase/auth.dart';
 import '../../utils/marval_arq.dart';
@@ -113,8 +114,11 @@ class _LogInForm extends StatelessWidget {
                   _update(context.ref, error);
                   _formKey.currentState!.validate();
 
-                  if(isNull(_watch(context.ref)) &&isNotNull(FirebaseAuth.instance.currentUser)){
+                  if(isNull(_watch(context.ref)) && isNotNull(FirebaseAuth.instance.currentUser)){
                     authUser = FirebaseAuth.instance.currentUser!;
+                    await handler.getFromDB();
+                    handler.list.forEach((user) => chatEmitterMap[user.id] = createChatEmitter(user.id));
+
                     Navigator.pushNamed(context, HomeScreen.routeName);
                   }
                 }
