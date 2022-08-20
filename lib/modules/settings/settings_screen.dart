@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:marvaltrainer/modules/ajustes/labels/activate_users_screen.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../config/log_msg.dart';
@@ -16,6 +15,7 @@ import '../../widgets/box_user_data.dart';
 import '../../widgets/marval_drawer.dart';
 import '../../widgets/marval_dialogs.dart';
 
+import 'labels/activate_users_screen.dart';
 import 'labels/change_email_screen.dart';
 import 'labels/change_password_screen.dart';
 import '../home/home_screen.dart';

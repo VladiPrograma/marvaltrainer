@@ -29,6 +29,11 @@ extension StringFormat on String{
     try{  return  double.parse(replaceAll(',', '.')); }
     catch(E){ return null;  }
   }
+
+  String clearSimbols(){
+    String regex = r'[^\p{Alphabetic}\p{Mark}\p{Decimal_Number}\p{Connector_Punctuation}\p{Join_Control}\s]+';
+    return replaceAll(RegExp(regex, unicode: true),'');
+  }
 }
 
 extension DateFormat on DateTime{
@@ -49,6 +54,28 @@ extension DateFormat on DateTime{
       default : return "";
     }
   }
+  int monthDays(){
+    switch(month){
+      case 1 : return 31;
+      case 2 : return isLeapYear() ? 29 : 28;
+      case 3 : return 31;
+      case 4 : return 30;
+      case 5 : return 31;
+      case 6 : return 30;
+      case 7 : return 31;
+      case 8 : return 31;
+      case 9 : return 30;
+      case 10 : return 31;
+      case 11 : return 30;
+      case 12 : return 31;
+      default : return 0;
+    }
+  }
+
+  int monthDifference(DateTime afterTime) => afterTime.month-month + 12 * (afterTime.year-year);
+
+  bool isLeapYear() => (year % 4 == 0) && ((year % 100 != 0) || (year % 400 == 0));
+
   String toStringWeekDay(){
     switch(weekday){
       case 1 : return "Lun";
@@ -62,7 +89,7 @@ extension DateFormat on DateTime{
     }
   }
   String toFormatStringDate(){ return '$day-$month-$year';}
-  String toFormatStringHour(){ return '$hour:${minute>9 ? minute : '0$minute'} ${hour<12? 'am' : 'pm'}';}
+  String toFormatStringHour(){ return '$hour:${minute>10 ? minute : '0$minute'} ${hour<12? 'am' : 'pm'}';}
 
   get id => '${day<10 ? '0$day' : '$day'}-$month-$year';
 
@@ -70,6 +97,13 @@ extension DateFormat on DateTime{
     DateTime res = this;
     while(res.weekday!=1){
       res= res.add(const Duration(days: -1));
+    }
+    return res;
+  }
+  DateTime nextSaturday(){
+    DateTime res = this;
+    while(res.weekday!=7){
+      res= res.add(const Duration(days: 1));
     }
     return res;
   }

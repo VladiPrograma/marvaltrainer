@@ -186,19 +186,17 @@ class MarvalChatTile extends StatelessWidget {
                         SizedBox(width: 53.w,)
                         :
                         SizedBox(width: 53.w,
-                                child: Row(children: [
-                                  authUser.uid == message!.user ?
-                                  Icon(Icons.check_sharp, color: kGreen, size: 6.w,)
-                                      :
-                                  const SizedBox(),
-                                  TextP2( message!.message,
-                                    size: 3.5,
-                                    color: kGrey,
-                                    maxLines: 2,
-                                    textAlign: TextAlign.start,
-                                  )
-                                ],)
-                        )
+                         child: Row(children: [
+                           authUser.uid == message!.user ?
+                           Icon(Icons.check_sharp, color: kGreen, size: 6.w,)
+                               :
+                           const SizedBox(),
+                            Expanded(
+                            child:TextP2( message!.message,
+                             size: 3.5, color: kGrey,
+                             textAlign: TextAlign.start, maxLines: 2,
+                            ))
+                         ]))
                       ]),
                     const Spacer(),
                     SizedBox(width: 14.w ,child:

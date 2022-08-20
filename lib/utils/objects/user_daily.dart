@@ -12,44 +12,52 @@ class Daily {
   static CollectionReference dailyDB = FirebaseFirestore.instance.collection("users/${authUser.uid}/daily");
 
   String   id;
-  DateTime day;
+  DateTime date;
   int      sleep;
   double   weight;
-  Map      activities;
+  int?     steps;
   List<String> habits;
+  List<Map<String, dynamic>> activities;
+  List<Map<String, dynamic>>? habitsFromPlaning;
 
   Daily({
     required this.id,
-    required this.day,
+    required this.date,
     required this.sleep,
     required this.weight,
     required this.habits,
-    required this.activities
+    required this.habitsFromPlaning,
+    required this.activities,
+    this.steps,
   });
 
-  Daily.create({required this.day})
-      : id = day.id(),
+  Daily.create({required this.date, required this.habitsFromPlaning, required this.activities})
+      : id = date.id,
         sleep = 0,
         weight = 0,
-        habits = [],
-        activities = {};
+        steps = 0,
+        habits = [];
 
   Daily.fromJson(Map<String, dynamic> map)
       : id = map["id"],
-        day = map["day"].toDate(),
+        date = map["date"].toDate(),
         sleep = map["sleep"],
         weight = map["weight"],
-        activities = map["activities"],
-        habits = List<String>.from(map["habits"]);
+        steps = map["steps"],
+        habits = List<String>.from(map["habits"]),
+        activities  = List<Map<String, dynamic>>.from(map["activities"]),
+        habitsFromPlaning =List<Map<String, dynamic>>.from(List<dynamic>.from(map["habits_from_planing"]));
 
   Future<void> setInDB() {
     // Call the user's CollectionReference to add a new user
     return dailyDB.doc(id).set({
       'id': id, // UID
-      'day': day, // 12/05/2022
+      'date': date, // 12/05/2022
       'sleep': sleep, //1
       'weight': weight, // 75.5
+      'steps': steps ?? 0, // 75.5
       'habits': habits, // [Sol, Frio, Agradecer]
+      'habits_from_planing': habitsFromPlaning, // [Sol, Frio, Agradecer]
       'activities': activities, // {}
     }).then((value) => logSuccess("$logSuccessPrefix User Daily  Added"))
         .catchError((error) => logError("$logErrorPrefix Failed to add User Daily : $error"));
@@ -77,7 +85,7 @@ class Daily {
   @override
   String toString() {
     return " ID: $id"
-        "\n Day: $day"
+        "\n date: $date"
         "\n Sleep: $sleep/5"
         "\n Weight: $weight Kg"
         "\n Habits: $habits"
@@ -85,7 +93,7 @@ class Daily {
   }
 
   void updateWeight(double value) {
-    weight = value;
+    weight = double.parse(value.toStringAsPrecision(3));
     uploadInDB({
       "weight": weight,
     });
@@ -95,6 +103,18 @@ class Daily {
     sleep = value;
     uploadInDB({
       "sleep": sleep,
+    });
+  }
+  void updateSteps(int value) {
+    steps = value;
+    uploadInDB({
+      "steps": steps!,
+    });
+  }
+  void updateActivity(Map<String, dynamic> activity) {
+    activities[activities.indexOf(activity)] = activity;
+    uploadInDB({
+      "activities": activities,
     });
   }
 
@@ -107,10 +127,5 @@ class Daily {
     uploadInDB({
       "habits": habits,
     });
-  }
-
-  void updateActivities(String type, Map value) {
-    activities[type] = value;
-    uploadInDB({"activities": activities});
   }
 }

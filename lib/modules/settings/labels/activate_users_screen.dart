@@ -148,7 +148,7 @@ class MarvalUserTile extends StatelessWidget {
                       children: [
                         TextH2(user.name.maxLength(20), size: 4, ),
                         TextP2("  ${user.work.maxLength(19)}", color: kGrey,size: 3),
-                        TextP2("  ${user.hobbie?.maxLength(19)}", color: kGrey, size: 3,),
+                        TextP2("  ${user.hobbie.maxLength(19)}", color: kGrey, size: 3,),
                     ]),
                     Spacer(),
                     UserSwitcher(user: user),

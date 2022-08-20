@@ -1,7 +1,5 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
-import 'package:marvaltrainer/config/log_msg.dart';
-import 'package:marvaltrainer/modules/ajustes/settings_screen.dart';
 import 'package:marvaltrainer/modules/alta/add_users_screen.dart';
 import 'package:marvaltrainer/modules/chat/chat_logic.dart';
 import 'package:sizer/sizer.dart';
@@ -13,11 +11,8 @@ import '../constants/theme.dart';
 import '../core/login/login_screen.dart';
 import '../modules/chat/chat_global_screen.dart';
 import '../modules/home/home_screen.dart';
+import '../modules/settings/settings_screen.dart';
 import '../utils/marval_arq.dart';
-import '../utils/objects/user.dart';
-
-
-
 
 class MarvalDrawer extends StatelessWidget {
   const MarvalDrawer({required this.name, Key? key}) : super(key: key);
