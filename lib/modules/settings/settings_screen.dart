@@ -15,6 +15,7 @@ import '../../widgets/box_user_data.dart';
 import '../../widgets/marval_drawer.dart';
 import '../../widgets/marval_dialogs.dart';
 
+import '../../widgets/settings_user_data.dart';
 import 'labels/activate_users_screen.dart';
 import 'labels/change_email_screen.dart';
 import 'labels/change_password_screen.dart';
@@ -69,7 +70,7 @@ class SettingScreen extends StatelessWidget {
               /// User Box Data
               Positioned(  top: 1.h, left: 8.w,
                   child: SafeArea(
-                      child: BoxUserData(user: handler.list.where((user) => user.id == authUser.uid).first)
+                      child: SettingsUserData(user: handler.list.where((user) => user.id == authUser.uid).first)
                   )),
             ])),
           SizedBox(width: 100.w, height: 80.h,

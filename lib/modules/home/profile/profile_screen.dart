@@ -123,9 +123,9 @@ class ProfileUserData extends StatelessWidget {
                     SizedBox(height: 3.h,),
                     TextH2('${user?.name.clearSimbols()} ${user?.lastName}', size: 4),
                     TextH2('${user?.work}', size: 3, color: kGrey,),
-                    TextH2('${user?.hobbie} y ${user?.favoriteFood}', size: 3, color: kGrey,),
+                    TextH2(('${user?.hobbie} y ${user?.favoriteFood}').maxLength(25), size: 3, color: kGrey,),
                   ]),
-              SizedBox(width: 8.w,),
+              Spacer(),
               Padding(padding: EdgeInsets.only(top: 4.5.h),
                   child: GestureDetector(
                     onTap: (){ Navigator.pushNamed(context, SeeFormScreen.routeName); },
@@ -201,9 +201,14 @@ class JournalList extends StatelessWidget {
                   child:  Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        SizedBox(width: 2.w,),
+                        SizedBox( width: 20.w,
+                            child: GestureDetector(
+                              child: Icon(CustomIcons.arrow_left, size: 7.w, color: kGreen),
+                              onTap: ()=> Navigator.of(context).popUntil(ModalRoute.withName(HomeScreen.routeName)),
+                            )),
                         Icon(Icons.man_rounded, size: 5.w, color: kGreen,),
                         const TextH2("Revisa tu progreso", size: 4, color: kWhite,),
+                        SizedBox(width: 20.w,)
                       ]),
                 );
               }

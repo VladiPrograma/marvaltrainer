@@ -12,6 +12,7 @@ import '../../../constants/string.dart';
 import '../../../constants/colors.dart';
 import '../../../constants/components.dart';
 import '../../../constants/global_variables.dart';
+import '../../../widgets/marval_drawer.dart';
 
 ValueNotifier<List<MarvalUser>> _listNotifier = ValueNotifier(handler.list);
 class ActivateUserScreen extends StatelessWidget {
@@ -23,6 +24,7 @@ class ActivateUserScreen extends StatelessWidget {
 
     return Scaffold(
         backgroundColor: kWhite,
+        drawer: const MarvalDrawer(name: "Ajustes",),
         resizeToAvoidBottomInset: false,
         body:  Container(
             child: Container( width: 100.w, height: 100.h,

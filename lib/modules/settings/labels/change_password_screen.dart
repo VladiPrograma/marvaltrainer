@@ -10,6 +10,7 @@ import '../../../constants/theme.dart' ;
 import '../../../constants/colors.dart';
 import '../../../constants/global_variables.dart';
 
+import '../../../widgets/marval_drawer.dart';
 import '../../../widgets/marval_elevated_button.dart';
 import '../../../widgets/marval_password_textfield.dart';
 import '../../../widgets/marval_snackbar.dart';
@@ -23,6 +24,7 @@ class ResetPasswordScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: kWhite,
+      drawer: const MarvalDrawer(name: "Ajustes",),
       body: SafeArea(child:
       Container( width: 100.w, height: 100.h,
         padding: EdgeInsets.only(top: 6.h),

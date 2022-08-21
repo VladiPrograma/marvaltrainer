@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
@@ -6,6 +7,7 @@ import '../constants/components.dart';
 import '../constants/theme.dart';
 import '../utils/marval_arq.dart';
 import '../utils/objects/user.dart';
+
 class BoxUserData extends StatelessWidget {
   const BoxUserData({required this.user, Key? key}) : super(key: key);
   final MarvalUser user;
@@ -39,3 +41,4 @@ class BoxUserData extends StatelessWidget {
     );
   }
 }
+
