@@ -176,15 +176,6 @@ class MarvalUser {
     return ds.exists;
   }
 
-  static Future<bool> isNotRegistered(String? email) async {
-    if (isNull(email)) {
-      return false;
-    }
-    return usersDB
-        .where('email', isEqualTo: email)
-        .snapshots()
-        .isEmpty;
-  }
 
   static Future<MarvalUser> getFromDB(String uid) async {
     DocumentSnapshot doc = await usersDB.doc(uid).get();

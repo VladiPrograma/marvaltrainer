@@ -140,9 +140,7 @@ class _LogInForm extends StatelessWidget {
                 if(isEmpty(objective)){ _updateCreator(context.ref, _list.first);}
                 // Validate returns true if the form is valid, or false otherwise.
                 if (_formKey.currentState!.validate() && objective!=_list.first && objective.isNotEmpty){
-                    bool isRegistered = await MarvalUser.isNotRegistered(_email);
                     _formKey.currentState!.save();
-                    if(!isRegistered){
                     // Backend
                     String? _uid = await signUp(_email, 'temporal1');
                     if(isNull(_uid)){
@@ -151,31 +149,32 @@ class _LogInForm extends StatelessWidget {
                           subtitle: 'No se pudo dar de alta al usuario debido a un error inesperado. Intenta de nuevo mas tarde');
                       return;
                     }
-                    MarvalUser _newUser = MarvalUser.create(
-                          uid  : _uid,
-                          name : _name.normalize(),
-                         email : _email,
-                     objective : objective,
-                    );
-                    //Save user in DB
-                    _newUser.setInDB();
-                    handler.addUser(_newUser);
-                    // Refresh Screen
-                    _updateCreator(context.ref, '');
-                    _mailController.clear();
-                    _nameController.clear();
-                    // SnackBar
-                    MarvalSnackBar(context, SNACKTYPE.success,
-                        title: "Usuario registrado con exito",
-                        subtitle: 'Ya puedes configurar el entrenamiento del usuario.'
-                    );
-                  }else{
-                    MarvalSnackBar(context, SNACKTYPE.alert,
-                      title: "Error al registrar usuario",
-                      subtitle: 'El email proporcionado se encuentra actualmente registrado en la base de datos');
+                    else if(_uid == kEmailExists){
+                      MarvalSnackBar(context, SNACKTYPE.alert,
+                          title: "Error al registrar usuario",
+                          subtitle: 'El email proporcionado ya se encuentra actualmente registrado en la base de datos');
                     }
-                  }
-              }),
+                    else {
+                      MarvalUser _newUser = MarvalUser.create(
+                        uid: _uid,
+                        name: _name.normalize(),
+                        email: _email,
+                        objective: objective,
+                      );
+                      //Save user in DB
+                      _newUser.setInDB();
+                      handler.addUser(_newUser);
+                      // Refresh Screen
+                      _updateCreator(context.ref, '');
+                      _mailController.clear();
+                      _nameController.clear();
+                      // SnackBar
+                      MarvalSnackBar(context, SNACKTYPE.success,
+                          title: "Usuario registrado con exito",
+                          subtitle: 'Ya puedes configurar el entrenamiento del usuario.'
+                      );
+                    }
+              }}),
             SizedBox(height: 5.h,),
           ],
         ));

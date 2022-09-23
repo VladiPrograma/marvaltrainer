@@ -52,11 +52,14 @@ Future<String?> signUp(String email, String password) async{
     return userCredential.user!.uid;
   } on FirebaseAuthException catch (e) {
     if (e.code == 'weak-password') {
-      print('The password provided is too weak.');
+      logError('The password provided is too weak.');
+      return kEmailExists;
     } else if (e.code == 'email-already-in-use') {
-      print('The account already exists for that email.');
+      logError('The account already exists for that email.');
+      return kEmailExists;
     }
 
   }
+  logInfo("Se borra");
   await app.delete();
 }

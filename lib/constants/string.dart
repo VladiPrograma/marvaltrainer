@@ -10,6 +10,7 @@ const String p2 = 'RedHatRegular';
 const String kEmptyValue = 'Campo requerido.';
 const String kEmailMissmatch ='El correo indicado no existe.';
 const String kEmail ='El correo no ha sido dado de alta.';
+const String kEmailExists ='El correo ya ha sido dado de alta.';
 
 const String kToLong ='Maximo de caracteres alcanzado.';
 const String kPhone ='El telefono no existe.';
