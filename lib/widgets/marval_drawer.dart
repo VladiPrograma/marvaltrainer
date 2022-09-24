@@ -2,6 +2,7 @@ import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:marvaltrainer/modules/alta/add_users_screen.dart';
 import 'package:marvaltrainer/modules/chat/chat_logic.dart';
+import 'package:marvaltrainer/utils/extensions.dart';
 import 'package:sizer/sizer.dart';
 
 import '../config/custom_icons.dart';
@@ -13,6 +14,7 @@ import '../modules/chat/chat_global_screen.dart';
 import '../modules/home/home_screen.dart';
 import '../modules/settings/settings_screen.dart';
 import '../utils/marval_arq.dart';
+import '../utils/objects/user.dart';
 
 class MarvalDrawer extends StatelessWidget {
   const MarvalDrawer({required this.name, Key? key}) : super(key: key);
@@ -28,22 +30,27 @@ class MarvalDrawer extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 3.w),
         children:  <Widget>[
           /// Header
-          SizedBox(height: 39.h,
-              child: DrawerHeader(
-                decoration: BoxDecoration( color: kWhite, border: Border.all(color: kWhite) ),
-                child: Column(
-                  children: [
-                    CircleAvatar(
-                      backgroundImage: isNotNull(authUser.photoURL) ? Image.network(authUser.photoURL!).image : null,
-                      backgroundColor: kBlack,
-                      radius: 9.h,
-                      child: isNull(authUser.photoURL) ? Icon(CustomIcons.person, color: kWhite, size: 13.w,): null,
-                    ),
-                    const TextH2('Bienvenido', color: kGrey, size: 6,),
-                    TextH1(userName.length<13 ? userName : userName.substring(0,13), color: kBlack, size: 8, textOverFlow: TextOverflow.clip ,),
-                  ],
-                ),
-              )),
+          Watcher((context, ref, child) {
+                MarvalUser? user = getUser(context, ref);
+                return SizedBox(height: 39.h,
+                    child: DrawerHeader(
+                      decoration: BoxDecoration( color: kWhite, border: Border.all(color: kWhite) ),
+                      child: Column(
+                        children: [
+                          CircleAvatar(
+                            backgroundImage: isNull(user)||isNullOrEmpty(user!.profileImage) ?
+                            null :
+                            Image.network(user.profileImage!).image,
+                            backgroundColor: kBlack,
+                            radius: 9.h,
+                            child: isNull(user)||isNullOrEmpty(user!.profileImage) ? Icon(CustomIcons.person, color: kWhite, size: 13.w,): null,
+                          ),
+                          const TextH2('Bienvenido', color: kGrey, size: 6,),
+                          TextH1(isNull(user) ? "" : user!.name.maxLength(13), color: kBlack, size: 8, textOverFlow: TextOverflow.clip ,),
+                        ],
+                      ),
+                    ));
+              }),
           /// Dar de alta
           GestureDetector(
             onTap: () => Navigator.popAndPushNamed(context, AddUserScreen.routeName),

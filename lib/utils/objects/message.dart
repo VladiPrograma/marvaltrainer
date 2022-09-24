@@ -13,7 +13,7 @@ class Message{
 static CollectionReference chatDB = FirebaseFirestore.instance.collection("users/${authUser.uid}/chat");
 
 final MessageType type;
-final String message;
+String message;
 final DateTime date;
 final String user;
 bool read;
@@ -30,6 +30,13 @@ Message.create({required this.message, required this.type}):
   read = false,
   date = DateTime.now();
 
+Message.image():
+      user = authUser.uid,
+      type = MessageType.photo,
+      message = "",
+      read = false,
+      date = DateTime.now();
+
 Message.fromJson(Map<String, dynamic> map)
     : user = map["user"],
       message = map["message"],
@@ -37,33 +44,61 @@ Message.fromJson(Map<String, dynamic> map)
       type = MessageType.values.byName(map["type"]),
       date = map["date"].toDate();
 
-Future<void> setInDB(){
+Future<String?> addInDB(){
   // Call the user's CollectionReference to add a new user
-  return chatDB
-      .doc().set({
+  return chatDB.add({
     'user': user, // UID
     'message': message, // Vlad es tonto
     'read': read, // Vlad es tonto
     'type': type.name, // text
     'date': date, // 11/07/2022
-  })
-      .then((value) => logSuccess("$logSuccessPrefix Message Added"))
-      .catchError((error) => logError("$logErrorPrefix Failed to add Message: $error"));
+  }).then((value){
+      logSuccess("$logSuccessPrefix Message Added");
+      return value.id;
+    }).catchError((error){
+      logError("$logErrorPrefix Failed to add Message: $error");
+      return null;
+  });
 }
 
 
-Future<void> setInDBFromTrainer(){
+Future<void> setInDB(String docID){
+  return chatDB.doc(docID).set({
+    'user': user, // UID
+    'message': message, // Vlad es tonto
+    'read': read, // Vlad es tonto
+    'type': type.name, // text
+    'date': date, // 11/07/2022
+  }).then((value)=> logSuccess("$logSuccessPrefix Message Set"))
+  .catchError((error) => logError("$logErrorPrefix Failed to add Message: $error"));
+}
+
+Future<String?> addInDBFromTrainer(){
   // Call the user's CollectionReference to add a new user
-  return FirebaseFirestore.instance.collection("users/${chatUser.id}/chat")
-      .doc().set({
+  return FirebaseFirestore.instance.collection("users/${chatUser.id}/chat").add({
     'user': user, // UID
     'message': message, // Vlad es tonto
     'read': read, // false
     'type': type.name, // text
     'date': date, // 11/07/2022
-  })
-      .then((value) => logSuccess("$logSuccessPrefix Message Added"))
-      .catchError((error) => logError("$logErrorPrefix Failed to add Message: $error"));
+  }).then((value){
+    logSuccess("$logSuccessPrefix Message Added");
+    return value.id;
+  }).catchError((error){
+    logError("$logErrorPrefix Failed to add Message: $error");
+  });
+}
+
+Future<void> setInDBFromTrainer(String docID){
+  // Call the user's CollectionReference to add a new user
+  return FirebaseFirestore.instance.collection("users/${chatUser.id}/chat").doc(docID).set({
+    'user': user, // UID
+    'message': message, // Vlad es tonto
+    'read': read, // false
+    'type': type.name, // text
+    'date': date, // 11/07/2022
+  }).then((value)=> logSuccess("$logSuccessPrefix Message Set"))
+    .catchError((error) => logError("$logErrorPrefix Failed to add Message: $error"));
 }
 
 Future<void> uploadInDBFromTrainer(Map<String, Object> map) async{

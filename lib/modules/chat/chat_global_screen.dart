@@ -5,7 +5,6 @@ import 'package:marvaltrainer/utils/extensions.dart';
 import 'package:marvaltrainer/widgets/marval_drawer.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../config/log_msg.dart';
 import '../../constants/colors.dart';
 import '../../constants/components.dart';
 import '../../constants/global_variables.dart';
@@ -18,7 +17,7 @@ import '../../utils/objects/message.dart';
 import '../../utils/objects/user.dart';
 import 'chat_user_screen.dart';
 
-
+///@TODO Improve the size of the GestureDetector when user wants to openChat
 //Get the data of all active users
 List<MarvalUser>? _getOrderedList(Ref ref){
   final List<MarvalUser>? list = getUserList(ref);
@@ -142,15 +141,15 @@ class _UsersList extends StatelessWidget {
                   chatUser = data[index];
                   Navigator.popAndPushNamed(context, ChatScreen.routeName);
                 },
-                child: MarvalChatTile(user: data[index], message: lastMessages[index], notifications: notifications[index],)
+                child: _MarvalChatTile(user: data[index], message: lastMessages[index], notifications: notifications[index],)
             );}
       );
     });
   }
 }
 
-class MarvalChatTile extends StatelessWidget {
-  const MarvalChatTile({required this.user, required this.message, required this.notifications, Key? key}) : super(key: key);
+class _MarvalChatTile extends StatelessWidget {
+  const _MarvalChatTile({required this.user, required this.message, required this.notifications, Key? key}) : super(key: key);
   final MarvalUser user;
   final Message? message;
   final int notifications;
@@ -177,6 +176,7 @@ class MarvalChatTile extends StatelessWidget {
                           backgroundColor: kBlack,
                         )),
                     SizedBox(width: 2.w,),
+                    /** Last Message **/
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -191,16 +191,13 @@ class MarvalChatTile extends StatelessWidget {
                            Icon(Icons.check_sharp, color: kGreen, size: 6.w,)
                                :
                            const SizedBox(),
-                            Expanded(
-                            child:TextP2( message!.message,
-                             size: 3.5, color: kGrey,
-                             textAlign: TextAlign.start, maxLines: 2,
-                            ))
+                           _LastMessageBox(message: message!,)
                          ]))
                       ]),
                     const Spacer(),
-                    SizedBox(width: 14.w ,child:
-                    Column(
+                    /** Notifications **/
+                    SizedBox(width: 14.w,
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -226,5 +223,25 @@ class MarvalChatTile extends StatelessWidget {
                       ]))
                   ])),
           ]));
+  }
+}
+
+class _LastMessageBox extends StatelessWidget {
+  const _LastMessageBox({required this.message, Key? key}) : super(key: key);
+  final Message message;
+  @override
+  Widget build(BuildContext context) {
+    if(message.type == MessageType.photo){
+      return const Expanded(
+          child:TextP2( "📷 Image",
+            size: 3.5, color: kGrey,
+            textAlign: TextAlign.start, maxLines: 2,
+          ));
+    }
+    return Expanded(
+        child:TextP2( message.message,
+          size: 3.5, color: kGrey,
+          textAlign: TextAlign.start, maxLines: 2,
+        ));
   }
 }

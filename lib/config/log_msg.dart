@@ -9,3 +9,5 @@ void logWarning(Object msg) => print('\x1B[33m${msg.toString()}\x1B[0m');
 
 // Red text
 void logError(Object msg)   => print('\x1B[31m${msg.toString()}\x1B[0m');
+
+// Yellow Text

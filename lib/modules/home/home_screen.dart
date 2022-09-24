@@ -21,15 +21,7 @@ import '../../widgets/marval_drawer.dart';
 /// @TODO Add common Profile Photo to Storage and let URL on User.create
 /// @TODO Change the Details hobbie to User Hobbie
 
-List<MarvalUser>? _getMarvalUserList(Ref ref){
-  final query = ref.watch(handlerEmitter.asyncData).data;
-  if(isNull(query)||query!.size==0){ return null; }
 
-  //Pass data from querySnapshot to Messages
-  final List<MarvalUser> list = queryToData(query).whereType<MarvalUser>().toList();
-  String name = ref.watch(_searchCreator);
-  return list.where((user) => user.name.toLowerCase().contains(name)).toList();
-}
 Creator<String> _searchCreator = Creator.value('');
 
 
@@ -120,7 +112,7 @@ class _UsersList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Watcher((context, ref, child){
-      var data = _getMarvalUserList(ref);
+      var data = getUserList(ref);
       if(isNullOrEmpty(data)){ return const SizedBox(); }
       return ListView.builder(
         itemCount: data!.length,
