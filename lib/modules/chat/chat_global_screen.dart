@@ -15,6 +15,7 @@ import '../../utils/decoration.dart';
 import '../../utils/marval_arq.dart';
 import '../../utils/objects/message.dart';
 import '../../utils/objects/user.dart';
+import '../../widgets/image_editor.dart';
 import 'chat_user_screen.dart';
 
 ///@TODO Improve the size of the GestureDetector when user wants to openChat
@@ -169,12 +170,13 @@ class _MarvalChatTile extends StatelessWidget {
                             boxShadow: [kDarkShadow],
                             borderRadius: BorderRadius.circular(100.w)
                         ),
-                        child: CircleAvatar(
-                          backgroundImage: isNull(user.profileImage) ?
-                          null :
-                          Image.network(user.profileImage!).image, radius: 5.h,
-                          backgroundColor: kBlack,
-                        )),
+                        child:  CircleAvatar(
+                            backgroundImage: isNullOrEmpty(user.profileImage) ?
+                            null :
+                            Image.network(user.profileImage!).image, radius: 5.h,
+                            backgroundColor: kBlack,
+                          ),
+                        ),
                     SizedBox(width: 2.w,),
                     /** Last Message **/
                     Column(

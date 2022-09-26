@@ -1,14 +1,16 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:image_downloader/image_downloader.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:marvaltrainer/config/log_msg.dart';
-import 'package:marvaltrainer/modules/chat/chat_global_screen.dart';
-import 'package:marvaltrainer/widgets/marval_dialogs.dart';
 import 'package:sizer/sizer.dart';
 
+import '../../modules/chat/chat_global_screen.dart';
+
+import '../../config/log_msg.dart';
 import '../../config/custom_icons.dart';
+
 import '../../constants/colors.dart';
-import '../../constants/components.dart';
 import '../../constants/global_variables.dart';
 import '../../constants/string.dart';
 import '../../constants/theme.dart';
@@ -18,8 +20,12 @@ import '../../utils/decoration.dart';
 import '../../utils/firebase/storage.dart';
 import '../../utils/marval_arq.dart';
 import '../../utils/objects/message.dart';
+
+import '../../widgets/marval_dialogs.dart';
 import '../../widgets/box_user_data.dart';
+import '../../widgets/image_editor.dart';
 import '../../widgets/marval_drawer.dart';
+import '../../widgets/marval_snackbar.dart';
 
 import 'chat_logic.dart';
 
@@ -127,8 +133,8 @@ class ChatScreen extends StatelessWidget {
                 })))),
                 /// TextField */
                 Positioned(bottom: 3.w, left: 5.w,
-                  child: SizedBox( width: 90.w,
-                    child: _ChatTextField())),
+                  child: SafeArea(child: SizedBox( width: 90.w,
+                    child: _ChatTextField())))
               ])),
     ));
   }
@@ -262,27 +268,68 @@ class _ImageBox extends StatelessWidget {
                 right: fromUser ? 0   : 4.w,
                 left : fromUser ? 4.w : 0
             ),
-          padding: EdgeInsets.all(3.w),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.only(
-              topRight:  fromUser ? Radius.circular(2.w) : Radius.zero,
-              topLeft : !fromUser ? Radius.circular(2.w) : Radius.zero,
-              bottomLeft: Radius.circular(2.w),
-              bottomRight: Radius.circular(2.w),
+            padding: EdgeInsets.all(3.w),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(
+                topRight:  fromUser ? Radius.circular(2.w) : Radius.zero,
+                topLeft : !fromUser ? Radius.circular(2.w) : Radius.zero,
+                bottomLeft: Radius.circular(2.w),
+                bottomRight: Radius.circular(2.w),
+              ),
+              color: fromUser ? kBlack : kBlue,
             ),
-            color: fromUser ? kBlack : kBlue,
-          ),
-          child: Container(width: 50.w, height: 20.h,
-            color: fromUser ? kBlack : kBlue,
-            child: message.message.isEmpty ?
-            Center(child: CircularProgressIndicator(color: kBlueSec, backgroundColor: kWhite))
-                :
-            Image.network(message.message, fit: BoxFit.cover,
-            loadingBuilder: (context, child, loadingProgress) {
-              if(loadingProgress == null ) return child;
-              return const CircularProgressIndicator(color: kBlueSec, backgroundColor: kWhite);})
-          )
-        ),
+            child: Container(width: 50.w, height: 20.h,
+                color: fromUser ? kBlack : kBlue,
+                child: message.message.isEmpty ?
+                const Center(child: CircularProgressIndicator(color: kBlueSec, backgroundColor: kWhite))
+                    :
+                GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        PageRouteBuilder(
+                          opaque: false,
+                          barrierColor: kWhite,
+                          pageBuilder: (BuildContext context, _, __) {
+                            return FullScreenPage(
+                              child: Image.network(message.message, height: 100.h,),
+                              dark: true,
+                              url: message.message,
+                            );
+                          },
+                        ),
+                      );
+                    },
+                    onLongPressStart: (details) async{
+                      try {
+                        // Saved with this method.
+                        var imageId = await ImageDownloader.downloadImage(message.message);
+                        if (imageId == null) {
+                          MarvalSnackBar(context, SNACKTYPE.alert,
+                              title: "Ups, algo ha fallado",
+                              subtitle: "No se ha podido realizar la descarga"
+                          );
+                          return;
+                        }
+                        MarvalSnackBar(context, SNACKTYPE.success,
+                            title: "Descarga completa!",
+                            subtitle: "Ya puedes acceder a la foto desde tu galeria"
+                        );
+                      } on PlatformException catch (error) {
+                        logError(error);
+                        MarvalSnackBar(context, SNACKTYPE.alert,
+                            title: "Ups, algo ha fallado",
+                            subtitle: "No se ha podido realizar la descarga"
+                        );
+                      }
+                    },
+                    child: Image.network(message.message, fit: BoxFit.cover,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if(loadingProgress == null ) return child;
+                          return const Center( child:  CircularProgressIndicator(color: kBlueSec, backgroundColor: kWhite));}
+                    )
+                )
+            )),
           Padding(padding: EdgeInsets.only(left: 4.w, right: 4  .w, bottom: 1.h,),
               child: TextP2(message.date.toFormatStringHour(), color: kGrey,))
         ]);
