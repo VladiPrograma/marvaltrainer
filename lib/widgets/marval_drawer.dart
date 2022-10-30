@@ -1,8 +1,6 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
-import 'package:marvaltrainer/modules/alta/add_users_screen.dart';
-import 'package:marvaltrainer/modules/chat/chat_logic.dart';
-import 'package:marvaltrainer/utils/extensions.dart';
+
 import 'package:sizer/sizer.dart';
 
 import '../config/custom_icons.dart';
@@ -11,8 +9,12 @@ import '../constants/global_variables.dart';
 import '../constants/theme.dart';
 import '../core/login/login_screen.dart';
 import '../modules/chat/chat_global_screen.dart';
+import '../modules/habits/habits_screen_global.dart';
 import '../modules/home/home_screen.dart';
+import '../modules/alta/add_users_screen.dart';
+import '../modules/chat/chat_logic.dart';
 import '../modules/settings/settings_screen.dart';
+import '../utils/extensions.dart';
 import '../utils/marval_arq.dart';
 import '../utils/objects/user.dart';
 
@@ -32,7 +34,7 @@ class MarvalDrawer extends StatelessWidget {
           /// Header
           Watcher((context, ref, child) {
                 MarvalUser? user = getUser(context, ref);
-                return SizedBox(height: 39.h,
+                return SizedBox(height: 37.h,
                     child: DrawerHeader(
                       decoration: BoxDecoration( color: kWhite, border: Border.all(color: kWhite) ),
                       child: Column(
@@ -46,7 +48,7 @@ class MarvalDrawer extends StatelessWidget {
                             child: isNull(user)||isNullOrEmpty(user!.profileImage) ? Icon(CustomIcons.person, color: kWhite, size: 13.w,): null,
                           ),
                           const TextH2('Bienvenido', color: kGrey, size: 6,),
-                          TextH1(isNull(user) ? "" : user!.name.maxLength(13), color: kBlack, size: 8, textOverFlow: TextOverflow.clip ,),
+                          TextH1(isNull(user) ? "" : user!.name.maxLength(13), color: kBlack, size: 7.5, textOverFlow: TextOverflow.clip ,),
                         ],
                       ),
                     ));
@@ -90,6 +92,14 @@ class MarvalDrawer extends StatelessWidget {
           ),
           /// Ejercicios
           GestureDetector(
+            onTap: (){ Navigator.popAndPushNamed(context, HabitsScreenGlobal.routeName);},
+            child: ListTile(
+              leading: Icon(CustomIcons.habits,color: name=="Habitos" ? kGreen : kBlack, size: 6.w,),
+              title: TextH2('Habitos', size: 4, color: name=="Habitos" ? kGreen : kBlack),
+            ),
+          ),
+          /// Ejercicios
+          GestureDetector(
             onTap: (){ Navigator.popAndPushNamed(context, LoginScreen.routeName);},
             child: ListTile(
               leading: Icon(CustomIcons.gym,color: name=="Ejercicios" ? kGreen : kBlack, size: 6.w,),
@@ -116,8 +126,7 @@ class MarvalDrawer extends StatelessWidget {
               title: TextH2('Ajustes', size: 4, color: name=="Ajustes" ? kGreen : kBlack),
             ),
           ),
-          SizedBox(height: 3.h,),
-          SizedBox( height: 15.h,
+          SizedBox( height: 12.h,
             child: Image.asset('assets/images/marval_logo.png'),)
         ],
       ),

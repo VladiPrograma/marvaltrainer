@@ -15,7 +15,6 @@ import '../../utils/decoration.dart';
 import '../../utils/marval_arq.dart';
 import '../../utils/objects/message.dart';
 import '../../utils/objects/user.dart';
-import '../../widgets/image_editor.dart';
 import 'chat_user_screen.dart';
 
 ///@TODO Improve the size of the GestureDetector when user wants to openChat
@@ -236,6 +235,13 @@ class _LastMessageBox extends StatelessWidget {
     if(message.type == MessageType.photo){
       return const Expanded(
           child:TextP2( "📷 Image",
+            size: 3.5, color: kGrey,
+            textAlign: TextAlign.start, maxLines: 2,
+          ));
+    }
+    if(message.type == MessageType.audio){
+      return const Expanded(
+          child:TextP2( "🎤 Audio",
             size: 3.5, color: kGrey,
             textAlign: TextAlign.start, maxLines: 2,
           ));

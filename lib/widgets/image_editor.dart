@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:image_downloader/image_downloader.dart';
 import 'package:sizer/sizer.dart';
 
+import '../alerts/snack_errors.dart';
 import '../config/log_msg.dart';
-import 'marval_snackbar.dart';
 
 class ImageFullScreenWrapperWidget extends StatelessWidget {
   final Image child;
@@ -42,13 +42,13 @@ class ImageFullScreenWrapperWidget extends StatelessWidget {
 }
 
 class FullScreenPage extends StatefulWidget {
-  FullScreenPage({
+  const FullScreenPage({Key? key,
     required this.child,
     required this.url,
     required this.dark,
-  });
+  }) : super(key: key);
 
-  final Image child;
+  final Widget child;
   final String url;
   final bool dark;
 
@@ -76,7 +76,7 @@ class _FullScreenPageState extends State<FullScreenPage> {
   @override
   void dispose() {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive, overlays: [SystemUiOverlay.top]);
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       // Restore your settings here...
     ));
     super.dispose();
@@ -109,73 +109,64 @@ class _FullScreenPageState extends State<FullScreenPage> {
           ),
           SafeArea(
             child: Padding(
-            padding: EdgeInsets.all(3.w),
+              padding: EdgeInsets.all(3.w),
               child: Align(
-              alignment: Alignment.topLeft,
-              child: Row(
-                children: [
-                  MaterialButton(
-                    padding: const EdgeInsets.all(15),
-                    elevation: 0,
-                    child: Icon(
-                      Icons.arrow_back,
-                      color: widget.dark ? Colors.white : Colors.black,
-                      size: 5.w,
-                    ),
-                    color: widget.dark ? Colors.black12 : Colors.white70,
-                    highlightElevation: 0,
-                    minWidth: double.minPositive,
-                    height: double.minPositive,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(100),
-                    ),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                  SizedBox(width: 3.w,),
-                  MaterialButton(
-                    padding: const EdgeInsets.all(15),
-                    elevation: 0,
-                    child: Icon(
-                      _downloaded,
-                      color: widget.dark ? Colors.white : Colors.black,
-                      size: 5.w,
-                    ),
-                    color: widget.dark ? Colors.black12 : Colors.white70,
-                    highlightElevation: 0,
-                    minWidth: double.minPositive,
-                    height: double.minPositive,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(100),
-                    ),
-                    onPressed: () async{
-                      if(_downloaded != Icons.download_done_rounded){
-                      setState(() {
-                        _downloaded = Icons.downloading_rounded;
-                      });
-                      try {
-                        // Saved with this method.
-                        var imageId = await ImageDownloader.downloadImage(widget.url);
-                        if (imageId == null) {
-                          MarvalSnackBar(context, SNACKTYPE.alert,
-                              title: "Ups, algo ha fallado",
-                              subtitle: "No se ha podido realizar la descarga"
-                          );
-                          return;
-                        }
-                        setState(() {
-                          _downloaded = Icons.download_done_rounded;
-                        });
-                      } on PlatformException catch (error) {
-                        logError(error);
-                        MarvalSnackBar(context, SNACKTYPE.alert,
-                            title: "Ups, algo ha fallado",
-                            subtitle: "No se ha podido realizar la descarga"
-                        );
-                      }
-                    }},
-                  )
-                ],
-              )),
+                  alignment: Alignment.topLeft,
+                  child: Row(
+                    children: [
+                      MaterialButton(
+                        padding: const EdgeInsets.all(15),
+                        elevation: 0,
+                        color: widget.dark ? Colors.black12 : Colors.white70,
+                        highlightElevation: 0,
+                        minWidth: double.minPositive,
+                        height: double.minPositive,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(100),
+                        ),
+                        onPressed: () => Navigator.of(context).pop(),
+                        child:  Icon(
+                          Icons.arrow_back,
+                          color: widget.dark ? Colors.white : Colors.black,
+                          size: 5.w,
+                        ),
+                      ),
+                      SizedBox(width: 3.w,),
+                      MaterialButton(
+                        padding: const EdgeInsets.all(15),
+                        elevation: 0,
+                        color: widget.dark ? Colors.black12 : Colors.white70,
+                        highlightElevation: 0,
+                        minWidth: double.minPositive,
+                        height: double.minPositive,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(100),
+                        ),
+                        onPressed: () async{
+                          if(_downloaded != Icons.download_done_rounded){
+                            setState(() {
+                              _downloaded = Icons.downloading_rounded;
+                            });
+                            ImageDownloader.downloadImage(widget.url)
+                                .onError((error, stackTrace) {
+                              logError(stackTrace.toString());
+                              ThrowSnackbar.downloadError(this.context);
+                              setState(() => _downloaded = Icons.download_rounded );
+                              return null;
+                            }).then((value){
+                              ThrowSnackbar.downloadSuccess(this.context);
+                              setState(() => _downloaded = Icons.download_done_rounded );
+                            });
+
+                          }},
+                        child: Icon(
+                          _downloaded,
+                          color: widget.dark ? Colors.white : Colors.black,
+                          size: 5.w,
+                        ),
+                      )
+                    ],
+                  )),
             ),
           ),
         ],

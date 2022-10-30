@@ -58,12 +58,15 @@ class TextP1 extends StatelessWidget {
   final String? text;
   final double? size;
   final Color? color;
-  const TextP1(String this.text,{Key? key, this.size, this.color}) : super(key: key);
+  final int? maxLines;
+  final TextAlign? textAlign;
+  const TextP1(String this.text,{Key? key,this.textAlign, this.size, this.color, this.maxLines}) : super(key: key);
 
   Widget build(BuildContext context) {
     return Text(
       text ?? "",
-      textAlign: TextAlign.justify,
+      textAlign: textAlign,
+      maxLines: maxLines,
       style: TextStyle(
         fontFamily: p1,
         fontSize: size?.w ?? 4.w,
@@ -89,6 +92,7 @@ class TextP2 extends StatelessWidget {
         fontFamily: p2,
         fontSize: size?.w ?? 4.w,
         color: color ?? kBlack,
+        overflow: TextOverflow.ellipsis
       ),
     );
   }

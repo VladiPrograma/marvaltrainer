@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:marvaltrainer/utils/extensions.dart';
 import 'package:path/path.dart' as p;
 import 'package:firebase_storage/firebase_storage.dart';
@@ -31,6 +32,23 @@ Future<String> uploadChatImage ({required String uid, required String name, requ
   /*** Updating  **/
   logInfo('Pending to update: ${path+uid+extension}');
   final ref = FirebaseStorage.instance.ref().child(path+name+extension);
+  UploadTask uploadTask = ref.putFile(file);
+  final snapshot = await uploadTask.whenComplete(() => {});
+
+  /*** Getting the URL  **/
+  final urlDownload = await snapshot.ref.getDownloadURL();
+  logInfo('Download Link: $urlDownload');
+  return urlDownload;
+}
+
+Future<String> uploadChatAudio({required String uid, required DateTime date, required String audioPath}) async{
+  final path = 'chat/$uid/';
+  final file = File(audioPath);
+  const extension = ".acc";
+  /*** Updating  **/
+  logInfo('Pending to update: ${path+audioPath}');
+  int seconds = Timestamp.fromDate(date).seconds;
+  final ref = FirebaseStorage.instance.ref().child("$path$seconds$extension");
   UploadTask uploadTask = ref.putFile(file);
   final snapshot = await uploadTask.whenComplete(() => {});
 

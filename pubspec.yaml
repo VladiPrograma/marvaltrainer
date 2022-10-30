@@ -35,18 +35,23 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   # * * * * * * * * * * * * * *
-  sizer: ^2.0.15
-  flutter_glow: ^0.2.0
   http: ^0.13.4
+  sizer: ^2.0.15
+  creator: ^0.1.7
+  flutter_glow: ^0.2.0
   firebase_auth: ^3.4.1
   firebase_core: ^1.19.1
   cloud_firestore: ^3.2.1
-  image_picker: ^0.8.5+3
   firebase_storage: ^10.3.2
+  image_downloader: ^0.31.0
+  image_picker: ^0.8.5+3
   sleek_circular_slider: ^2.0.1
   flutter_native_splash: ^2.2.6
-  creator: ^0.1.7
-  image_downloader: ^0.31.0
+  audio_session: ^0.1.1
+  permission_handler: ^10.1.0
+  flutter_sound: ^9.2.13
+  audioplayers: ^1.1.1
+  cached_network_image: ^3.2.2
 
 dev_dependencies:
   flutter_test:

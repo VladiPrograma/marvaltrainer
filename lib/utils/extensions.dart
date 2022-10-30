@@ -1,6 +1,17 @@
 import 'package:flutter/material.dart';
 
+extension DurationFormat on Duration{
+  String printDuration() {
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    String twoDigitMinutes = twoDigits(inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(inSeconds.remainder(60));
+    return "$twoDigitMinutes:$twoDigitSeconds";
+  }
+}
+
 extension StringFormat on String{
+
+
 
   String maxLength(int num){
     if(length>num){
@@ -92,6 +103,11 @@ extension DateFormat on DateTime{
   String toFormatStringHour(){ return '$hour:${minute>10 ? minute : '0$minute'} ${hour<12? 'am' : 'pm'}';}
 
   get id => '${day<10 ? '0$day' : '$day'}-$month-$year';
+
+  DateTime cropTime(){
+    return DateTime(year, month, day);
+
+  }
 
   DateTime lastMonday(){
     DateTime res = this;

@@ -165,7 +165,7 @@ class MarvalUser {
   }
 
   Future<void> getCurrentTraining() async =>
-      currenTraining = await Planing.getFromBD(id);
+      currenTraining = await Planing.getFromDB(id);
 
   Future<void> getDaily(DateTime date) async =>
       dailys![date.id] = await Daily.getFromDB(date);

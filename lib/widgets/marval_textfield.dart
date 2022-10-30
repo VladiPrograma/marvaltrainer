@@ -11,8 +11,29 @@ import '../utils/marval_arq.dart';
 /// Custom TextField
 
 class MarvalInputTextField extends StatelessWidget {
-  const MarvalInputTextField({Key? key,this.controller, this.readOnly, this.width, this.labelText,this.onTap, this.validator, this.onSaved, this.onChanged, this.hintText, this.keyboardType, this.prefixIcon, this.obscureText, this.suffixIcon}) : super(key: key);
+  const MarvalInputTextField({Key? key,
+    this.controller,
+    this.maxLines,
+    this.maxLength,
+    this.readOnly,
+    this.initialValue,
+    this.width,
+    this.labelText,
+    this.onTap,
+    this.validator,
+    this.onSaved,
+    this.onChanged,
+    this.hintText,
+    this.keyboardType,
+    this.prefixIcon,
+    this.obscureText,
+    this.suffixIcon
+  }) : super(key: key);
+
   final double? width;
+  final int? maxLines;
+  final int? maxLength;
+  final String? initialValue;
   final String? labelText;
   final String? hintText;
   final TextInputType? keyboardType;
@@ -43,6 +64,9 @@ class MarvalInputTextField extends StatelessWidget {
                         cursorColor: kWhite,
                         keyboardType: keyboardType ?? TextInputType.text,
                         obscureText: obscureText ?? false,
+                        initialValue: initialValue,
+                        maxLines: maxLines ?? 1,
+                        maxLength: maxLength ?? null,
                         style: TextStyle( fontFamily: p1, color: hasFocus ? kWhite : kBlack, fontSize: 4.w),
                         decoration: InputDecoration(
                             filled: true,
