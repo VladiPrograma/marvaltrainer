@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:image_downloader/image_downloader.dart';
 import 'package:sizer/sizer.dart';
 
-import '../alerts/snack_errors.dart';
 import '../config/log_msg.dart';
+import '../constants/alerts/snack_errors.dart';
 
 class ImageFullScreenWrapperWidget extends StatelessWidget {
   final Image child;
@@ -44,8 +44,8 @@ class ImageFullScreenWrapperWidget extends StatelessWidget {
 class FullScreenPage extends StatefulWidget {
   const FullScreenPage({Key? key,
     required this.child,
-    required this.url,
     required this.dark,
+    required this.url,
   }) : super(key: key);
 
   final Widget child;
@@ -157,7 +157,6 @@ class _FullScreenPageState extends State<FullScreenPage> {
                               ThrowSnackbar.downloadSuccess(this.context);
                               setState(() => _downloaded = Icons.download_done_rounded );
                             });
-
                           }},
                         child: Icon(
                           _downloaded,

@@ -1,5 +1,7 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
+import 'package:marvaltrainer/firebase/users/model/user.dart';
+import 'package:marvaltrainer/widgets/cached_avatar_image.dart';
 
 import 'package:sizer/sizer.dart';
 
@@ -7,23 +9,19 @@ import '../config/custom_icons.dart';
 import '../constants/colors.dart';
 import '../constants/global_variables.dart';
 import '../constants/theme.dart';
-import '../core/login/login_screen.dart';
-import '../modules/chat/chat_global_screen.dart';
-import '../modules/habits/habits_screen_global.dart';
-import '../modules/home/home_screen.dart';
-import '../modules/alta/add_users_screen.dart';
-import '../modules/chat/chat_logic.dart';
-import '../modules/settings/settings_screen.dart';
+import '../screens/chat/chat_global_screen.dart';
+import '../screens/habits/habits_screen_global.dart';
+import '../screens/home/home_screen.dart';
+import '../screens/chat/chat_logic.dart';
+import '../screens/login/login_screen.dart';
+import '../screens/settings/settings_screen.dart';
 import '../utils/extensions.dart';
-import '../utils/marval_arq.dart';
-import '../utils/objects/user.dart';
 
 class MarvalDrawer extends StatelessWidget {
   const MarvalDrawer({required this.name, Key? key}) : super(key: key);
   final String name;
   @override
   Widget build(BuildContext context) {
-    final String userName = authUser.displayName!;
     return Drawer(
       backgroundColor: kWhite,
       child: SizedBox( height: 100.h,
@@ -33,34 +31,19 @@ class MarvalDrawer extends StatelessWidget {
         children:  <Widget>[
           /// Header
           Watcher((context, ref, child) {
-                MarvalUser? user = getUser(context, ref);
-                return SizedBox(height: 37.h,
+                User? user = userLogic.getAuthUser(context, ref);
+                return SizedBox(height: 38.h,
                     child: DrawerHeader(
                       decoration: BoxDecoration( color: kWhite, border: Border.all(color: kWhite) ),
                       child: Column(
                         children: [
-                          CircleAvatar(
-                            backgroundImage: isNull(user)||isNullOrEmpty(user!.profileImage) ?
-                            null :
-                            Image.network(user.profileImage!).image,
-                            backgroundColor: kBlack,
-                            radius: 9.h,
-                            child: isNull(user)||isNullOrEmpty(user!.profileImage) ? Icon(CustomIcons.person, color: kWhite, size: 13.w,): null,
-                          ),
+                          CachedAvatarImage(url: user?.profileImage ?? '', size: 9),
                           const TextH2('Bienvenido', color: kGrey, size: 6,),
-                          TextH1(isNull(user) ? "" : user!.name.maxLength(13), color: kBlack, size: 7.5, textOverFlow: TextOverflow.clip ,),
+                          TextH1(user?.name.maxLength(13) ?? "" , color: kBlack, size: 7.5, textOverFlow: TextOverflow.clip ,),
                         ],
                       ),
                     ));
               }),
-          /// Dar de alta
-          GestureDetector(
-            onTap: () => Navigator.popAndPushNamed(context, AddUserScreen.routeName),
-            child: ListTile(
-              leading: Icon(CustomIcons.users,color: name=="Dar de alta" ? kGreen : kBlack, size: 6.w,),
-              title: TextH2('Dar de alta', size: 4, color: name=="Dar de alta" ? kGreen : kBlack),
-            ),
-          ),
           /// Home
           GestureDetector(
             onTap: () => Navigator.popAndPushNamed(context, HomeScreen.routeName),

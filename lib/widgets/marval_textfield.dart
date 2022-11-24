@@ -4,7 +4,7 @@ import 'package:sizer/sizer.dart';
 import '../constants/colors.dart';
 import '../constants/string.dart';
 import '../constants/theme.dart';
-import '../utils/decoration.dart';
+import 'inner_border.dart';
 import '../utils/marval_arq.dart';
 
 

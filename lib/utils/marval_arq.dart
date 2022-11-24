@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:marvaltrainer/utils/extensions.dart';
 
@@ -32,6 +31,5 @@ String? validateNumber(String? value){
 
 Map<String, dynamic>? toMap(DocumentSnapshot doc){
   try{  return doc.data() as Map<String, dynamic>; }
-  catch(E){  logError("DocumentSnapshot fails in cast to Map<String, dynamic):\n $E"); }
-  return null;
+  catch(E){  logError(" DocumentSnapshot fails casting to Map<String, dynamic):\n $E"); return null; }
 }

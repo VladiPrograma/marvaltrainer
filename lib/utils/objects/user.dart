@@ -244,6 +244,13 @@ class MarvalUser {
     });
   }
 
+  void updateProfileImage({required String url}) {
+    profileImage = url;
+    uploadInDB({
+      "profile_image": profileImage ?? "",
+    });
+  }
+
   void updateActive() {
     active = !active;
     uploadInDB({

@@ -16,7 +16,6 @@ class MarvalForm {
 
   MarvalForm({required this.key, required this.question, required this.answers, required this.number});
 
-
   MarvalForm.fromJson(Map<String, dynamic> map)
       : key      = map["key"],
         question = map["question"],

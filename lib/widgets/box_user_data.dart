@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:marvaltrainer/widgets/cached_avatar_image.dart';
 import 'package:sizer/sizer.dart';
 
 import '../constants/colors.dart';
@@ -17,36 +18,15 @@ class BoxUserData extends StatelessWidget {
     return Row(
       children: [
         Container(
-            decoration: BoxDecoration(
-              boxShadow: [kMarvalHardShadow],
-              borderRadius: BorderRadius.all(Radius.circular(100.w)),
-            ),
-            child: GestureDetector(
-            onTap: (){
-              if(isNotNullOrEmpty(user.profileImage)){
-                Navigator.push(
-                  context,
-                  PageRouteBuilder(
-                    opaque: false,
-                    barrierColor: kBlack,
-                    pageBuilder: (BuildContext context, _, __) {
-                      return FullScreenPage(
-                        child: Image.network(user.profileImage!, height: 100.h,),
-                        dark: false,
-                        url: user.profileImage!,
-                      );
-                    },
-                  ),
-                );
-              }
-            },
-            child: CircleAvatar(
-            backgroundImage: isNullOrEmpty(user.profileImage) ?
-            null :
-            Image.network(user.profileImage!).image, radius: 5.h,
-            backgroundColor: kBlack,
-            ),
-            )),
+         decoration: BoxDecoration(
+           boxShadow: [kMarvalHardShadow],
+           borderRadius: BorderRadius.all(Radius.circular(100.w)),
+         ),
+         child: CachedAvatarImage(
+           url: user.profileImage,
+           size: 5,
+           expandable: true,
+         )),
         SizedBox(width: 2.w),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -10,9 +10,9 @@ import '../../widgets/marval_snackbar.dart';
 void resetPassword(BuildContext context, String email){
   FirebaseAuth.instance.sendPasswordResetEmail(email: email)
       .then((value) {
-    MarvalSnackBar(context, SNACKTYPE.success, title: kResetPasswordSuccesTitle, subtitle: kResetPasswordSucessSubtitle);
+   // MarvalSnackBar(context, SNACKTYPE.success, title: kResetPasswordSuccesTitle, subtitle: kResetPasswordSucessSubtitle);
   }).catchError((error){
-    MarvalSnackBar(context, SNACKTYPE.alert, title: kResetPasswordErrorTitle, subtitle: kResetPasswordErrorSubtitle);
+    //MarvalSnackBar(context, SNACKTYPE.alert, title: kResetPasswordErrorTitle, subtitle: kResetPasswordErrorSubtitle);
   });
 }
 
@@ -51,15 +51,11 @@ Future<String?> signUp(String email, String password) async{
         .createUserWithEmailAndPassword(email: email, password: password);
     return userCredential.user!.uid;
   } on FirebaseAuthException catch (e) {
-    if (e.code == 'weak-password') {
-      logError('The password provided is too weak.');
-      return kEmailExists;
-    } else if (e.code == 'email-already-in-use') {
+     if (e.code == 'email-already-in-use') {
       logError('The account already exists for that email.');
       return kEmailExists;
-    }
-
+    }else{
+       return 'unexpected-error';
+     }
   }
-  logInfo("Se borra");
-  await app.delete();
 }

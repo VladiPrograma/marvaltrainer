@@ -21,7 +21,6 @@ class Measures {
   final double ombligoM2;
   final double cadera;
   final double contPecho;
-
   final double contHombros;
   final double gemeloIzq;
   final double gemeloDrch;

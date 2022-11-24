@@ -2,10 +2,25 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:creator/creator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:marvaltrainer/firebase/authentication/logic/auth_user_logic.dart';
+import 'package:marvaltrainer/firebase/dailys/logic/daily_logic.dart';
+import 'package:marvaltrainer/firebase/form/logic/form_answer_logic.dart';
+import 'package:marvaltrainer/firebase/gallery/logic/gallery_logic.dart';
+import 'package:marvaltrainer/firebase/measures/logic/measures_logic.dart';
+import 'package:marvaltrainer/firebase/users/logic/user_logic.dart';
+import 'package:marvaltrainer/utils/marval_arq.dart';
+import 'package:marvaltrainer/utils/objects/user.dart';
 import 'package:marvaltrainer/utils/objects/user_handler.dart';
 
-import '../utils/marval_arq.dart';
-import '../utils/objects/user.dart';
+
+/// - - - LOGIC INITS - - -
+UserLogic userLogic = UserLogic();
+DailyLogic dailyLogic = DailyLogic();
+MeasuresLogic measuresLogic = MeasuresLogic();
+GalleryLogic galleryLogic = GalleryLogic();
+FormAnswersLogic formAnswersLogic = FormAnswersLogic();
+AuthUserLogic authUserLogic = AuthUserLogic();
+
 
 /// - - - FIREBASE AUTH - - -  */
 late User authUser;
@@ -21,8 +36,7 @@ final handlerEmitter = Emitter.stream((ref) async {
      .where('active', isEqualTo: true)
      .orderBy('update', descending: false)
      .snapshots();
-});
-
+}, keepAlive: true);
 
 List<MarvalUser>? getUserList(Ref ref){
  final query = ref.watch(handlerEmitter.asyncData).data;

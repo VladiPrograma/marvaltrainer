@@ -6,7 +6,7 @@ import '../constants/colors.dart';
 import '../constants/string.dart';
 import '../constants/theme.dart';
 
- enum SNACKTYPE { info, alert, success}
+enum SNACKTYPE { info, alert, success}
 
 void MarvalSnackBar(BuildContext context, SNACKTYPE type, {String? title, String? subtitle}){
    late Color _backgroundColor;
