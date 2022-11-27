@@ -1,11 +1,11 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
-import 'package:marvaltrainer/config/custom_icons.dart';
-import 'package:marvaltrainer/config/log_msg.dart';
 import 'package:marvaltrainer/constants/colors.dart';
 import 'package:marvaltrainer/constants/global_variables.dart';
 import 'package:marvaltrainer/constants/theme.dart';
 import 'package:marvaltrainer/firebase/dailys/model/daily.dart';
+import 'package:marvaltrainer/firebase/habits/dto/habits_daily.dart';
+import 'package:marvaltrainer/firebase/habits/model/habits.dart';
 import 'package:marvaltrainer/screens/home/profile/widgets/journal_title_row.dart';
 import 'package:marvaltrainer/utils/extensions.dart';
 import 'package:sizer/sizer.dart';
@@ -15,7 +15,6 @@ import 'package:marvaltrainer/utils/marval_arq.dart';
 import 'package:marvaltrainer/widgets/marval_dialogs.dart';
 
 import '../logic/journal_creator.dart';
-import '../logic/state_controller.dart';
 
 ///HABIT LABELS
 ScrollController _returnController(Ref ref){
@@ -31,7 +30,7 @@ class HabitList extends StatelessWidget {
     return SizedBox(width: 100.w, height: 72.h,
     child: Watcher((context, ref, child) {
       Daily? daily = dailyLogic.getLast(ref);
-      Habit? habit = watchHabitsCreator(ref);
+      DailyHabitsDTO? habit = watchHabitsCreator(ref);
       if(isNull(habit)){
         return ListView.separated(
             itemCount: (daily?.habitsFromPlaning.length ?? 0) + 1,
@@ -53,7 +52,7 @@ class HabitList extends StatelessWidget {
 }
 class HabitLabel extends StatelessWidget {
   const HabitLabel({ required this.habit, Key? key}) : super(key: key);
-  final Habit habit;
+  final DailyHabitsDTO habit;
   @override
   Widget build(BuildContext context) {
     return   Row(
@@ -79,7 +78,7 @@ class HabitLabel extends StatelessWidget {
                       bottomRight: Radius.circular(3.w),
                       bottomLeft: Radius.circular(3.w))
               ),
-              child: Center(child: TextH2(habit.icon, size: 4,),),
+              child: Center(child: TextH2(habit.label.getIcon(), size: 4,),),
             )),
         SizedBox(width: 6.w,),
         GestureDetector(
@@ -110,7 +109,7 @@ class HabitLabel extends StatelessWidget {
 
 class _CalendarList extends StatelessWidget {
   const _CalendarList({required this.habit, Key? key}) : super(key: key);
-  final Habit habit;
+  final DailyHabitsDTO habit;
   List<bool> getCalendarHabitList(List<Daily> list, DateTime date, String habit){
     // Get the dailys for this month.
     list = list.where((daily) => daily.date.month == date.month && daily.date.year == date.year && daily.habits.contains(habit)).toList();
@@ -180,8 +179,8 @@ class _Calendar extends StatelessWidget {
                         physics: const NeverScrollableScrollPhysics(),
                         children: List.generate(date.monthDays(), (index) =>
                             Padding(padding: EdgeInsets.all(1.w),
-                                child:  CircleAvatar(radius: 7.w, backgroundColor: habits[index]! ? kGreen : kWhite,
-                                  child: TextH1('${index+1}', color: habits[index]! ? kWhite : kBlack, size: 4,),)))
+                                child:  CircleAvatar(radius: 7.w, backgroundColor: habits[index] ? kGreen : kWhite,
+                                  child: TextH1('${index+1}', color: habits[index] ? kWhite : kBlack, size: 4,),)))
                     ))]
           ));
   }

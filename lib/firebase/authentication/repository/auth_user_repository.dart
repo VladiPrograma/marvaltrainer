@@ -6,15 +6,19 @@ import 'package:marvaltrainer/firebase/authentication/model/auth_user_model.dart
 class AuthUserRepository{
 
   User? get(){  return FirebaseAuth.instance.currentUser; }
+  bool logOut() {
+    bool hasError = false;
+    FirebaseAuth.instance.signOut()
+        .onError((error, stackTrace) => hasError = true);
+    return hasError;
+  }
 
   Future<void> resetPassword(String password) async{
     return get()?.updatePassword(password);
   }
-
   Future<void> resetEmail(String email) async{
     return get()?.updateEmail(email);
   }
-
   Future<String?> signIn(AuthUser user) async{
     try {
       await FirebaseAuth.instance.
@@ -26,12 +30,6 @@ class AuthUserRepository{
     } on FirebaseAuthException catch (e){
       return e.code;
     }
-  }
-  bool logOut() {
-    bool hasError = false;
-    FirebaseAuth.instance.signOut()
-        .onError((error, stackTrace) => hasError = true);
-    return hasError;
   }
   Future<String> signUp(AuthUser user) async{
     FirebaseApp app = await Firebase.initializeApp( name: 'MarvalFitApp', options: Firebase.app().options);

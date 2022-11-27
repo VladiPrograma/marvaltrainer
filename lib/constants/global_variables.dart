@@ -1,25 +1,29 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:creator/creator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:marvaltrainer/firebase/authentication/logic/auth_user_logic.dart';
-import 'package:marvaltrainer/firebase/dailys/logic/daily_logic.dart';
-import 'package:marvaltrainer/firebase/form/logic/form_answer_logic.dart';
-import 'package:marvaltrainer/firebase/gallery/logic/gallery_logic.dart';
-import 'package:marvaltrainer/firebase/measures/logic/measures_logic.dart';
-import 'package:marvaltrainer/firebase/users/logic/user_logic.dart';
+import 'package:marvaltrainer/firebase/messages/logic/messages_logic.dart';
 import 'package:marvaltrainer/utils/marval_arq.dart';
 import 'package:marvaltrainer/utils/objects/user.dart';
 import 'package:marvaltrainer/utils/objects/user_handler.dart';
+import 'package:marvaltrainer/firebase/users/logic/user_logic.dart';
+import 'package:marvaltrainer/firebase/dailys/logic/daily_logic.dart';
+import 'package:marvaltrainer/firebase/habits/logic/habits_logic.dart';
+import 'package:marvaltrainer/firebase/gallery/logic/gallery_logic.dart';
+import 'package:marvaltrainer/firebase/form/logic/form_answer_logic.dart';
+import 'package:marvaltrainer/firebase/measures/logic/measures_logic.dart';
+import 'package:marvaltrainer/firebase/authentication/logic/auth_user_logic.dart';
 
 
-/// - - - LOGIC INITS - - -
+
+/// * - - - LOGIC INITS - - - */
 UserLogic userLogic = UserLogic();
 DailyLogic dailyLogic = DailyLogic();
 MeasuresLogic measuresLogic = MeasuresLogic();
 GalleryLogic galleryLogic = GalleryLogic();
 FormAnswersLogic formAnswersLogic = FormAnswersLogic();
 AuthUserLogic authUserLogic = AuthUserLogic();
+HabitsLogic habitsLogic  = HabitsLogic();
+MessagesLogic messagesLogic  = MessagesLogic();
 
 
 /// - - - FIREBASE AUTH - - -  */
@@ -52,16 +56,3 @@ List _queryToUserList(var query){
  return list;
 }
 
-
-final authEmitter = Emitter.stream((n) => FirebaseAuth.instance.authStateChanges(), keepAlive: true);
-final userEmitter = Emitter.stream((ref) async {
- final authId = await ref.watch(
-     authEmitter.where((auth) => isNotNull(auth)).map((auth) => auth!.uid));
- return FirebaseFirestore.instance.collection('users').doc(authId).snapshots();
-}, keepAlive: true);
-
-MarvalUser? getUser(BuildContext context, Ref ref){
- final query = ref.watch(userEmitter.asyncData).data;
- if(isNull(query)) return null;
- return  MarvalUser.fromJson(query!.data()!);
-}

@@ -3,9 +3,7 @@ import 'package:creator/creator.dart';
 import 'package:firebase_auth/firebase_auth.dart' as Firebase;
 import 'package:marvaltrainer/firebase/users/model/user.dart';
 
-
 final CollectionReference _db = FirebaseFirestore.instance.collection("users");
-
 
 Emitter _authEmitter = Emitter.stream((ref) => Firebase.FirebaseAuth.instance.authStateChanges());
 
@@ -21,7 +19,6 @@ class UserRepository{
     var query = ref.watch(_userEmitter.asyncData).data;
     return query?.data() !=null  ? User.fromMap(query!.data() as Map<String, dynamic>) : null;
   }
-
 
   Future<void> add(User user) {
     return _db.doc(user.id).set(user.toMap());

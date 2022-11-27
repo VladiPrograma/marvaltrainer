@@ -111,47 +111,41 @@ class UserList extends StatelessWidget {
         itemCount: users.length,
         physics: const BouncingScrollPhysics(),
         itemBuilder: (context, index) {
-          return MarvalUserTile(user: users[index]);
+          return _UserTile(user: users[index]);
         },
       );
     });
   }
 }
 
-class MarvalUserTile extends StatelessWidget {
-  const MarvalUserTile({required this.user, Key? key}) : super(key: key);
+class _UserTile extends StatelessWidget {
+  const _UserTile({required this.user, Key? key}) : super(key: key);
   final UserActiveDTO user;
   @override
   Widget build(BuildContext context) {
     return Container(width: 100.w, height: 12.h,
-        padding: EdgeInsets.symmetric(horizontal: 2.5.w),
+        padding: EdgeInsets.only(left: 6.w),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            SizedBox( width: 93.w,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-             Container(
-              decoration: BoxDecoration(
-                  boxShadow: [kMarvalHardShadow],
-                  borderRadius: BorderRadius.circular(100.w)
-              ),
-              child: CachedAvatarImage(
-                url: user.img,
-                size: 5,
-              )),
-             SizedBox(width: 2.w,),
-             Column(
-               crossAxisAlignment: CrossAxisAlignment.start,
-               children: [
-                 TextH2('${user.name.removeIcon()} ${user.lastName}'.maxLength(20), size: 4, ),
-                 TextP2("  ${user.job.maxLength(19)}", color: kGrey,size: 3),
-                 TextP2("  ${user.hobbie.maxLength(19)}", color: kGrey, size: 3,),
-             ]),
-             Spacer(),
-             UserSwitcher(user: user),
-           ])),
+            Container(
+                decoration: BoxDecoration(
+                    boxShadow: [kMarvalHardShadow],
+                    borderRadius: BorderRadius.circular(100.w)
+                ),
+                child: CachedAvatarImage(
+                  url: user.img,
+                  size: 5,
+            )),
+            SizedBox(width: 3.w),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+              TextH2('${user.name.removeIcon()} ${user.lastName}  ${user.name.getIcon()}'.maxLength(20), size: 3.6, ),
+              Padding(padding: EdgeInsets.only(left: 3.w), child: UserSwitcher(user: user),)
+            ])
           ]));
   }
 }
@@ -166,9 +160,7 @@ class UserSwitcher extends StatefulWidget {
 class _UserSwitcherState extends State<UserSwitcher> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(top: 3.h, right: 5.w),
-      child:  CupertinoSwitch(
+    return  CupertinoSwitch(
         activeColor: kGreen,
         value: widget.user.active,
         onChanged: (value) {
@@ -176,7 +168,6 @@ class _UserSwitcherState extends State<UserSwitcher> {
             userLogic.updateActive(widget.user.id, !widget.user.active);
           });
         },
-      ),
     );
   }
 }

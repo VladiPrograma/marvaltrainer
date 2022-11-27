@@ -1,5 +1,6 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
+import 'package:marvaltrainer/constants/global_variables.dart';
 import 'package:marvaltrainer/firebase/users/repository/trainer_users_repo.dart';
 import 'package:marvaltrainer/screens/home/profile/widgets/journal_title_row.dart';
 import 'package:sizer/sizer.dart';
@@ -85,7 +86,7 @@ class ProfileUserData extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Watcher((context, ref, child){
-      User user = ref.watch(currentUser) ?? User.empty();
+      User user = userLogic.getSelected(ref) ?? User.empty();
       return Column(
           children: [
             SizedBox(height: 1.h,),

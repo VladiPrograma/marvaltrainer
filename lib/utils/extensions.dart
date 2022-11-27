@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:marvaltrainer/config/log_msg.dart';
 
 extension DurationFormat on Duration{
   String printDuration() {
@@ -10,8 +13,6 @@ extension DurationFormat on Duration{
 }
 
 extension StringFormat on String{
-
-
 
   String maxLength(int num){
     if(length>num){
@@ -44,6 +45,12 @@ extension StringFormat on String{
   String removeIcon(){
     String regex = r'[^\p{Alphabetic}\p{Mark}\p{Decimal_Number}\p{Connector_Punctuation}\p{Join_Control}\s]+';
     return replaceAll(RegExp(regex, unicode: true),'');
+  }
+
+  String getIcon(){
+    String regex = r'[^\p{Alphabetic}\p{Mark}\p{Decimal_Number}\p{Connector_Punctuation}\p{Join_Control}\s]+';
+    int iconIndex = indexOf(RegExp(regex, unicode: true));
+    return iconIndex  != -1 ? characters.toList()[iconIndex] : '';
   }
 }
 

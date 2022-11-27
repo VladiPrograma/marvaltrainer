@@ -1,5 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:collection/collection.dart';
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
+import 'package:marvaltrainer/config/log_msg.dart';
+import 'package:marvaltrainer/firebase/messages/model/message.dart';
+import 'package:marvaltrainer/firebase/messages/repository/message_repository.dart';
+import 'package:marvaltrainer/firebase/users/dto/user_resume.dart';
+import 'package:marvaltrainer/firebase/users/model/user.dart';
 import 'package:marvaltrainer/screens/chat/chat_logic.dart';
 import 'package:marvaltrainer/utils/extensions.dart';
 import 'package:marvaltrainer/widgets/cached_avatar_image.dart';
@@ -13,37 +20,15 @@ import '../../constants/string.dart';
 import '../../constants/theme.dart';
 
 import '../../utils/marval_arq.dart';
-import '../../utils/objects/message.dart';
-import '../../utils/objects/user.dart';
 import '../../widgets/inner_border.dart';
 import 'chat_user_screen.dart';
 
 ///@TODO Improve the size of the GestureDetector when user wants to openChat
-//Get the data of all active users
-List<MarvalUser>? _getOrderedList(Ref ref){
-  final List<MarvalUser>? list = getUserList(ref);
-  if(isNull(list)) return null;
-
-  _orderList(ref, list!);
-
-  return list;
-}
-
-//Order the user list by the last message Sended
-void _orderList(Ref ref, List<MarvalUser> list){
-  list.sort((a, b) {
-    final msgA = getLastMessage(ref, a.id)?.date;
-    final msgB = getLastMessage(ref, b.id)?.date;
-    if(isNull(msgA)) return 1;
-    if(isNull(msgB)) return 0;
-    return msgA!.isBefore(msgB!) ? 1 : 0;
-  },);
-}
 Creator<String> _searchCreator = Creator.value('');
 
 class ChatGlobalScreen extends StatelessWidget {
   const ChatGlobalScreen({Key? key}) : super(key: key);
-  static String routeName = "/chat_global";
+  static String routeName = "/chat";
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +63,7 @@ class ChatGlobalScreen extends StatelessWidget {
           topLeft: Radius.circular(10.w)),
             child: Container( width: 100.w, height: 82.h,
             color: kWhite,
-             child: _UsersList()
+             child: const _UsersList()
           )),
         ),
         ///TextField
@@ -124,124 +109,128 @@ class _UsersList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Watcher((context, ref, child){
-      var users = _getOrderedList(ref);
-      if(isNullOrEmpty(users)){ return const SizedBox(); }
-      return Watcher((context, ref, child){
-        String name = ref.watch(_searchCreator);
-        final data = users!.where((user) => user.name.toLowerCase().contains(name)).toList();
-        List<Message?> lastMessages = [];
-        List<int> notifications = [];
-        for (var user in data) {
-          lastMessages.add(getLastMessage(ref, user.id));
-          notifications.add(getUnreadMessages(ref, user.id) ?? 0);
-        }
+      List<UserResumeDTO> users = userLogic.getUserHome(ref, ref.watch(_searchCreator));
+      List<Message> unreadMsg = messagesLogic.getUnread(ref);
+      List<Message> lastMsgByUser = [];
+      for (var user in users) {
+        Message? lastMsg = unreadMsg.firstWhereOrNull((msg) => msg.user == user.id);
+        lastMsg ??= messagesLogic.getLast(ref, user.id);
+        lastMsgByUser.add(lastMsg ?? Message.empty(user.id));
+      }
+      lastMsgByUser.sort((a, b) => b.date.compareTo(a.date));
+
         return ListView.builder(
-            itemCount: data.length,
+            itemCount: users.length,
             physics: const BouncingScrollPhysics(),
             itemBuilder: (context, index) {
-              return GestureDetector(
-                  onTap: (){
-                    chatUser = data[index];
-                    Navigator.popAndPushNamed(context, ChatScreen.routeName);
-                  },
-                  child: _MarvalChatTile(user: data[index], message: lastMessages[index], notifications: notifications[index],)
-              );}
+              return  _MarvalChatTile(user: users.firstWhere((user) => user.id == lastMsgByUser[index].user),
+                  message: lastMsgByUser[index].content.isNotEmpty ? lastMsgByUser[index] : null,
+                  notification: unreadMsg.where((msg) => msg.user == lastMsgByUser[index].user).length);
+            }
         );
-      });
-
     });
   }
 }
-
+class ScreenArguments {
+  final String userId;
+  ScreenArguments(this.userId);
+}
 class _MarvalChatTile extends StatelessWidget {
-  const _MarvalChatTile({required this.user, required this.message, required this.notifications, Key? key}) : super(key: key);
-  final MarvalUser user;
+  const _MarvalChatTile({required this.message, required this.notification, required this.user, Key? key}) : super(key: key);
+  final UserResumeDTO user;
   final Message? message;
-  final int notifications;
+  final int notification;
   @override
   Widget build(BuildContext context) {
-    return Container(width: 100.w, height: 12.h,
+    return GestureDetector(
+        onTap: () {
+          Navigator.pushNamed(context, ChatScreen.routeName, arguments: ScreenArguments(user.id));
+        },
+    child: Container(width: 100.w, height: 12.h,
         padding: EdgeInsets.symmetric(horizontal: 2.5.w),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox( width: 92.w,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                     decoration: BoxDecoration(
-                         boxShadow: [kDarkShadow],
-                         borderRadius: BorderRadius.circular(100.w)
-                      ),
-                     child:  CachedAvatarImage(
-                       url: user.profileImage,
-                       size: 5,
-                     )),
-                    SizedBox(width: 2.w,),
-                    /** Last Message **/
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        TextH2(user.name.maxLength(20), size: 4, ),
-                        SizedBox(height: 0.5.h,),
-                        isNull(message) ?
-                        SizedBox(width: 53.w,)
-                        :
-                        SizedBox(width: 53.w,
-                         child: Row(children: [
-                           authUser.uid == message!.user ?
-                           Icon(Icons.check_sharp, color: kGreen, size: 6.w,)
-                               :
-                           const SizedBox(),
-                           _LastMessageBox(message: message!,)
-                         ]))
-                      ]),
-                    const Spacer(),
-                    /** Notifications **/
-                    SizedBox(width: 14.w,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                            isNotNull(notifications) && notifications != 0 ?
-                            Container(width: 5.w, height: 5.w,
-                            decoration: BoxDecoration(
-                                color: kGreen,
-                                borderRadius: BorderRadius.circular(7.w)
-                            ),
-                            child: Center(child:
-                            TextH1(isNotNull(notifications)
-                                ? notifications.toString() : '',
-                                color: kWhite,
-                                size: 2.5,
-                            ))
-                        ): SizedBox(width: 5.w, height: 5.w,),
-                        SizedBox(height: 1.5.h,),
-                        TextH2(
-                          isNull(message) ? "" : message!.date.toFormatStringHour(),
-                          size: 2.5,
-                          color: kGrey,
-                        ),
-                      ]))
-                  ])),
-          ]));
+                child: Watcher((context, ref, child) {
+                    List<Message> unreadMsg = messagesLogic.getUnread(ref).where((msg) => msg.user == user.id).toList();
+                    Message? lastMsg = unreadMsg.isNotEmpty ? unreadMsg.last : messagesLogic.getLast(ref, user.id);
+                    return Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          //Profile Image
+                          Container(
+                              decoration: BoxDecoration(
+                                  boxShadow: [kDarkShadow],
+                                  borderRadius: BorderRadius.circular(100.w)
+                              ),
+                              child:  CachedAvatarImage(
+                                url: user.img,
+                                size: 5,
+                              )),
+                          SizedBox(width: 3.w,),
+                          /** Last Message **/
+                          Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                TextH2('${user.name.removeIcon()} ${user.lastName} ${user.name.getIcon()}'.maxLength(20), size: 3.8, ),
+                                SizedBox(height: 0.5.h,),
+                                SizedBox(width: 53.w,
+                                    child: Row(children: [
+                                      lastMsg?.user == authUserLogic.getCurrUser()?.uid
+                                        ? Icon(Icons.check_sharp, color: kGreen, size: 6.w,)
+                                        : const SizedBox.shrink(),
+                                     _LastMessageBox(message: lastMsg,)
+                                    ]))
+                              ]),
+                          const Spacer(),
+                          /** Notifications **/
+                          SizedBox(width: 14.w,
+                              child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                      unreadMsg.isEmpty ? SizedBox(width: 5.w, height: 5.w):
+                                      Container(width: 5.w, height: 5.w,
+                                          decoration: BoxDecoration(
+                                              color: kGreen,
+                                              borderRadius: BorderRadius.circular(7.w)
+                                          ),
+                                          child: Center(child:
+                                          TextH1('${unreadMsg.length}',
+                                            color: kWhite,
+                                            size: 2.5,
+                                          ))
+                                      ),
+                                    SizedBox(height: 1.5.h,),
+                                    // Last Message Hour
+                                     TextH2( isNull(lastMsg) ? "" : lastMsg!.date.toFormatStringHour(),
+                                      size: 2.3,
+                                      color: kGrey,
+                                    ),
+                                  ]))
+                        ]);
+                })),
+          ])));
   }
 }
 
 class _LastMessageBox extends StatelessWidget {
   const _LastMessageBox({required this.message, Key? key}) : super(key: key);
-  final Message message;
+  final Message? message;
   @override
   Widget build(BuildContext context) {
-    if(message.type == MessageType.photo){
+    if(message == null){
+      return const SizedBox.shrink();
+    }
+    if(message!.type == MessageType.IMAGE){
       return const Expanded(
           child:TextP2( "📷 Image",
             size: 3.5, color: kGrey,
             textAlign: TextAlign.start, maxLines: 2,
           ));
     }
-    if(message.type == MessageType.audio){
+    if(message!.type == MessageType.AUDIO){
       return const Expanded(
           child:TextP2( "🎤 Audio",
             size: 3.5, color: kGrey,
@@ -249,8 +238,8 @@ class _LastMessageBox extends StatelessWidget {
           ));
     }
     return Expanded(
-        child:TextP2( message.message,
-          size: 3.5, color: kGrey,
+        child:TextP2( message!.content,
+          size: 3.1, color: kGrey,
           textAlign: TextAlign.start, maxLines: 2,
         ));
   }

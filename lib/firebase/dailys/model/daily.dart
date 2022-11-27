@@ -1,4 +1,4 @@
-import 'package:marvaltrainer/utils/extensions.dart';
+import 'package:marvaltrainer/firebase/habits/dto/habits_daily.dart';
 
 class Daily{
   String id;
@@ -7,7 +7,7 @@ class Daily{
   double weight;
   DateTime date;
   List<String> habits;
-  List<Habit> habitsFromPlaning;
+  List<DailyHabitsDTO> habitsFromPlaning;
   List<Activity> activities;
 
   Daily({
@@ -28,7 +28,7 @@ Daily.fromMap(Map<String, dynamic> map):
   date = map['date'].toDate(),
   habits = List<String>.from(map["habits"] ?? ""),
   activities = List<Map<String, dynamic>>.from(map["activities"] ?? []).map((e) => Activity.fromMap(e)).toList(),
-  habitsFromPlaning = List<Map<String, dynamic>>.from(map["habits_from_planing"] ?? []).map((e) => Habit.fromMap(e)).toList();
+  habitsFromPlaning = List<Map<String, dynamic>>.from(map["habits_from_planing"] ?? []).map((e) => DailyHabitsDTO.fromMap(e)).toList();
 
   Map<String, dynamic> toMap(){
     return {
@@ -80,29 +80,3 @@ class Activity{
 
 }
 
-class Habit{
-  String description;
-  String label;
-  String name;
-  String get icon => label.replaceAll(label.removeIcon(), "");
-
-  Habit({required this.name, required this.label, required this.description});
-
-  Habit.fromMap(Map<String, dynamic> map)
-      : name = map["name"],
-        label = map["label"],
-        description = map["description"];
-
-  Map<String, dynamic> toMap(){
-    return {
-      'name' : name,
-      'label': label,
-      'description': description,
-    };
-  }
-
-  @override
-  String toString(){
-    return 'Habit: { name: $name, label: $label, desc: $description } \n';
-  }
-}

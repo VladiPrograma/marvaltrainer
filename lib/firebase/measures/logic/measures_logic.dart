@@ -6,7 +6,7 @@ import 'package:marvaltrainer/firebase/measures/repository/measures_repo.dart';
 class MeasuresLogic{
   MeasuresRepo repo = MeasuresRepo();
 
-  Measures? getLast(Ref ref){
+  Measures? getM(Ref ref){
     List<Measures> list = repo.getAll(ref);
     return list.isNotEmpty ? list[0] : null;
   }

@@ -1,18 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:creator/creator.dart';
+import 'package:marvaltrainer/constants/global_variables.dart';
 import 'package:marvaltrainer/firebase/measures/model/measures.dart';
-import 'package:marvaltrainer/firebase/users/repository/trainer_users_repo.dart';
-import '../../../utils/marval_arq.dart';
 
 Emitter _measureEmitter = Emitter((ref, emit) async{
   CollectionReference? db = ref.watch(_db.asyncData).data;
-  if(isNull(db)) emit(null);
-  emit(await db!.where('type', isEqualTo: '_Measures').orderBy('date', descending: true).limit(ref.watch(_page)).get());
+  db == null ? emit(null) :
+  emit(await db.where('type', isEqualTo: '_Measures').orderBy('date', descending: true).limit(ref.watch(_page)).get());
 });
 Creator<int> _page = Creator.value(2);
 Emitter<CollectionReference?> _db = Emitter((ref, emit){
-  String? id = ref.watch(currentUser)?.id;
-  isNull(id) ? emit(null) :
+  String? id = userLogic.getSelected(ref)?.id;
+  id == null ? emit(null) :
   emit(FirebaseFirestore.instance.collection("users/$id/activities"));
 });
 

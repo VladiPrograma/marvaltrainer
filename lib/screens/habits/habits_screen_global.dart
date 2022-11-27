@@ -1,7 +1,12 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
+import 'package:marvaltrainer/constants/global_variables.dart';
+import 'package:marvaltrainer/firebase/habits/dto/habits_resume.dart';
+import 'package:marvaltrainer/firebase/habits/logic/habits_logic.dart';
+import 'package:marvaltrainer/firebase/habits/model/habits.dart';
 import 'package:marvaltrainer/screens/habits/habit_screen.dart';
+import 'package:marvaltrainer/screens/habits/new_habit_screen.dart';
+import 'package:marvaltrainer/utils/extensions.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../constants/colors.dart';
@@ -9,35 +14,8 @@ import '../../constants/string.dart';
 import '../../constants/theme.dart';
 
 import '../../widgets/inner_border.dart';
-import '../../utils/marval_arq.dart';
 import '../../widgets/marval_drawer.dart';
-import 'models/habits.dart';
 
-
-Emitter _emitter = Emitter.stream((p0)  async {
-return FirebaseFirestore.instance.collection('habits/')
-    .orderBy('name',descending: true)
-    .snapshots();
-});
-
-List<Habit>? _getHabits(Ref ref){
-  final query = ref.watch(_emitter.asyncData).data;
-  if(isNull(query)||query!.size==0){ return null; }
-
-  //Pass data from querySnapshot to Messages
-  final List<Habit> list = _queryToData(query);
-
-  String name = ref.watch(_searchCreator);
-  return list.where((habit) => habit.label.toLowerCase().contains(name)).toList();
-}
-
-List<Habit> _queryToData(var query){
-  List<Habit> list = [];
-  for (var element in [...query.docs]){
-    list.add(Habit.fromJson(map: element.data()));
-  }
-  return list;
-}
 
 Creator<String> _searchCreator = Creator.value('');
 
@@ -81,9 +59,7 @@ class HabitsScreenGlobal extends StatelessWidget {
                       ),
                       child: Container( width: 100.w, height: 80.5.h,
                           color: kWhite,
-                          child: Watcher((context, ref, child) {
-                            return const _HabitList();
-                          })
+                          child: _HabitList()
                       )),
                 ),
                 ///TextField
@@ -114,10 +90,7 @@ class HabitsScreenGlobal extends StatelessWidget {
                                 hintStyle:  TextStyle(fontFamily: p1, color: kGrey, fontSize: 4.w),
                                 prefixIcon: Icon(Icons.search_rounded, color: kGrey,size: 8.w,),
                                 suffixIcon: GestureDetector(
-                                  onTap: (){
-                                    Navigator.push(context,
-                                        MaterialPageRoute(builder: (context) =>  HabitScreen(edit: false),));
-                                  },
+                                  onTap: () => Navigator.pushNamed(context, NewHabitScreen.routeName),
                                   child: Icon(Icons.add_box_rounded, color: kGreen, size: 8.w,),
                                 ),
                                 contentPadding: EdgeInsets.zero
@@ -134,55 +107,61 @@ class HabitsScreenGlobal extends StatelessWidget {
 
 class _HabitList extends StatelessWidget {
   const _HabitList({Key? key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Watcher((context, ref, child){
-      var data = _getHabits(ref);
-      if(isNullOrEmpty(data)){ return const SizedBox(); }
+      List<HabitsResumeDTO> habits = habitsLogic.getUserHome(ref, ref.watch(_searchCreator));
       return GridView.count(
-          crossAxisCount: 2,
-          physics: BouncingScrollPhysics(),
-          childAspectRatio: 1.8, /** Makes child non a Square */
-          children:List.generate(data!.length, (index) {
-            return HabitTile(habit: data[index]);
+          crossAxisCount: 3,
+          physics: const BouncingScrollPhysics(),
+          childAspectRatio: 0.9, /** Makes child non a Square */
+          children:List.generate(habits.length, (index) {
+            return _HabitTile(habit: habits[index]);
           })
       );
     });
   }
 }
-class HabitTile extends StatelessWidget {
-  const HabitTile({required this.habit, Key? key}) : super(key: key);
-  final Habit habit;
+
+
+class _HabitTile extends StatelessWidget {
+  const _HabitTile({required this.habit, Key? key}) : super(key: key);
+  final HabitsResumeDTO habit;
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: (){
-        habitSelected = habit;
-        Navigator.push(context,
-        MaterialPageRoute(builder: (context) =>  HabitScreen(edit: true),));
-      },
-    child: Container( width: 15.w, height: 15.w, 
-        decoration: BoxDecoration(
-          color: kBlack,
-          borderRadius: BorderRadius.circular(4.w),
-        ),
-        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 1.h),
-        margin: EdgeInsets.all(2.w),
-    child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children:
-        [
-          TextH2(habit.label, color: kWhite,),
-          Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-          TextH1("${habit.users.length}", color: kWhite, size: 6,),
-          SizedBox(width: 2.w,),
-          Icon(Icons.person, color: kGreen, size: 8.w,)
-          ])
-        ]
-    )));
+        onTap: (){
+          habitsLogic.updateSelect(context.ref, habit.id);
+          Navigator.pushNamed(context, HabitScreen.routeName);
+        },
+        child: Container( width: 15.w,
+            decoration: BoxDecoration(
+                color: kWhite,
+                borderRadius: BorderRadius.circular(4.w),
+                boxShadow: [BoxShadow(
+                    color: kBlack.withOpacity(0.8),
+                    spreadRadius: 0.5.w,
+                    blurRadius: 1.w,
+                    offset: Offset(0, 1.w)
+                )]
+            ),
+            margin: EdgeInsets.all(2.w),
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                 TextH2(habit.label.getIcon(), size: 9),
+                  SizedBox(height: 2.h,),
+                  Container( width: 20.w,
+                    padding: EdgeInsets.symmetric(vertical: 0.5.h),
+                    decoration: BoxDecoration(
+                        color: kWhite,
+                        border: Border.all(color: kBlack, width: 0.5.w),
+                        borderRadius: BorderRadius.circular(3.w)
+                    ),
+                    child: TextH2(habit.label.removeIcon(), size: 3.3, textAlign: TextAlign.center, color: kBlack,),
+                  )
+                ]
+            )));
   }
 }

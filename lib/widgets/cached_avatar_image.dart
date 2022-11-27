@@ -49,7 +49,7 @@ class _CircleAvatarIcon extends StatelessWidget {
     return  CircleAvatar(
         radius: size.h,
         backgroundColor: kBlack,
-        child: Icon(CustomIcons.person, color: kGrey, size: (size+4).w,)
+        child: Icon(CustomIcons.person, color: kGrey, size: (size+3).w,)
     );
   }
 }

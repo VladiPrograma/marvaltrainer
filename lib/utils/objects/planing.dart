@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:marvaltrainer/firebase/habits/model/habits.dart';
 import 'package:marvaltrainer/utils/extensions.dart';
 import '../../constants/string.dart';
 import '../../config/log_msg.dart';
-import '../../screens/habits/models/habits.dart';
 import '../marval_arq.dart';
 
 class Planing{

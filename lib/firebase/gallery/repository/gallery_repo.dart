@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:creator/creator.dart';
+import 'package:marvaltrainer/constants/global_variables.dart';
 import 'package:marvaltrainer/firebase/gallery/model/gallery.dart';
-import 'package:marvaltrainer/firebase/users/repository/trainer_users_repo.dart';
 import 'package:marvaltrainer/utils/marval_arq.dart';
 
 Emitter _galleryEmitter = Emitter((ref, emit) async{
@@ -11,7 +11,7 @@ Emitter _galleryEmitter = Emitter((ref, emit) async{
 });
 Creator<int> _page = Creator.value(2);
 Emitter<CollectionReference?> _db = Emitter((ref, emit){
-  String? id = ref.watch(currentUser)?.id;
+  String? id = userLogic.getSelected(ref)?.id;
   isNull(id) ? emit(null) :
   emit(FirebaseFirestore.instance.collection("users/$id/activities"));
 });

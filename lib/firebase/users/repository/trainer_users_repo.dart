@@ -5,17 +5,23 @@ import 'package:marvaltrainer/firebase/users/model/user.dart';
 
 final CollectionReference _db = FirebaseFirestore.instance.collection("users");
 
-Emitter _userEmitter = Emitter.stream((ref) async {
+Emitter _userStream = Emitter.stream((ref) async {
   return _db.orderBy('name').snapshots();
 }, keepAlive: true);
 
-Creator<User?> currentUser = Creator.value(null);
+Emitter _userEmitter = Emitter((ref, emit) => _db.get(), keepAlive: true);
+
+Creator<User?> _user = Creator.value(null);
 
 class TrainerUserRepository{
 
   List<User> get(Ref ref) {
-    var query = ref.watch(_userEmitter.asyncData).data as QuerySnapshot<Map<String, dynamic>>?;
+    var query = ref.watch(_userStream.asyncData).data as QuerySnapshot<Map<String, dynamic>>?;
     return query?.docs.map((e) => User.fromMap(e.data())).toList() ?? [];
+  }
+
+  QuerySnapshot getDocuments(Ref ref){
+    return  ref.watch(_userEmitter.asyncData).data;
   }
 
   Future<void> add(User user) {
@@ -28,4 +34,10 @@ class TrainerUserRepository{
     return _db.doc(id).delete();
   }
 
+  void select(Ref ref, User? user){
+    ref.update<User?>(_user, (p0) => user);
+  }
+  User? getSelected(Ref ref){
+    return ref.watch(_user);
+  }
 }

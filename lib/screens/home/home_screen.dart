@@ -1,11 +1,7 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
-import 'package:marvaltrainer/firebase/dailys/logic/daily_logic.dart';
-import 'package:marvaltrainer/firebase/users/logic/user_logic.dart';
 import 'package:marvaltrainer/firebase/users/repository/trainer_users_repo.dart';
-import 'package:marvaltrainer/firebase/users/repository/user_repo.dart';
-import 'package:marvaltrainer/screens/alta/add_users_screen.dart';
-import 'package:marvaltrainer/screens/home/profile/logic/state_controller.dart';
+import 'package:marvaltrainer/screens/home/alta/add_users_screen.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../firebase/users/dto/user_resume.dart';
@@ -140,7 +136,7 @@ class MarvalUserTile extends StatelessWidget {
   Widget build(BuildContext context) {
     double diff = (user.weight ?? 0) - (user.lastWeight ?? 0);
     void openProfilePage(BuildContext context, UserResumeDTO userDTO){
-      context.ref.update(currentUser, (p0) => userLogic.getByID(userDTO.id, context.ref));
+      userLogic.select(context.ref, userLogic.getByID(userDTO.id, context.ref));
       Navigator.push(context, MaterialPageRoute(builder: (context) =>  const ProfileScreen()));
     }
 

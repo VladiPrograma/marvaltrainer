@@ -1,35 +1,33 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
+import 'package:marvaltrainer/config/custom_icons.dart';
 import 'package:marvaltrainer/firebase/users/dto/user_init.dart';
 import 'package:marvaltrainer/firebase/users/model/user.dart';
-import 'package:marvaltrainer/screens/alta/logic/state_management.dart';
 import 'package:marvaltrainer/utils/extensions.dart';
 import 'package:sizer/sizer.dart';
-
-
-import '../../config/custom_icons.dart';
-
-import '../../constants/global_variables.dart';
-import '../../constants/components.dart';
-import '../../constants/theme.dart';
-import '../../constants/colors.dart';
-import '../../constants/string.dart';
-
-import '../../utils/marval_arq.dart';
-
-import '../../widgets/marval_drawer.dart';
-import '../../widgets/marval_elevated_button.dart';
-import '../../widgets/marval_textfield.dart';
+import 'package:marvaltrainer/constants/global_variables.dart';
+import 'package:marvaltrainer/constants/components.dart';
+import 'package:marvaltrainer/constants/theme.dart';
+import 'package:marvaltrainer/constants/colors.dart';
+import 'package:marvaltrainer/constants/string.dart';
+import 'package:marvaltrainer/utils/marval_arq.dart';
+import 'package:marvaltrainer/widgets/marval_drawer.dart';
+import 'package:marvaltrainer/widgets/marval_elevated_button.dart';
+import 'package:marvaltrainer/widgets/marval_textfield.dart';
 
 ///* THIS PAGE IS COMPLETE //
-AddUserStateController _stateController = AddUserStateController();
+Creator<String?> _dropDownCreator = Creator.value(null);
+ String? _getDropDownValue(Ref ref) => ref.watch(_dropDownCreator);
+ void _setDropDownValue(Ref ref, String? value) => ref.update(_dropDownCreator, (t) => value);
+ void _clearDropDownValue(Ref ref)=> ref.update(_dropDownCreator, (t) => null);
+
 TextEditingController _nameController = TextEditingController();
 TextEditingController _mailController = TextEditingController();
 String? _dropDownValue;
 
 class AddUserScreen extends StatelessWidget {
   const AddUserScreen({Key? key}) : super(key: key);
-  static String routeName = "/alta";
+  static String routeName = "/Home/Alta-Usuarios";
   @override
   Widget build(BuildContext context) {
   return Scaffold(
@@ -107,11 +105,11 @@ class _LogInForm extends StatelessWidget {
               },
             ),
             SizedBox(height: 3.h),
-            _DropDown(),
+            const _DropDown(),
             Container(width: 63.w, height: 3.h,
              padding: EdgeInsets.only(top: 1.h),
              child: Watcher((context, ref, child) {
-              final String? objective = _stateController.getDropDownValue(ref);
+              final String? objective = _getDropDownValue(ref);
               return isNotNull(objective) && objective! == 'error' ?
                 Text('Campo requerido',
                 style: TextStyle(
@@ -140,7 +138,7 @@ class _LogInForm extends StatelessWidget {
                     }
                 }
                 else{
-                  _stateController.setDropDownValue(context.ref, 'error');
+                  _setDropDownValue(context.ref, 'error');
                 }
               }),
             SizedBox(height: 5.h,),
@@ -149,7 +147,7 @@ class _LogInForm extends StatelessWidget {
   }
 
   void clear(BuildContext context){
-    _stateController.clearDropDownValue(context.ref);
+    _clearDropDownValue(context.ref);
     _mailController.clear();
     _nameController.clear();
   }
@@ -174,7 +172,7 @@ class _DropDown extends StatelessWidget {
           Icon(CustomIcons.lightning_bolt, size: 7.w, color: kGreen,),
           SizedBox(width: 2.w),
           Watcher((context, ref, child){
-            final value = _stateController.getDropDownValue(ref);
+            final value = _getDropDownValue(ref);
             return DropdownButton<String>(
               borderRadius : BorderRadius.all(Radius.circular(4.w)),
               underline    : const SizedBox(),
@@ -192,10 +190,10 @@ class _DropDown extends StatelessWidget {
               }).toList(),
               onChanged: (String? newValue) {
                 if(newValue == labels.first){
-                  _stateController.setDropDownValue(ref, null);
+                  _setDropDownValue(ref, null);
                   _dropDownValue = null;
                 }else{
-                  _stateController.setDropDownValue(ref, newValue);
+                  _setDropDownValue(ref, newValue);
                   _dropDownValue = newValue;
                 }
               }

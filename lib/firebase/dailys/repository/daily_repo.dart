@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:creator/creator.dart';
+import 'package:marvaltrainer/constants/global_variables.dart';
 import 'package:marvaltrainer/firebase/users/repository/trainer_users_repo.dart';
 
 import '../../../utils/marval_arq.dart';
@@ -12,7 +13,7 @@ Emitter _dailyEmitter = Emitter((ref, emit) async{
 });
 Creator<int> _page = Creator.value(3);
 Emitter<CollectionReference?> _dailyDB = Emitter((ref, emit){
-  String? id = ref.watch(currentUser)?.id;
+  String? id = userLogic.getSelected(ref)?.id;
   isNull(id) ? emit(null) :
   emit(FirebaseFirestore.instance.collection("users/$id/daily"));
 });

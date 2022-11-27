@@ -22,6 +22,14 @@ class MarvalDrawer extends StatelessWidget {
   final String name;
   @override
   Widget build(BuildContext context) {
+
+    void removeScreens(String routeName){
+      while(Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
+      Navigator.pushNamed(context, routeName);
+    }
+
     return Drawer(
       backgroundColor: kWhite,
       child: SizedBox( height: 100.h,
@@ -46,7 +54,7 @@ class MarvalDrawer extends StatelessWidget {
               }),
           /// Home
           GestureDetector(
-            onTap: () => Navigator.popAndPushNamed(context, HomeScreen.routeName),
+            onTap: () => removeScreens(HomeScreen.routeName),
             child: ListTile(
               leading: Icon(CustomIcons.address_book, color: name=="Usuarios" ? kGreen : kBlack, size: 6.w,),
               title: TextH2('Usuarios', size: 4, color: name=="Usuarios" ? kGreen : kBlack),
@@ -54,28 +62,26 @@ class MarvalDrawer extends StatelessWidget {
           ),
           /// Chat
           GestureDetector(
-            onTap: (){ Navigator.popAndPushNamed(context, ChatGlobalScreen.routeName);},
+            onTap: () => removeScreens(ChatGlobalScreen.routeName),
             child: ListTile(
               leading: Icon(CustomIcons.chat_empty, color: name=="Chat" ? kGreen : kBlack, size: 6.w,),
               title: Watcher((context, ref, _) {
-                int notifications = 0;
-                ///@TODO Change this piece of code
-                handler.list.forEach((user) =>
-                notifications += getUnreadMessages(ref, user.id) ?? 0);
+                int unread = messagesLogic.getUnread(ref).length;
+                if(unread > 999) unread = 999;
                 return Row( children: [
                   TextH2('Chat', size: 4, color: name == "Chat" ? kGreen : kBlack),
                   SizedBox(width: 3.w,),
-                  notifications == 0 ?
+                  unread == 0 ?
                   const SizedBox()
                   :
-                  CircleAvatar( radius: 2.w, backgroundColor: kRed, child: TextH1('$notifications', color: kWhite, size: 2,),)
+                  CircleAvatar( radius: 2.3.w, backgroundColor: kRed, child: TextH1('$unread', color: kWhite, size: 2,),)
                 ]);
               }),
             ),
           ),
-          /// Ejercicios
+          /// Habitos
           GestureDetector(
-            onTap: (){ Navigator.popAndPushNamed(context, HabitsScreenGlobal.routeName);},
+            onTap: () => removeScreens(HabitsScreenGlobal.routeName),
             child: ListTile(
               leading: Icon(CustomIcons.habits,color: name=="Habitos" ? kGreen : kBlack, size: 6.w,),
               title: TextH2('Habitos', size: 4, color: name=="Habitos" ? kGreen : kBlack),
@@ -83,7 +89,7 @@ class MarvalDrawer extends StatelessWidget {
           ),
           /// Ejercicios
           GestureDetector(
-            onTap: (){ Navigator.popAndPushNamed(context, LoginScreen.routeName);},
+            onTap: () => removeScreens(HomeScreen.routeName),
             child: ListTile(
               leading: Icon(CustomIcons.gym,color: name=="Ejercicios" ? kGreen : kBlack, size: 6.w,),
               title: TextH2('Ejercicios', size: 4, color: name=="Ejercicios" ? kGreen : kBlack),
@@ -91,8 +97,7 @@ class MarvalDrawer extends StatelessWidget {
           ),
           /// Entrenos
           GestureDetector(
-            onTap: (){
-              Navigator.popAndPushNamed(context, LoginScreen.routeName);},
+            onTap: () => removeScreens(HomeScreen.routeName),
             child: ListTile(
               leading: Icon(CustomIcons.muscle_up ,color: name=="Entrenos" ? kGreen : kBlack, size: 6.w,),
               title: TextH2('Entrenos', size: 4, color: name=="Entrenos" ? kGreen : kBlack),
@@ -100,10 +105,7 @@ class MarvalDrawer extends StatelessWidget {
           ),
           /// Ajustes
           GestureDetector(
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.of(context).pushNamedAndRemoveUntil(SettingScreen.routeName, (Route r) => r.settings.name == HomeScreen.routeName);
-            },
+            onTap: () => removeScreens(SettingScreen.routeName),
             child: ListTile(
               leading: Icon(Icons.settings_rounded,color: name=="Ajustes" ? kGreen : kBlack, size: 6.w,),
               title: TextH2('Ajustes', size: 4, color: name=="Ajustes" ? kGreen : kBlack),
