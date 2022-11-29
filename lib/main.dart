@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
             ],
             routes: routes,
             debugShowCheckedModeBanner: false,
-            initialRoute:  authUserLogic.getCurrUser() == null ? LoginScreen.routeName : HomeScreen.routeName
+            initialRoute:  authUserLogic.get() == null ? LoginScreen.routeName : HomeScreen.routeName
           );
     });
   }

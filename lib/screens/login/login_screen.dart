@@ -40,7 +40,7 @@ class LoginScreen extends StatelessWidget {
                   children: [
                     // ACTIVE USER
                     Watcher((context, ref, child){
-                      User? user = userLogic.getAuthUser(context, ref);
+                      User? user = userLogic.getAuthUser(ref);
                       if(user!=null && user.active) Navigator.popAndPushNamed(context, HomeScreen.routeName);
                       return const SizedBox.shrink();
                     }),
@@ -121,10 +121,6 @@ class _LogInForm extends StatelessWidget {
                   _formKey.currentState!.validate();
 
                   if(isNull(_watch(context.ref)) && isNotNull(Auth.FirebaseAuth.instance.currentUser)){
-                    authUser = Auth.FirebaseAuth.instance.currentUser!;
-                    await handler.getFromDB();
-                    handler.list.forEach((user) => chatEmitterMap[user.id] = createChatEmitter(user.id));
-
                     Navigator.pushNamed(context, HomeScreen.routeName);
                   }
                 }

@@ -1,30 +1,24 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:creator/creator.dart';
-import 'package:marvaltrainer/constants/global_variables.dart';
 import 'package:marvaltrainer/firebase/form/model/form_answers.dart';
-import 'package:marvaltrainer/firebase/users/model/user.dart';
 
 
 final CollectionReference _db = FirebaseFirestore.instance.collection("forms");
 
-Emitter _formAnswersEmitter = Emitter((ref, emit) async{
-  final query = await _db.doc(userLogic.getSelected(ref)?.id).get();
-   emit(query.data());
+
+final _formAnswersEmitter = Emitter.arg1<Map<String, dynamic>?, String>((ref, userId, emit) async{
+  final query = await _db.doc(userId).get();
+  emit(query.data() as Map<String, dynamic>?);
 });
 
 class FormAnswerRepo{
 
-  FormAnswers? get(Ref ref) {
-    return FormAnswers.fromMap(ref.watch(_formAnswersEmitter.asyncData).data ?? {});
+  FormAnswers? get(Ref ref, String userId) {
+    Map<String, dynamic>? map = ref.watch(_formAnswersEmitter(userId).asyncData).data;
+    return map != null ? FormAnswers.fromMap(map) : null;
   }
-  Future<void> add(FormAnswers form, User user) {
-    return _db.doc(user.id).set(form.toMap());
-  }
-  Future<void> update(User user, Map<String, Object> map) {
-    return _db.doc(user.id).update(map);
-  }
-  Future<void> delete(User user){
-    return _db.doc(user.id).delete();
-  }
+  Future<void> add(FormAnswers form, String userId) =>  _db.doc(userId).set(form.toMap());
+  Future<void> update(String userId, Map<String, Object> map) =>  _db.doc(userId).update(map);
+  Future<void> delete(String userId) =>  _db.doc(userId).delete();
 
 }

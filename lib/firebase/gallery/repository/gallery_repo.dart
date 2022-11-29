@@ -1,19 +1,18 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:creator/creator.dart';
-import 'package:marvaltrainer/constants/global_variables.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:marvaltrainer/firebase/gallery/model/gallery.dart';
-import 'package:marvaltrainer/utils/marval_arq.dart';
 
-Emitter _galleryEmitter = Emitter((ref, emit) async{
-  CollectionReference? db = ref.watch(_db.asyncData).data;
-  if(isNull(db)) emit(null);
-  emit(await db!.where('type', isEqualTo: '_Gallery').orderBy('date', descending: true).limit(ref.watch(_page)).get());
-});
-Creator<int> _page = Creator.value(2);
-Emitter<CollectionReference?> _db = Emitter((ref, emit){
-  String? id = userLogic.getSelected(ref)?.id;
-  isNull(id) ? emit(null) :
-  emit(FirebaseFirestore.instance.collection("users/$id/activities"));
+Creator<int> _page = Creator.value(3);
+final _db = Emitter.arg1<CollectionReference, String>((ref, userId, emit) =>
+emit(FirebaseFirestore.instance.collection("users/$userId/activities")));
+final _galleryStream = Emitter.arg1<QuerySnapshot, String>((ref, userId, emit) async{
+  final CollectionReference db = await ref.watch(_db(userId));
+  final cancel = (db.where('type', isEqualTo: '_Gallery').
+    orderBy('date', descending: true).
+    limit(ref.watch(_page)).snapshots().
+    listen((event) => emit(event))
+  ).cancel;
+  ref.onClean(cancel);
 });
 
 class GalleryRepo{
@@ -23,19 +22,19 @@ class GalleryRepo{
     ref.update<int>(_page, (current) => current + (n ?? 3));
   }
 
-  List<Gallery> getAll(Ref ref){
-    var query = ref.watch(_galleryEmitter.asyncData).data as QuerySnapshot<Map<String, dynamic>>?;
+  List<Gallery> get(Ref ref, String userId){
+    var query = ref.watch(_galleryStream(userId).asyncData).data as QuerySnapshot<Map<String, dynamic>>?;
     return query?.docs.map((e) => Gallery.fromMap(e.data())).toList() ?? [];
   }
-  Future<void> add(String userID, Gallery gallery) async{
-    FirebaseFirestore.instance.collection('users/$userID/activities/').add(gallery.toMap());
-  }
-  Future<void> update(String userID, String id, Map<String, dynamic> map) async{
-    _db.doc("$userID/activities/$id").update(map);
-  }
-  Future<void> remove(String userID, String id) async{
-    _db.doc("$userID/activities/$id").delete();
-  }
+
+  Future<void> add(String userId, Gallery gallery) =>
+      FirebaseFirestore.instance.collection('users/$userId/activities/').doc(gallery.id).set(gallery.toMap());
+
+  Future<void> update(String userId, String galleryId, Map<String, dynamic> map) =>
+      FirebaseFirestore.instance.collection('users/$userId/activities').doc(galleryId).update(map);
+
+  Future<void> remove(String userId, String galleryId) =>
+      FirebaseFirestore.instance.collection('users/$userId/activities').doc(galleryId).delete();
 }
 
 

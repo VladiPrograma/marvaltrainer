@@ -74,7 +74,7 @@ class SettingScreen extends StatelessWidget {
               Positioned(  top: 1.h, left: 8.w,
                   child: SafeArea(
                       child: Watcher((context, ref, child) {
-                        User? user = userLogic.getAuthUser(context, ref);
+                        User? user = userLogic.getAuthUser(ref);
                         if(user == null) return const SizedBox.shrink();
                         return SettingsUserData(user: user);
                       },)
@@ -82,7 +82,7 @@ class SettingScreen extends StatelessWidget {
               // User Box image icon
               Positioned(  top: 14.5.h, left: 15.5.w,
                   child: Watcher((context, ref, child) {
-                    User? user = userLogic.getAuthUser(context, ref);
+                    User? user = userLogic.getAuthUser(ref);
                     if(user == null) return const SizedBox.shrink();
                     return GestureDetector(
                       onTap: () => _selectAndUpdateImage(user.id),

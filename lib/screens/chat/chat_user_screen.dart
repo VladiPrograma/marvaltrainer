@@ -5,15 +5,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:marvaltrainer/constants/components.dart';
+import 'package:marvaltrainer/config/screen_args_data.dart';
 import 'package:marvaltrainer/firebase/messages/model/message.dart';
 import 'package:marvaltrainer/firebase/users/dto/user_resume.dart';
-import 'package:marvaltrainer/firebase/users/model/user.dart';
-import 'package:marvaltrainer/screens/chat/chat_global_screen.dart';
 import 'package:marvaltrainer/widgets/cached_avatar_image.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../constants/alerts/dialog_errors.dart';
+import '../../constants/alerts/show_dialog.dart';
 import '../../constants/alerts/snack_errors.dart';
 
 import '../../config/log_msg.dart';
@@ -26,11 +24,9 @@ import '../../constants/theme.dart';
 
 import '../../utils/extensions.dart';
 import '../../widgets/inner_border.dart';
-import '../../utils/firebase/storage.dart';
 import '../../utils/marval_arq.dart';
 import '../../utils/objects/audio_system.dart';
 
-import '../../widgets/box_user_data.dart';
 import '../../widgets/marval_drawer.dart';
 
 import '../../widgets/show_fullscreen_image.dart';
@@ -42,12 +38,10 @@ import 'chat_logic.dart';
 final TextEditingController _controller = TextEditingController();
 ScrollController returnController(Ref ref){
   ScrollController  res = ScrollController();
-  res.addListener((){ if(res.position.maxScrollExtent==res.offset){ fetchMoreMessages(ref); }});
+  res.addListener((){ if(res.position.maxScrollExtent==res.offset){ messagesLogic.fetchMore(ref, n: 10); }});
   return res;
 }
 
-
-///@TODO Add any type of interaction to permit Open and resize image when user press on it.
 class ChatScreen extends StatelessWidget {
   const ChatScreen({Key? key}) : super(key: key);
   static String routeName = '/chat/user';
@@ -83,7 +77,7 @@ class ChatScreen extends StatelessWidget {
               Positioned(  top: 1.h, left: 8.w,
                   child: SafeArea(
                     child:  Watcher((context, ref, child) {
-                      UserResumeDTO user = userLogic.getUserHome(ref, '').firstWhere((user) => user.id == args.userId);
+                      UserHomeDTO user = userLogic.userHomeById(ref, args.userId) ?? UserHomeDTO.empty();
                       return _BoxUserData(user: user);
                     })
               )),
@@ -106,22 +100,20 @@ class ChatScreen extends StatelessWidget {
                       child: ClipRRect(
                       borderRadius: BorderRadius.vertical( top: Radius.circular(15.w) ),
                       child: Watcher((context, ref, child) {
-                            //Logic
-                            final data = messagesLogic.getChat(ref, args.userId).reversed.toList();
-                            //Widgets
+                            List<Message> messages = messagesLogic.getChat(ref, args.userId).reversed.toList();
+                            
                             return ListView.builder(
                               reverse: true,
-                              itemCount: data.length,
+                              itemCount: messages.length,
                               controller: returnController(ref),
                               itemBuilder: (context, index){
-                                Message message = data[index];
-                                if(!message.read) messagesLogic.read(message);
-                                DateTime? lastDate = index!= 0 ? data[index-1].date : null;
+                                Message message = messages[index];
                                 return Column(
                                 crossAxisAlignment: message.trainer ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                                 children: [
-                                  _DateLine(date: message.date.id == lastDate?.id ? null : message.date),
-                                  //message.type == MessageType.IMAGE ? _ImageBox(message: message) : const SizedBox.shrink(),
+                                  if(index == messages.length-1) _DateLine(date: message.date, pastDate: null,), //Put date up to first date shown
+                                  if(index != messages.length-1) _DateLine(date:message.date, pastDate: messages[index+1].date,),
+                                  message.type == MessageType.IMAGE ? _ImageBox(message: message) : const SizedBox.shrink(),
                                   //message.type == MessageType.AUDIO ? _AudioBox(message: message) : const SizedBox.shrink(),
                                   message.type == MessageType.TEXT  ? _MessageBox(message: message) : const SizedBox.shrink(),
                                 ]);
@@ -134,14 +126,15 @@ class ChatScreen extends StatelessWidget {
                           child: Stack(
                             children: [
                               _ChatTextField(userId: args.userId),
+                              //TIMER LABEL
                               Watcher((context, ref, child){
-                                int secs = ref.watch(timerCreator);
+                                int secs = watchTimer(ref);
                                 Duration duration = Duration(seconds: secs);
-                                if(secs!=0){
+                                if(secs>=0){
                                   return Center(
                                       child: Container(width: 70.w, height: 5.h,
                                         margin: EdgeInsets.only(top: 1.h), color: kWhite,
-                                        child: Padding(padding: EdgeInsets.only(top: 1.h, left: 2.w), child: TextH2(duration.printDuration())),
+                                        child: Padding(padding: EdgeInsets.only(top: 1.3.h, left: 2.w), child: TextH2(duration.printDuration(), size: 3.8,)),
                                       )
                                   );
                                 }
@@ -155,164 +148,178 @@ class ChatScreen extends StatelessWidget {
     );
   }
 }
-
 class _DateLine extends StatelessWidget {
-  const _DateLine({required this.date, Key? key}) : super(key: key);
-  final DateTime? date;
+  const _DateLine({required this.date, required this.pastDate, Key? key}) : super(key: key);
+  final DateTime  date;
+  final DateTime? pastDate;
   @override
   Widget build(BuildContext context) {
-    if(isNull(date)) return const SizedBox.shrink();
+    if(pastDate != null && date.id == pastDate!.id) return const SizedBox.shrink();
     return  Container(
         padding: EdgeInsets.only(bottom: 1.h),
         child: Row(  mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(width: 30.w, height: 0.5.w, color: kGrey, ),
-              TextP2(' ${date!.aestheticStringDate()} ', color: kGrey, size: 3,),
+              TextP2('${date.aestheticStringDate()} ', color: kGrey, size: 3,),
               Container(width: 30.w, height: 0.5.w, color: kGrey, )
             ]));
   }
 }
 
 
-Timer? _timer;
-Creator<int> timerCreator = Creator.value(0);
-enum ChatActionType { SEND_MSG, SEND_AUDIO, RECORD }
-Creator<ChatActionType> actionCreator = Creator.value(ChatActionType.RECORD);
-Emitter<AudioSystem?> audioEmitter = Emitter((ref, emit) async{
+
+
+enum TextFieldState { INIT, TEXT, RECORDING, RECORD_END}
+Creator<TextFieldState> stateCreator = Creator.value(TextFieldState.INIT);
+TextFieldState watchState(Ref ref) => ref.watch(stateCreator);
+void updateState(Ref ref, TextFieldState state){
+  if(state == TextFieldState.INIT){
+    _controller.text = '';
+  }
+  ref.update<TextFieldState>(stateCreator, (p0) => state);
+}
+
+Emitter<AudioSystem> audioEmitter = Emitter((ref, emit) async{
   AudioSystem audioSystem = AudioSystem();
   await audioSystem.initAudioSystem();
   emit(audioSystem);
-});
-
+}, keepAlive: true);
 
 class _ChatTextField extends StatelessWidget {
   const _ChatTextField({required this.userId, Key? key}) : super(key: key);
   final String userId;
   @override
   Widget build(BuildContext context) {
-    XFile? _image;
-    final ImagePicker _picker = ImagePicker();
-
-    return TextField(
-        onTap: () { fetchMoreMessages(context.ref); },
-        onChanged: (value) => context.ref.update<ChatActionType>(actionCreator, (p0) => value.isEmpty ? ChatActionType.RECORD : ChatActionType.SEND_MSG),
-        controller: _controller,
-        cursorColor: kGreen,
-        style: TextStyle(fontSize: 4.w, fontFamily: p2, color: kBlack),
-        decoration: InputDecoration(
-          filled: true,
-          fillColor: kWhite,
-          border: OutlineInputBorder(
-            borderSide: BorderSide.none,
-            borderRadius: BorderRadius.all(Radius.circular(4.w)),
-          ),
-          hintText: 'Escribe algo',
-          hintStyle: TextStyle(fontSize: 4.w, fontFamily: p2, color: kGrey),
-          prefixIcon: Watcher((context, ref, child) {
-            ChatActionType actionType = ref.watch(actionCreator);
-            return GestureDetector(
-              onTap: () async{
-                if(actionType == ChatActionType.SEND_AUDIO){
-                  ref.update(timerCreator, (p0) => 0);
-                  ref.update(actionCreator, (p0) => ChatActionType.RECORD);
-                }else{
-                  _image = await _picker.pickImage(source: ImageSource.gallery)
-                      .then((value) { ThrowDialog.uploadImage(context, _image!); })
-                      .onError((error, stackTrace){  ThrowSnackbar.imageError(context); });
-
-                }},
-              child:  Watcher((context, ref, child) {
-                ChatActionType actionType = ref.watch(actionCreator);
-                return Icon( actionType == ChatActionType.SEND_AUDIO ? Icons.delete_rounded: CustomIcons.camera,
-                    color: actionType == ChatActionType.SEND_AUDIO ? kRed: kBlack,
-                    size: 7.w);
-              }),
-            );
-          }),
-          suffixIcon: Watcher((context, ref, child) {
-            ChatActionType actionType = ref.watch(actionCreator);
-            AudioSystem? audioSystem = ref.watch(audioEmitter.asyncData).data;
-            return GestureDetector(
-                onLongPressStart: (details) async{
-                  if(actionType == ChatActionType.RECORD && audioSystem!.isInit){
-                    logWarning("Long Press Start");
-                    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-                      ref.update<int>(timerCreator, (cont) => cont+1);
-                    });
-                    audioSystem.record();
+    return Watcher((context, ref, child) {
+      AudioSystem? audioSystem = ref.watch(audioEmitter.asyncData).data;
+      return TextField(
+          onChanged: (value){
+            TextFieldState state = watchState(ref);
+            if(state == TextFieldState.TEXT && value.isEmpty){
+              updateState(ref, TextFieldState.INIT);
+            }else if(state == TextFieldState.INIT && value.isNotEmpty){
+              updateState(ref, TextFieldState.TEXT);
+            }
+          },
+          controller: _controller,
+          cursorColor: kGreen,
+          style: TextStyle(fontSize: 4.w, fontFamily: p2, color: kBlack),
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: kWhite,
+            border: OutlineInputBorder(
+              borderSide: BorderSide.none,
+              borderRadius: BorderRadius.all(Radius.circular(4.w)),
+            ),
+            hintText: 'Escribe algo',
+            hintStyle: TextStyle(fontSize: 4.w, fontFamily: p2, color: kGrey),
+            //CAMERA AND DELETE AUDIO
+            prefixIcon: Watcher((context, ref, child) {
+              TextFieldState state = watchState(ref);
+              return GestureDetector(
+                onTap: () async {
+                  if (state == TextFieldState.RECORD_END) {
+                    resetTimer(ref);
+                    updateState(ref, TextFieldState.INIT);
+                  } else if(state == TextFieldState.INIT || state == TextFieldState.TEXT) {
+                    await ImagePicker().pickImage(source: ImageSource.gallery)
+                        .then((value) { ThrowDialog.uploadImage(context, value!, userId);  })
+                        .onError((error, stackTrace) { ThrowSnackbar.imageError(context);});
                   }
                 },
-                onLongPressEnd: (details) async{
-                  if(actionType == ChatActionType.RECORD && audioSystem!.isInit){
-                    logWarning("Long Press End");
-                    await audioSystem.stopRecorder();
-                    ref.update(actionCreator, (p0) => ChatActionType.SEND_AUDIO);
-                    _timer?.cancel();
-                  }
-                },
-                onTap:() async{
-                  if(isNotEmpty(_controller.text) && actionType == ChatActionType.SEND_MSG){
-                    Message newMessage = Message.text(_controller.text, userId);
-                    messagesLogic.add(ref, newMessage);
-                    _controller.text= '';
-                    ref.update(actionCreator, (p0) => ChatActionType.RECORD);
+                child: state == TextFieldState.INIT || state == TextFieldState.TEXT
+                    ? Icon( CustomIcons.camera,color:  kBlack, size: 7.w )
+                    : Icon( Icons.delete_rounded, color: kRed, size: 7.w
+                ),
+              );
+            }),
+            suffixIcon: Watcher((context, ref, child) {
+              TextFieldState state = watchState(ref);
+              return Listener(
+                  onPointerDown: (details) async {
+                    if ((state == TextFieldState.INIT ||state == TextFieldState.TEXT) && audioSystem!.isInit) {
+                      audioSystem.record();
+                      startTimer(ref, true);
+                      updateState(ref, TextFieldState.RECORDING);
+                    } else if (state == TextFieldState.RECORD_END) {
+                      updateState(ref, TextFieldState.INIT);
+                      int secs = watchTimer(ref);
 
-                  } else if(actionType == ChatActionType.SEND_AUDIO){
-                    ref.update(actionCreator, (p0) => ChatActionType.RECORD);
-                    int secs = ref.watch(timerCreator);
-                    ref.update<int>(timerCreator, (p0) => 0);
-                    //Message audioMessage = Message.audio(secs);
-                    //String? docID = await audioMessage.addInDBFromTrainer();
+                      //Message audioMessage = Message.audio(secs);
+                      //String? docID = await audioMessage.addInDBFromTrainer();
 
-                    // if(isNotNull(docID)){
-                    //   audiomessage.content = await uploadChatAudio(
-                    //       uid: audioMessage.user,
-                    //       date: audioMessage.date,
-                    //       audioPath: audioSystem!.uri!
-                    //   );
-                    //   audioMessage.setInDBFromTrainer(docID!);
-                   }else{
-                      logError("$logErrorPrefix Problem adding audio to BD");
+                      // if(isNotNull(docID)){
+                      //   audiomessage.content = await uploadChatAudio(
+                      //       uid: audioMessage.user,
+                      //       date: audioMessage.date,
+                      //       audioPath: audioSystem!.uri!
+                      //   );
+                      //   audioMessage.setInDBFromTrainer(docID!);
                     }
-                },
-                child: Icon( actionType == ChatActionType.RECORD ? Icons.mic_rounded : Icons.send_rounded, color: kBlack, size: 7.w));
-          }),
-        )
-    );
+                  },
+                  onPointerUp: (details) async {
+                    if (state == TextFieldState.RECORDING && audioSystem!.isInit) {
+                      await audioSystem.stopRecorder();
+                      stopTimer(ref);
+                      updateState(ref, TextFieldState.RECORD_END);
+                    }
+                    //Send Text MSG
+                    else if (isNotEmpty(_controller.text) && state == TextFieldState.TEXT) {
+                      Message newMessage = Message.text(_controller.text, userId);
+                      messagesLogic.add(ref, newMessage);
+                      updateState(ref, TextFieldState.INIT);
+                    }
+                  },
+                  child: Icon(state == TextFieldState.INIT
+                      ? Icons.mic_rounded
+                      : Icons.send_rounded, color: kBlack, size: 7.w
+
+                  )
+              );
+            }),
+          )
+      );
+    });
   }
 }
 
-
 class _BoxUserData extends StatelessWidget {
   const _BoxUserData({required this.user, Key? key}) : super(key: key);
-  final UserResumeDTO user;
+  final UserHomeDTO user;
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-            decoration: BoxDecoration(
-              boxShadow: [ BoxShadow(
-                color: kBlack.withOpacity(0.7),
-                offset: Offset(0, 1.3.w),
-                blurRadius: 1.5.w,
-              )],
-              borderRadius: BorderRadius.all(Radius.circular(100.w)),
-            ),
-            child: CachedAvatarImage(
-              url: user.img,
-              size: 5,
-              expandable: true,
-            )),
-        SizedBox(width: 2.w),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 3.h,),
-            TextH2('${user.name} ${user.lastName}', size: 4),
-            TextH2(user.job, size: 3, color: kGrey,),
-          ])
-      ]);
+    return SizedBox( width: 90.w,
+      child: Row(
+        children: [
+          Container(
+              decoration: BoxDecoration(
+                boxShadow: [ BoxShadow(
+                  color: kBlack.withOpacity(0.7),
+                  offset: Offset(0, 1.3.w),
+                  blurRadius: 1.5.w,
+                )],
+                borderRadius: BorderRadius.all(Radius.circular(100.w)),
+              ),
+              child: CachedAvatarImage(
+                url: user.img,
+                size: 5,
+                expandable: true,
+              )),
+          SizedBox(width: 2.w),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 3.h,),
+              TextH2('${user.name.removeIcon()}${user.lastName}'.maxLength(20), size: 4),
+              TextH2(user.job, size: 3, color: kGrey,),
+            ]),
+          const Spacer(),
+          Padding(
+            padding: EdgeInsets.only(top: 5.h, right: 3.w),
+            child: TextH2(user.name.getIcon(), size: 8,),
+          )
+        ]),
+    );
   }
 }
 
@@ -354,56 +361,61 @@ class _MessageBox extends StatelessWidget {
         ]);
   }
 }
+
 class _ImageBox extends StatelessWidget {
   const _ImageBox({required this.message, Key? key}) : super(key: key);
   final Message message;
-
   @override
   Widget build(BuildContext context) {
-    final bool fromTrainer = message.user != authUser.uid;
+    final bool fromTrainer = message.trainer;
     return Column(
-        crossAxisAlignment: fromTrainer ? CrossAxisAlignment.start : CrossAxisAlignment.end,
-        children:[
-          Container(
-              margin: EdgeInsets.only(
-                  right: fromTrainer ? 0   : 4.w,
-                  left : fromTrainer ? 4.w : 0
+        crossAxisAlignment: fromTrainer ?   CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children:[ Container(
+            padding: EdgeInsets.all(2.3.w),
+            margin: EdgeInsets.only(
+                left: fromTrainer ? 0 : 2.w,
+                right : fromTrainer ? 2.w : 0
+            ),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(
+                topLeft:  fromTrainer ? Radius.circular(3.w) : Radius.zero,
+                topRight : !fromTrainer ? Radius.circular(3.w) : Radius.zero,
+                bottomLeft: Radius.circular(3.w),
+                bottomRight: Radius.circular(3.w),
               ),
-              padding: EdgeInsets.all(3.w),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  topRight:  fromTrainer ? Radius.circular(2.w) : Radius.zero,
-                  topLeft : !fromTrainer ? Radius.circular(2.w) : Radius.zero,
-                  bottomLeft: Radius.circular(2.w),
-                  bottomRight: Radius.circular(2.w),
+              color: fromTrainer ? kBlue : kBlack,
+            ),
+              child: SizedBox(width: 50.w, height: 20.h,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.only(
+                    topLeft:  fromTrainer ? Radius.circular(2.w) : Radius.zero,
+                    topRight : !fromTrainer ? Radius.circular(2.w) : Radius.zero,
+                    bottomLeft: Radius.circular(2.w),
+                    bottomRight: Radius.circular(2.w),
+                  ),
+                  child: CachedNetworkImage(
+                      imageUrl: message.content,
+                      fadeInCurve: Curves.easeInOutExpo,
+                      placeholder: (context, url) => Center(child: Icon(CustomIcons.camera_retro, size: 8.w, color: kWhite)),
+                      errorWidget: (context, url, error) =>
+                          Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(2.w),
+                                color: kWhite,
+                              ),
+                              child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Icon(CustomIcons.camera_retro, size: 8.w, color: kRed),
+                                    SizedBox(height: 1.h,),
+                                    const TextP1("Fallo en la descarga", color: kRed, size: 3,)
+                                  ])),
+                      imageBuilder: (context, imageProvider) {
+                        return FullScreenImage(url: message.content, image: imageProvider);}),
                 ),
-                color: fromTrainer ? kBlack : kBlue,
-              ),
-              child: Container(width: 50.w, height: 20.h,
-                color: fromTrainer ? kBlack : kBlue,
-                child: CachedNetworkImage(
-                    imageUrl: message.content,
-                    fadeInCurve: Curves.easeInOutExpo,
-                    placeholder: (context, url) => Center(child: Icon(CustomIcons.camera_retro, size: 8.w, color: kWhite)),
-                    errorWidget: (context, url, error) =>
-                        Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(2.w),
-                              color: kWhite,
-                            ),
-                            child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Icon(CustomIcons.camera_retro, size: 8.w, color: kRed),
-                                  SizedBox(height: 1.h,),
-                                  TextP1("Fallo en la descarga", color: kRed, size: 3,)
-                                ])),
-                    imageBuilder: (context, imageProvider) {
-                      return FullScreenImage(url: message.content, image: imageProvider);}),
-
               )),
-          Padding(padding: EdgeInsets.only(left: 4.w, right: 4  .w, bottom: 1.h,),
+          Padding(padding: EdgeInsets.only(left: 4.w, right: 4.w, bottom: 1.h,),
               child: TextP2(message.date.toFormatStringHour(), color: kGrey, size: 3,))
         ]);
   }

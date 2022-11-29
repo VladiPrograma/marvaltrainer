@@ -7,15 +7,10 @@ import '../model/daily.dart';
 class DailyLogic{
   DailyRepo repo = DailyRepo();
 
-  Daily? getLast(Ref ref){
-    List<Daily> list = repo.getAll(ref);
-    return list.isNotEmpty ? list[0] : null;
+  Daily? getLast(Ref ref, String userId){
+    List<Daily> list = repo.get(ref,  userId);
+    return list.isNotEmpty ? list.first : null;
   }
-
-  List<Daily> getList(Ref ref){
-    return repo.getAll(ref);
-  }
-  void fetchMore(Ref ref, {int? n}){
-    repo.fetchMore(ref, n: n);
-  }
+  List<Daily> get(Ref ref, String userId) => repo.get(ref,  userId);
+  void fetchMore(Ref ref, {int? n}) =>  repo.fetchMore(ref, n: n);
 }

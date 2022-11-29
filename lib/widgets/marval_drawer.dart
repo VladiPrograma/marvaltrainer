@@ -39,7 +39,7 @@ class MarvalDrawer extends StatelessWidget {
         children:  <Widget>[
           /// Header
           Watcher((context, ref, child) {
-                User? user = userLogic.getAuthUser(context, ref);
+                User? user = userLogic.getAuthUser(ref);
                 return SizedBox(height: 38.h,
                     child: DrawerHeader(
                       decoration: BoxDecoration( color: kWhite, border: Border.all(color: kWhite) ),

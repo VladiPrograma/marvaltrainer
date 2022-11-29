@@ -1,5 +1,6 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
+import 'package:marvaltrainer/config/screen_args_data.dart';
 import 'package:marvaltrainer/firebase/users/repository/trainer_users_repo.dart';
 import 'package:marvaltrainer/screens/home/alta/add_users_screen.dart';
 import 'package:sizer/sizer.dart';
@@ -120,7 +121,7 @@ class _UsersList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Watcher((context, ref, child){
       // Get User mapped and filtered by search.
-      List<UserResumeDTO> users = userLogic.getUserHome(ref, ref.watch(_searchCreator)) ?? [];
+      List<UserHomeDTO> users = userLogic.getUserHome(ref, ref.watch(_searchCreator)) ?? [];
       return ListView.builder(
         itemCount: users.length,
         itemBuilder: (context, index) {
@@ -131,13 +132,12 @@ class _UsersList extends StatelessWidget {
 }
 class MarvalUserTile extends StatelessWidget {
   const MarvalUserTile({required this.user, Key? key}) : super(key: key);
-  final UserResumeDTO user;
+  final UserHomeDTO user;
   @override
   Widget build(BuildContext context) {
     double diff = (user.weight ?? 0) - (user.lastWeight ?? 0);
-    void openProfilePage(BuildContext context, UserResumeDTO userDTO){
-      userLogic.select(context.ref, userLogic.getByID(userDTO.id, context.ref));
-      Navigator.push(context, MaterialPageRoute(builder: (context) =>  const ProfileScreen()));
+    void openProfilePage(BuildContext context, UserHomeDTO userDTO){
+      Navigator.pushNamed(context, ProfileScreen.routeName, arguments: ScreenArguments(user.id));
     }
 
     return GestureDetector(

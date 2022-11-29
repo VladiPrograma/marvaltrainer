@@ -1,26 +1,22 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
-import 'package:marvaltrainer/config/log_msg.dart';
+import 'package:marvaltrainer/config/screen_args_data.dart';
 import 'package:marvaltrainer/firebase/messages/model/message.dart';
-import 'package:marvaltrainer/firebase/messages/repository/message_repository.dart';
 import 'package:marvaltrainer/firebase/users/dto/user_resume.dart';
-import 'package:marvaltrainer/firebase/users/model/user.dart';
-import 'package:marvaltrainer/screens/chat/chat_logic.dart';
 import 'package:marvaltrainer/utils/extensions.dart';
 import 'package:marvaltrainer/widgets/cached_avatar_image.dart';
 import 'package:marvaltrainer/widgets/marval_drawer.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../constants/colors.dart';
-import '../../constants/components.dart';
-import '../../constants/global_variables.dart';
-import '../../constants/string.dart';
-import '../../constants/theme.dart';
+import 'package:marvaltrainer/constants/colors.dart';
+import 'package:marvaltrainer/constants/components.dart';
+import 'package:marvaltrainer/constants/global_variables.dart';
+import 'package:marvaltrainer/constants/string.dart';
+import 'package:marvaltrainer/constants/theme.dart';
 
-import '../../utils/marval_arq.dart';
-import '../../widgets/inner_border.dart';
+import 'package:marvaltrainer/utils/marval_arq.dart';
+import 'package:marvaltrainer/widgets/inner_border.dart';
 import 'chat_user_screen.dart';
 
 ///@TODO Improve the size of the GestureDetector when user wants to openChat
@@ -109,7 +105,7 @@ class _UsersList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Watcher((context, ref, child){
-      List<UserResumeDTO> users = userLogic.getUserHome(ref, ref.watch(_searchCreator));
+      List<UserHomeDTO> users = userLogic.getUserHome(ref, ref.watch(_searchCreator));
       List<Message> unreadMsg = messagesLogic.getUnread(ref);
       List<Message> lastMsgByUser = [];
       for (var user in users) {
@@ -131,19 +127,17 @@ class _UsersList extends StatelessWidget {
     });
   }
 }
-class ScreenArguments {
-  final String userId;
-  ScreenArguments(this.userId);
-}
+
 class _MarvalChatTile extends StatelessWidget {
   const _MarvalChatTile({required this.message, required this.notification, required this.user, Key? key}) : super(key: key);
-  final UserResumeDTO user;
+  final UserHomeDTO user;
   final Message? message;
   final int notification;
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
         onTap: () {
+          messagesLogic.getUnreadById(context.ref, user.id).forEach((msg) { messagesLogic.read(msg); });
           Navigator.pushNamed(context, ChatScreen.routeName, arguments: ScreenArguments(user.id));
         },
     child: Container(width: 100.w, height: 12.h,
@@ -153,7 +147,7 @@ class _MarvalChatTile extends StatelessWidget {
           children: [
             SizedBox( width: 92.w,
                 child: Watcher((context, ref, child) {
-                    List<Message> unreadMsg = messagesLogic.getUnread(ref).where((msg) => msg.user == user.id).toList();
+                    List<Message> unreadMsg = messagesLogic.getUnreadById(ref, user.id);
                     Message? lastMsg = unreadMsg.isNotEmpty ? unreadMsg.last : messagesLogic.getLast(ref, user.id);
                     return Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -177,7 +171,7 @@ class _MarvalChatTile extends StatelessWidget {
                                 SizedBox(height: 0.5.h,),
                                 SizedBox(width: 53.w,
                                     child: Row(children: [
-                                      lastMsg?.user == authUserLogic.getCurrUser()?.uid
+                                      lastMsg?.user == authUserLogic.get()?.uid
                                         ? Icon(Icons.check_sharp, color: kGreen, size: 6.w,)
                                         : const SizedBox.shrink(),
                                      _LastMessageBox(message: lastMsg,)

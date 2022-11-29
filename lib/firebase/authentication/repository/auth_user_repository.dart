@@ -6,12 +6,7 @@ import 'package:marvaltrainer/firebase/authentication/model/auth_user_model.dart
 class AuthUserRepository{
 
   User? get(){  return FirebaseAuth.instance.currentUser; }
-  bool logOut() {
-    bool hasError = false;
-    FirebaseAuth.instance.signOut()
-        .onError((error, stackTrace) => hasError = true);
-    return hasError;
-  }
+
 
   Future<void> resetPassword(String password) async{
     return get()?.updatePassword(password);
@@ -43,5 +38,8 @@ class AuthUserRepository{
       if(e.code == firebase_auth_code['email_exists']) return e.code;
       return firebase_auth_code['unexpected']!;
     }
+  }
+  Future<void> logOut() async{
+    return FirebaseAuth.instance.signOut();
   }
 }

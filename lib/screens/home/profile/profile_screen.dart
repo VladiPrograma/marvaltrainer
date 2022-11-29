@@ -1,5 +1,6 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
+import 'package:marvaltrainer/config/screen_args_data.dart';
 import 'package:marvaltrainer/constants/global_variables.dart';
 import 'package:marvaltrainer/firebase/users/repository/trainer_users_repo.dart';
 import 'package:marvaltrainer/screens/home/profile/widgets/journal_title_row.dart';
@@ -28,6 +29,7 @@ class ProfileScreen extends StatelessWidget {
   static String routeName = "/profile";
   @override
   Widget build(BuildContext context) {
+    final args = ModalRoute.of(context)!.settings.arguments as ScreenArguments;
     return Scaffold(
         drawer: const MarvalDrawer(name: "Usuarios",),
         backgroundColor: kWhite,
@@ -54,7 +56,7 @@ class ProfileScreen extends StatelessWidget {
              Positioned(  top: 0,
              child: SafeArea(
              child: SizedBox(width: 100.w,
-             child: ProfileUserData(),
+             child: ProfileUserData(userId: args.userId,),
              ))),
               /// Activities Background
              Positioned( top: 28.h,
@@ -73,7 +75,7 @@ class ProfileScreen extends StatelessWidget {
                )),
              )),
              // Activities Widget
-             Positioned( top: 28.h, child:  _Journal() ),
+             Positioned( top: 28.h, child:  _Journal(userId: args.userId,) ),
        ])
       ),
     );
@@ -82,11 +84,12 @@ class ProfileScreen extends StatelessWidget {
 
 /// PROFILE DATA
 class ProfileUserData extends StatelessWidget {
-  const ProfileUserData({ Key? key}) : super(key: key);
+  const ProfileUserData({ required this.userId, Key? key}) : super(key: key);
+  final String userId;
   @override
   Widget build(BuildContext context) {
     return Watcher((context, ref, child){
-      User user = userLogic.getSelected(ref) ?? User.empty();
+      User user = userLogic.getById(ref, userId) ?? User.empty();
       return Column(
           children: [
             SizedBox(height: 1.h,),
@@ -117,7 +120,7 @@ class ProfileUserData extends StatelessWidget {
                   // Form Icon
                   Padding(padding: EdgeInsets.only(top: 4.5.h),
                       child: GestureDetector(
-                        onTap: (){ Navigator.popAndPushNamed(context, SeeFormScreen.routeName); },
+                        onTap: () => Navigator.pushNamed(context, SeeFormScreen.routeName, arguments: ScreenArguments(user.id)),
                         child: Icon(Icons.contact_page_rounded, color: kBlack, size: 14.w),
                       ))
                 ]),
@@ -150,22 +153,23 @@ class _BigLabel extends StatelessWidget {
 
 /// JOURNAL WIDGET
 class _Journal extends StatelessWidget {
-  const _Journal({ Key? key}) : super(key: key);
+  const _Journal({ required this.userId, Key? key}) : super(key: key);
+  final String userId;
   @override
   Widget build(BuildContext context) {
     return Watcher((context, ref, child){
         JournalState state = watchJournal(ref);
         switch (state){
           case JournalState.LIST:
-            return _JournalList();
+            return _JournalList(userId: userId);
           case JournalState.DIARY:
-            return Diary();
+            return Diary(userId: userId);
           case JournalState.HABITS:
-            return HabitList();
+            return HabitList(userId: userId);
           case JournalState.GALLERY:
-            return GalleryList();
+            return GalleryList(userId: userId);
           case JournalState.MEASURES:
-            return MeasureList();
+            return MeasureList(userId: userId);
         }
     });
   }
@@ -174,7 +178,8 @@ class _Journal extends StatelessWidget {
 /// ACTIVITY LIST WIDGET */
 
 class _JournalList extends StatelessWidget {
-  const _JournalList({Key? key}) : super(key: key);
+  const _JournalList({required this.userId, Key? key}) : super(key: key);
+  final String userId;
   @override
   Widget build(BuildContext context) {
     return Container( width: 100.w, height: 80.h,

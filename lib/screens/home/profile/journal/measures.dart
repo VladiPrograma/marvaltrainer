@@ -17,13 +17,13 @@ ScrollController _returnController(Ref ref){
 }
 
 class MeasureList extends StatelessWidget {
-  const MeasureList({Key? key}) : super(key: key);
-
+  const MeasureList({required this.userId, Key? key}) : super(key: key);
+  final String userId;
   @override
   Widget build(BuildContext context) {
     return SizedBox(width: 100.w, height: 76.h,
         child: Watcher((context, ref, child) {
-          List<Measures>? measures = measuresLogic.getList(ref);
+          List<Measures>? measures = measuresLogic.getList(ref, userId);
           return ListView.builder(
               controller: _returnController(ref),
               itemCount: measures!.length+1,

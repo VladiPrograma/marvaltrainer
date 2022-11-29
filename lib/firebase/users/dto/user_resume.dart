@@ -1,6 +1,6 @@
 import '../model/user.dart';
 
-class UserResumeDTO{
+class UserHomeDTO{
   String id;
   String name;
   String lastName;
@@ -11,9 +11,18 @@ class UserResumeDTO{
   double? weight;
   double? lastWeight;
 
-  UserResumeDTO({required this.id, required this.objective, required this.name, required this.lastName, required this.hobbie, required this.job, this.img, this.weight, this.lastWeight});
-
-  UserResumeDTO.fromUser(User user):
+  UserHomeDTO({required this.id, required this.objective, required this.name, required this.lastName, required this.hobbie, required this.job, this.img, this.weight, this.lastWeight});
+  UserHomeDTO.empty():
+        id = '',
+        name = '',
+        lastName = '',
+        objective = '',
+        hobbie = '',
+        job = '',
+        img = '',
+        weight = 0,
+        lastWeight = 0;
+  UserHomeDTO.fromUser(User user):
       id = user.id,
       name = user.name,
       lastName = user.lastName,

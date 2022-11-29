@@ -1,38 +1,37 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:creator/creator.dart';
-import 'package:marvaltrainer/constants/global_variables.dart';
 import 'package:marvaltrainer/firebase/measures/model/measures.dart';
 
-Emitter _measureEmitter = Emitter((ref, emit) async{
-  CollectionReference? db = ref.watch(_db.asyncData).data;
-  db == null ? emit(null) :
-  emit(await db.where('type', isEqualTo: '_Measures').orderBy('date', descending: true).limit(ref.watch(_page)).get());
-});
-Creator<int> _page = Creator.value(2);
-Emitter<CollectionReference?> _db = Emitter((ref, emit){
-  String? id = userLogic.getSelected(ref)?.id;
-  id == null ? emit(null) :
-  emit(FirebaseFirestore.instance.collection("users/$id/activities"));
+Creator<int> _page = Creator.value(3);
+final _db = Emitter.arg1<CollectionReference, String>((ref, userId, emit) =>
+    emit(FirebaseFirestore.instance.collection("users/$userId/activities")));
+final _measureStream = Emitter.arg1<QuerySnapshot, String>((ref, userId, emit) async{
+  final CollectionReference db = await ref.watch(_db(userId));
+  final cancel = (db.where('type', isEqualTo: '_Measures').
+     orderBy('date', descending: true).
+     limit(ref.watch(_page)).snapshots().
+     listen((event) => emit(event))
+     ).cancel;
+  ref.onClean(cancel);
 });
 
 class MeasuresRepo{
   final CollectionReference _db = FirebaseFirestore.instance.collection('users/');
-  void fetchMore(Ref ref, {int? n}){
-    ref.update<int>(_page, (current) => current + (n ?? 3));
-  }
-  List<Measures> getAll(Ref ref){
-    var query = ref.watch(_measureEmitter.asyncData).data as QuerySnapshot<Map<String, dynamic>>?;
+  void fetchMore(Ref ref, {int? n}) =>
+      ref.update<int>(_page, (current) => current + (n ?? 3));
+
+  List<Measures> get(Ref ref, String userId){
+    var query = ref.watch(_measureStream(userId).asyncData).data as QuerySnapshot<Map<String, dynamic>>?;
     return query?.docs.map((e) => Measures.fromMap(e.data())).toList() ?? [];
   }
-  Future<void> add(String userID, Measures measure) async{
-    FirebaseFirestore.instance.collection('users/$userID/activities/').add(measure.toMap());
-  }
-  Future<void> update(String userID, String id, Map<String, dynamic> map) async{
-    _db.doc("$userID/activities/$id").update(map);
-  }
-  Future<void> remove(String userID, String id) async{
-    _db.doc("$userID/activities/$id").delete();
-  }
+  Future<void> add(String userID, Measures measure) =>
+      FirebaseFirestore.instance.collection('users/$userID/activities/').add(measure.toMap());
+
+  Future<void> update(String userId, String measureId, Map<String, dynamic> map) =>
+      FirebaseFirestore.instance.collection("users/$userId/activities").doc(measureId).update(map);
+
+  Future<void> remove(String userId, String measureId) =>
+      FirebaseFirestore.instance.collection("users/$userId/activities").doc(measureId).delete();
 }
 
 

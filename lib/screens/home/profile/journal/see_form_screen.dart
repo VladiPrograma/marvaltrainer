@@ -1,20 +1,20 @@
+import 'package:sizer/sizer.dart';
 import 'package:flutter/material.dart';
 import 'package:creator/creator.dart';
-import 'package:marvaltrainer/constants/global_variables.dart';
-import 'package:sizer/sizer.dart';
 
-import 'package:marvaltrainer/constants/colors.dart';
 import 'package:marvaltrainer/constants/theme.dart';
-
+import 'package:marvaltrainer/constants/colors.dart';
+import 'package:marvaltrainer/constants/global_variables.dart';
+import 'package:marvaltrainer/config/screen_args_data.dart';
 import 'package:marvaltrainer/widgets/marval_drawer.dart';
 
 //@ERROR When u open the page without form completed it breaks.
 class SeeFormScreen extends StatelessWidget {
   const SeeFormScreen({Key? key}) : super(key: key);
   static String routeName = "/profile_form";
-
   @override
   Widget build(BuildContext context) {
+    final args = ModalRoute.of(context)!.settings.arguments as ScreenArguments;
     return Scaffold(
       drawer: const MarvalDrawer(name: "Usuarios",),
       backgroundColor: kWhite,
@@ -54,8 +54,8 @@ class SeeFormScreen extends StatelessWidget {
             SizedBox(height: 3.w,),
             Container(width: 90.w, height: 0.2.h, color: kBlack,),
             Watcher((context, ref, child){
-              List<String> questions = formAnswersLogic.getQuestions(ref);
-              List<String> answers = formAnswersLogic.getAnswers(ref);
+              List<String> questions = formAnswersLogic.getQuestions(ref, args.userId);
+              List<String> answers = formAnswersLogic.getAnswers(ref, args.userId);
               return SizedBox(width: 90.w, height: 81.5.h,
               child:  ListView.separated(
                   physics: const BouncingScrollPhysics(),

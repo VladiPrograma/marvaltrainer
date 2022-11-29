@@ -14,6 +14,7 @@ class MessagesLogic{
   List<Message> get(Ref ref, String userId) => repo.getChat(ref, userId);
 
   List<Message> getUnread(Ref ref) => repo.getUnread(ref);
+  List<Message> getUnreadById(Ref ref, String userId) => repo.getUnread(ref).where((msg) => msg.user == userId && !msg.trainer ).toList();
 
   List<Message> getChat(Ref ref, String userId) => repo.getChat(ref, userId);
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_downloader/image_downloader.dart';
+import 'package:marvaltrainer/constants/colors.dart';
 import 'package:sizer/sizer.dart';
 
 import '../config/log_msg.dart';
@@ -109,15 +110,15 @@ class _FullScreenPageState extends State<FullScreenPage> {
           ),
           SafeArea(
             child: Padding(
-              padding: EdgeInsets.all(3.w),
+              padding: EdgeInsets.all(1.5.w),
               child: Align(
                   alignment: Alignment.topLeft,
                   child: Row(
                     children: [
                       MaterialButton(
-                        padding: const EdgeInsets.all(15),
+                        padding: const EdgeInsets.all(5),
                         elevation: 0,
-                        color: widget.dark ? Colors.black12 : Colors.white70,
+                        color: kBlack.withOpacity(0.8),
                         highlightElevation: 0,
                         minWidth: double.minPositive,
                         height: double.minPositive,
@@ -126,16 +127,16 @@ class _FullScreenPageState extends State<FullScreenPage> {
                         ),
                         onPressed: () => Navigator.of(context).pop(),
                         child:  Icon(
-                          Icons.arrow_back,
-                          color: widget.dark ? Colors.white : Colors.black,
-                          size: 5.w,
+                          Icons.arrow_circle_left_outlined,
+                          color: kGreen,
+                          size: 8.w,
                         ),
                       ),
-                      SizedBox(width: 3.w,),
+                      SizedBox(width: 1.w,),
                       MaterialButton(
-                        padding: const EdgeInsets.all(15),
+                        padding: const EdgeInsets.all(10),
                         elevation: 0,
-                        color: widget.dark ? Colors.black12 : Colors.white70,
+                        color: kBlack.withOpacity(0.8),
                         highlightElevation: 0,
                         minWidth: double.minPositive,
                         height: double.minPositive,

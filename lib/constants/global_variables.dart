@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:creator/creator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:marvaltrainer/firebase/messages/logic/messages_logic.dart';
+import 'package:marvaltrainer/firebase/storage/controller/storage_controller.dart';
 import 'package:marvaltrainer/utils/marval_arq.dart';
 import 'package:marvaltrainer/utils/objects/user.dart';
 import 'package:marvaltrainer/utils/objects/user_handler.dart';
@@ -16,14 +17,15 @@ import 'package:marvaltrainer/firebase/authentication/logic/auth_user_logic.dart
 
 
 /// * - - - LOGIC INITS - - - */
-UserLogic userLogic = UserLogic();
-DailyLogic dailyLogic = DailyLogic();
-MeasuresLogic measuresLogic = MeasuresLogic();
-GalleryLogic galleryLogic = GalleryLogic();
-FormAnswersLogic formAnswersLogic = FormAnswersLogic();
-AuthUserLogic authUserLogic = AuthUserLogic();
-HabitsLogic habitsLogic  = HabitsLogic();
-MessagesLogic messagesLogic  = MessagesLogic();
+final UserLogic userLogic = UserLogic();
+final DailyLogic dailyLogic = DailyLogic();
+final MeasuresLogic measuresLogic = MeasuresLogic();
+final GalleryLogic galleryLogic = GalleryLogic();
+final FormAnswersLogic formAnswersLogic = FormAnswersLogic();
+final AuthUserLogic authUserLogic = AuthUserLogic();
+final HabitsLogic habitsLogic  = HabitsLogic();
+final MessagesLogic messagesLogic  = MessagesLogic();
+final StorageController storageController  = StorageController();
 
 
 /// - - - FIREBASE AUTH - - -  */

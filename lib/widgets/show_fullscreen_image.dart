@@ -27,7 +27,7 @@ class FullScreenImage extends StatelessWidget {
                             decoration: BoxDecoration(
                                 image: DecorationImage(
                                     image: image,
-                                    fit: BoxFit.cover
+                                    fit: BoxFit.contain
                                 ))));
                   }));},
         child: child ??

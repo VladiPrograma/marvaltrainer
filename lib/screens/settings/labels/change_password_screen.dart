@@ -5,8 +5,6 @@ import 'package:marvaltrainer/firebase/users/model/user.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../config/log_msg.dart';
-import '../../../utils/firebase/auth.dart';
-import '../../../utils/marval_arq.dart';
 
 import '../../../constants/theme.dart' ;
 import '../../../constants/colors.dart';
@@ -72,7 +70,7 @@ class _LogInForm extends StatelessWidget {
     return Form(
         key: _formKey,
         child: Watcher((context, ref, child) {
-          User? user = userLogic.getAuthUser(context, ref);
+          User? user = userLogic.getAuthUser(ref);
           return Column(
            children: [
              /** INPUT TEXT FIELD*/

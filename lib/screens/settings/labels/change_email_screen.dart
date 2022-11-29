@@ -15,7 +15,6 @@ import '../../../constants/global_variables.dart';
 
 import '../../../widgets/marval_drawer.dart';
 import '../../../widgets/marval_elevated_button.dart';
-import '../../../widgets/marval_snackbar.dart';
 import '../../../widgets/marval_textfield.dart';
 
 class ResetEmailScreen extends StatelessWidget {
@@ -69,7 +68,7 @@ class _LogInForm extends StatelessWidget {
     return Form(
         key: _formKey,
         child: Watcher((context, ref, child) {
-          User? user = userLogic.getAuthUser(context, ref);
+          User? user = userLogic.getAuthUser(ref);
           return Column(
             children: [
               /** INPUT TEXT FIELD*/

@@ -6,18 +6,12 @@ import 'package:marvaltrainer/constants/string.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class AudioSystem {
-  late FlutterSoundRecorder recorder;
-  late Codec codec;
-  late String path;
+  FlutterSoundRecorder recorder = FlutterSoundRecorder();
+  Codec codec = Codec.aacADTS;
+  String path = 'too.aac';
   String? uri;
   bool isInit = false;
   bool recordON = false;
-
-  AudioSystem(){
-    recorder = FlutterSoundRecorder();
-    codec = Codec.aacADTS;
-    path = 'too.aac';
-  }
 
   Future<void> initAudioSystem() async {
   if(!isInit) {
@@ -56,12 +50,10 @@ class AudioSystem {
   void record() async {
     await recorder.startRecorder( toFile: path, codec: codec);
     recordON = true;
-    //@TODO init timer
   }
 
   Future<void> stopRecorder() async {
     uri = await recorder.stopRecorder();
-    logWarning("$logErrorPrefix RecordStop: $uri");
     recordON = false;
 
   }

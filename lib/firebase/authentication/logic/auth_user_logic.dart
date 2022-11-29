@@ -7,7 +7,13 @@ import 'package:flutter/material.dart';
 
 class AuthUserLogic{
   AuthUserRepository repo = AuthUserRepository();
-  User? getCurrUser(){  return repo.get(); }
+
+  User? get(){  return repo.get(); }
+  Future<bool> logOut()  async{
+    bool success = true;
+    await repo.logOut().onError((error, stackTrace) => success = false);
+    return success;
+  }
 
   Future<bool?> resetPassword(BuildContext context, String password, bool showSnackBar) async{
     return await repo.resetPassword(password)
@@ -19,17 +25,10 @@ class AuthUserLogic{
       .then((value) {      showSnackBar ? ThrowSnackbar.resetEmailSuccess(context) : null ;
     }).catchError((error){ showSnackBar ? ThrowSnackbar.resetEmailError(context)  : null;});
   }
+
   Future<String?> signIn(BuildContext context, AuthUser user) async{
     return await repo.signIn(user);
   }
-  bool logOut() {
-    bool success = false;
-    FirebaseAuth.instance.signOut()
-        .whenComplete(() => success =  true)
-        .onError((error, stackTrace) => success = false);
-    return success;
-  }
-
   Future<String> signUp(BuildContext context, String email, bool showSnackBar) async{
     AuthUser user = AuthUser(email: email, password: 'temporal1');
     String? response = await repo.signUp(user);

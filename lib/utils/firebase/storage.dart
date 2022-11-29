@@ -1,13 +1,11 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:marvaltrainer/utils/extensions.dart';
 import 'package:path/path.dart' as p;
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../config/log_msg.dart';
-import '../objects/message.dart';
 
 
 Future<String> uploadProfileImage (String uid, XFile xfile) async{
@@ -15,9 +13,9 @@ Future<String> uploadProfileImage (String uid, XFile xfile) async{
   final file = File(xfile.path);
   final extension = p.extension(file.path);
   logInfo('Uploading: ${path+uid+extension}');
+
   final ref = FirebaseStorage.instance.ref().child(path+uid+extension);
   UploadTask uploadTask = ref.putFile(file);
-
   final snapshot = await uploadTask.whenComplete(() => {});
   final urlDownload = await snapshot.ref.getDownloadURL();
   logInfo('Download Link: $urlDownload');

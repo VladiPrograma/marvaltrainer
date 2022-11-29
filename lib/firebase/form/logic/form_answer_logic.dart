@@ -6,15 +6,15 @@ import 'package:marvaltrainer/firebase/form/repository/form_answers_repo.dart';
 class FormAnswersLogic{
   FormAnswerRepo repo = FormAnswerRepo();
 
-  FormAnswers? get( Ref ref) {
-    return repo.get(ref);
+  FormAnswers? get( Ref ref, String userId) {
+    return repo.get(ref, userId);
   }
 
-  List<String> getAnswers(Ref ref){
-    return repo.get(ref)?.form.values.toList() ?? [];
+  List<String> getAnswers(Ref ref, String userId) {
+    return get(ref, userId)?.form.values.toList() ?? [];
   }
-  List<String> getQuestions(Ref ref){
-    return repo.get(ref)?.form.keys.toList() ?? [];
+  List<String> getQuestions(Ref ref, String userId) {
+    return get(ref, userId)?.form.keys.toList() ?? [];
   }
 
 }

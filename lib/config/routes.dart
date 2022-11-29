@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:marvaltrainer/screens/home/profile/profile_screen.dart';
 
 import '../screens/habits/habit_screen.dart';
 import '../screens/habits/new_habit_screen.dart';
@@ -17,6 +18,7 @@ import '../screens/home/home_screen.dart';
 final Map<String, WidgetBuilder> routes = {
   LoginScreen.routeName : (context) =>  const LoginScreen(),
   HomeScreen.routeName : (context) =>  const HomeScreen(),
+  ProfileScreen.routeName : (context) =>  const ProfileScreen(),
   AddUserScreen.routeName : (context) =>  const AddUserScreen(),
   ChatGlobalScreen.routeName : (context) =>  const ChatGlobalScreen(),
   ChatScreen.routeName : (context) =>  const ChatScreen(),

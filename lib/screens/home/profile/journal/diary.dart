@@ -19,11 +19,12 @@ ScrollController _scrollController(Ref ref){
 }
 
 class Diary extends StatelessWidget {
-  const Diary({ Key? key}) : super(key: key);
+  const Diary({ required this.userId, Key? key}) : super(key: key);
+  final String userId;
   @override
   Widget build(BuildContext context) {
     return  Watcher((context, ref, child) {
-        List<Daily> dailys = dailyLogic.getList(ref);
+        List<Daily> dailys = dailyLogic.get(ref, userId);
         return SizedBox(width: 100.w, height: 72.h,
             child: ListView.separated(
               controller: _scrollController(ref),

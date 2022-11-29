@@ -24,12 +24,13 @@ ScrollController _returnController(Ref ref){
 }
 
 class GalleryList extends StatelessWidget {
-  const GalleryList({Key? key}) : super(key: key);
+  const GalleryList({required this.userId, Key? key}) : super(key: key);
+  final String userId;
   @override
   Widget build(BuildContext context) {
     return SizedBox(width: 100.w, height: 76.h,
         child: Watcher((context, ref, child) {
-          List<Gallery>? images = galleryLogic.getList(ref);
+          List<Gallery> images = galleryLogic.get(ref, userId);
           return ListView.builder(
               controller: _returnController(ref),
               itemCount: images.length+1,

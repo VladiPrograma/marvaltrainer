@@ -24,12 +24,13 @@ ScrollController _returnController(Ref ref){
 }
 //@TODO Make access to see all the habits include the non current ones .
 class HabitList extends StatelessWidget {
-  const HabitList({Key? key}) : super(key: key);
+  const HabitList({required this.userId, Key? key}) : super(key: key);
+  final String userId;
   @override
   Widget build(BuildContext context) {
     return SizedBox(width: 100.w, height: 72.h,
     child: Watcher((context, ref, child) {
-      Daily? daily = dailyLogic.getLast(ref);
+      Daily? daily = dailyLogic.getLast(ref, userId);
       DailyHabitsDTO? habit = watchHabitsCreator(ref);
       if(isNull(habit)){
         return ListView.separated(
@@ -45,7 +46,7 @@ class HabitList extends StatelessWidget {
             });
       }
       else{
-        return _CalendarList(habit: habit!);
+        return _CalendarList(userId: userId, habit: habit!);
       }
     }));
   }
@@ -108,8 +109,9 @@ class HabitLabel extends StatelessWidget {
 }
 
 class _CalendarList extends StatelessWidget {
-  const _CalendarList({required this.habit, Key? key}) : super(key: key);
+  const _CalendarList({required this.userId, required this.habit, Key? key}) : super(key: key);
   final DailyHabitsDTO habit;
+  final String userId;
   List<bool> getCalendarHabitList(List<Daily> list, DateTime date, String habit){
     // Get the dailys for this month.
     list = list.where((daily) => daily.date.month == date.month && daily.date.year == date.year && daily.habits.contains(habit)).toList();
@@ -122,7 +124,7 @@ class _CalendarList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Watcher((context, ref, child){
-            List<Daily> dailys = dailyLogic.getList(ref);
+            List<Daily> dailys = dailyLogic.get(ref, userId);
             final DateTime lastDate   = dailys.isEmpty ? DateTime.now() : dailys.first.date;
             final int monthDifference = dailys.isEmpty ? 0 : dailys.last.date.monthDifference(lastDate);
             return SizedBox(width: 100.w, height: 72.h,
