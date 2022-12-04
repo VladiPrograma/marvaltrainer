@@ -1,6 +1,7 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:marvaltrainer/firebase/users/model/user.dart';
+import 'package:marvaltrainer/screens/testing/testing_screen.dart';
 import 'package:marvaltrainer/widgets/cached_avatar_image.dart';
 
 import 'package:sizer/sizer.dart';
@@ -12,8 +13,6 @@ import '../constants/theme.dart';
 import '../screens/chat/chat_global_screen.dart';
 import '../screens/habits/habits_screen_global.dart';
 import '../screens/home/home_screen.dart';
-import '../screens/chat/chat_logic.dart';
-import '../screens/login/login_screen.dart';
 import '../screens/settings/settings_screen.dart';
 import '../utils/extensions.dart';
 
@@ -97,7 +96,7 @@ class MarvalDrawer extends StatelessWidget {
           ),
           /// Entrenos
           GestureDetector(
-            onTap: () => removeScreens(HomeScreen.routeName),
+            onTap: () => removeScreens(TestingScreen.routeName),
             child: ListTile(
               leading: Icon(CustomIcons.muscle_up ,color: name=="Entrenos" ? kGreen : kBlack, size: 6.w,),
               title: TextH2('Entrenos', size: 4, color: name=="Entrenos" ? kGreen : kBlack),

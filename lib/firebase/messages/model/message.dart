@@ -29,12 +29,11 @@ class Message {
         type = MessageType.TEXT,
         date = DateTime(1000);
 
-  Message.text(this.content, this.user):
+  Message.create(this.content,this.type, this.user, {int? duration}):
     trainer = true,
     read= false,
-    type= MessageType.TEXT,
+    duration = duration ?? 0,
     id= '',
-    duration = 0,
     date = DateTime.now();
 
   Message.fromMap(Map<String, dynamic> map)

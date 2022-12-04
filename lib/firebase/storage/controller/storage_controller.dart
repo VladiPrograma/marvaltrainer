@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -22,12 +23,27 @@ class StorageController{
   Future<String?> uploadChatImage (String userId,  XFile xfile ) async{
     const String parent = 'chat';
     const String slash = '/';
+    final String id = Timestamp.now().microsecondsSinceEpoch.toString();
 
     final file = File(xfile.path);
     Uint8List filePath = await xfile.readAsBytes();
 
     final extension = path.extension(file.path);
-    final String storagePath = parent + slash + userId + slash + Timestamp.now().toString() + extension;
+    final String storagePath = parent + slash + userId + slash + id + extension;
+
+    return _service.uploadFile(filePath, storagePath); // Image Network Direction
+  }
+
+  Future<String?> uploadChatAudio (String userId, String audioPath ) async{
+    const String parent = 'chat';
+    const String slash = '/';
+    const String extension = '.acc';
+    final String id = Timestamp.now().microsecondsSinceEpoch.toString();
+
+    final file = File(audioPath);
+    Uint8List filePath = await file.readAsBytes();
+
+    final String storagePath = parent + slash + userId + slash + id + extension;
 
     return _service.uploadFile(filePath, storagePath); // Image Network Direction
   }

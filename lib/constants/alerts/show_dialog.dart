@@ -16,15 +16,9 @@ class ThrowDialog{
         onAccept: () async{
           String? networkImg = await storageController.uploadChatImage(userId, xfile);
           if(networkImg !=null){
-            Message msg = Message(
-                id: '',
-                content: networkImg,
-                type: MessageType.IMAGE,
-                user: userId,
-                trainer: true,
-                date: DateTime.now(),
-                read: false);
-            messagesLogic.add(context.ref, msg);
+            Message message = Message.create( networkImg, MessageType.IMAGE, userId);
+            sharedController.setLastMessage(context.ref, userId, message);
+            messagesLogic.add(context.ref, message);
           }
         });
   }

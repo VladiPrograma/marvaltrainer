@@ -1,18 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:creator/creator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:marvaltrainer/firebase/messages/logic/messages_logic.dart';
-import 'package:marvaltrainer/firebase/storage/controller/storage_controller.dart';
+
 import 'package:marvaltrainer/utils/marval_arq.dart';
 import 'package:marvaltrainer/utils/objects/user.dart';
 import 'package:marvaltrainer/utils/objects/user_handler.dart';
+import 'package:marvaltrainer/shared_preferences/controller/shared_controller.dart';
+
 import 'package:marvaltrainer/firebase/users/logic/user_logic.dart';
 import 'package:marvaltrainer/firebase/dailys/logic/daily_logic.dart';
 import 'package:marvaltrainer/firebase/habits/logic/habits_logic.dart';
 import 'package:marvaltrainer/firebase/gallery/logic/gallery_logic.dart';
 import 'package:marvaltrainer/firebase/form/logic/form_answer_logic.dart';
+import 'package:marvaltrainer/firebase/messages/logic/messages_logic.dart';
 import 'package:marvaltrainer/firebase/measures/logic/measures_logic.dart';
 import 'package:marvaltrainer/firebase/authentication/logic/auth_user_logic.dart';
+import 'package:marvaltrainer/firebase/storage/controller/storage_controller.dart';
 
 
 
@@ -26,7 +29,7 @@ final AuthUserLogic authUserLogic = AuthUserLogic();
 final HabitsLogic habitsLogic  = HabitsLogic();
 final MessagesLogic messagesLogic  = MessagesLogic();
 final StorageController storageController  = StorageController();
-
+final SharedPreferencesController sharedController = SharedPreferencesController();
 
 /// - - - FIREBASE AUTH - - -  */
 late User authUser;

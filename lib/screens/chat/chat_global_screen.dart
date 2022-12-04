@@ -1,12 +1,14 @@
 import 'package:collection/collection.dart';
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
+import 'package:marvaltrainer/config/log_msg.dart';
 import 'package:marvaltrainer/config/screen_args_data.dart';
 import 'package:marvaltrainer/firebase/messages/model/message.dart';
 import 'package:marvaltrainer/firebase/users/dto/user_resume.dart';
 import 'package:marvaltrainer/utils/extensions.dart';
 import 'package:marvaltrainer/widgets/cached_avatar_image.dart';
 import 'package:marvaltrainer/widgets/marval_drawer.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
 
 import 'package:marvaltrainer/constants/colors.dart';
@@ -15,12 +17,12 @@ import 'package:marvaltrainer/constants/global_variables.dart';
 import 'package:marvaltrainer/constants/string.dart';
 import 'package:marvaltrainer/constants/theme.dart';
 
-import 'package:marvaltrainer/utils/marval_arq.dart';
 import 'package:marvaltrainer/widgets/inner_border.dart';
 import 'chat_user_screen.dart';
 
 ///@TODO Improve the size of the GestureDetector when user wants to openChat
 Creator<String> _searchCreator = Creator.value('');
+
 
 class ChatGlobalScreen extends StatelessWidget {
   const ChatGlobalScreen({Key? key}) : super(key: key);
@@ -106,22 +108,30 @@ class _UsersList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Watcher((context, ref, child){
       List<UserHomeDTO> users = userLogic.getUserHome(ref, ref.watch(_searchCreator));
-      List<Message> unreadMsg = messagesLogic.getUnread(ref);
-      List<Message> lastMsgByUser = [];
-      for (var user in users) {
-        Message? lastMsg = unreadMsg.firstWhereOrNull((msg) => msg.user == user.id);
-        lastMsg ??= messagesLogic.getLast(ref, user.id);
-        lastMsgByUser.add(lastMsg ?? Message.empty(user.id));
-      }
-      lastMsgByUser.sort((a, b) => b.date.compareTo(a.date));
+      List<Message> unreadList = messagesLogic.getUnread(ref);
+      List<Message> lastMessages = [];
+      for (UserHomeDTO user in users) {
+        Message? message = unreadList.firstWhereOrNull((msg) => msg.user == user.id);
+        sharedController.setLastMessage(ref, user.id, message);
 
+        message ??= sharedController.getLastMessage(ref, user.id);
+        if(message == null){
+          message = messagesLogic.getLastById(ref, user.id);
+          sharedController.setLastMessage(ref, user.id, message);
+        }
+
+        lastMessages.add(message ?? Message.empty(user.id));
+      }
+
+      lastMessages.sort((a, b) => b.date.compareTo(a.date));
+      logWarning('----------------------------------- Global Chat Screen Repaint');
         return ListView.builder(
-            itemCount: users.length,
+            itemCount: users!.length,
             physics: const BouncingScrollPhysics(),
             itemBuilder: (context, index) {
-              return  _MarvalChatTile(user: users.firstWhere((user) => user.id == lastMsgByUser[index].user),
-                  message: lastMsgByUser[index].content.isNotEmpty ? lastMsgByUser[index] : null,
-                  notification: unreadMsg.where((msg) => msg.user == lastMsgByUser[index].user).length);
+              return  _MarvalChatTile(user: users!.firstWhere((user) => user.id == lastMessages![index].user),
+                  message: lastMessages![index].content.isNotEmpty ? lastMessages[index] : null,
+                  notification: unreadList!.where((msg) => msg.user == lastMessages[index].user).length);
             }
         );
     });
@@ -138,7 +148,7 @@ class _MarvalChatTile extends StatelessWidget {
     return GestureDetector(
         onTap: () {
           messagesLogic.getUnreadById(context.ref, user.id).forEach((msg) { messagesLogic.read(msg); });
-          Navigator.pushNamed(context, ChatScreen.routeName, arguments: ScreenArguments(user.id));
+          Navigator.popAndPushNamed(context, ChatScreen.routeName, arguments: ScreenArguments(user.id));
         },
     child: Container(width: 100.w, height: 12.h,
         padding: EdgeInsets.symmetric(horizontal: 2.5.w),
@@ -146,10 +156,7 @@ class _MarvalChatTile extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox( width: 92.w,
-                child: Watcher((context, ref, child) {
-                    List<Message> unreadMsg = messagesLogic.getUnreadById(ref, user.id);
-                    Message? lastMsg = unreadMsg.isNotEmpty ? unreadMsg.last : messagesLogic.getLast(ref, user.id);
-                    return Row(
+                child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           //Profile Image
@@ -171,10 +178,10 @@ class _MarvalChatTile extends StatelessWidget {
                                 SizedBox(height: 0.5.h,),
                                 SizedBox(width: 53.w,
                                     child: Row(children: [
-                                      lastMsg?.user == authUserLogic.get()?.uid
+                                      message?.user == authUserLogic.get()?.uid
                                         ? Icon(Icons.check_sharp, color: kGreen, size: 6.w,)
                                         : const SizedBox.shrink(),
-                                     _LastMessageBox(message: lastMsg,)
+                                     _LastMessageBox(message: message,)
                                     ]))
                               ]),
                           const Spacer(),
@@ -184,27 +191,27 @@ class _MarvalChatTile extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                      unreadMsg.isEmpty ? SizedBox(width: 5.w, height: 5.w):
+                                      notification == 0 ? SizedBox(width: 5.w, height: 5.w):
                                       Container(width: 5.w, height: 5.w,
                                           decoration: BoxDecoration(
                                               color: kGreen,
                                               borderRadius: BorderRadius.circular(7.w)
                                           ),
                                           child: Center(child:
-                                          TextH1('${unreadMsg.length}',
+                                          TextH1('$notification',
                                             color: kWhite,
                                             size: 2.5,
                                           ))
                                       ),
                                     SizedBox(height: 1.5.h,),
                                     // Last Message Hour
-                                     TextH2( isNull(lastMsg) ? "" : lastMsg!.date.toFormatStringHour(),
+                                     TextH2( message == null ? "" : message!.date.toFormatStringHour(),
                                       size: 2.3,
                                       color: kGrey,
                                     ),
                                   ]))
-                        ]);
-                })),
+                        ])
+                ),
           ])));
   }
 }

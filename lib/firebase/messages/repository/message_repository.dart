@@ -5,12 +5,11 @@ import 'package:creator/creator.dart';
 
 CollectionReference _db = FirebaseFirestore.instance.collection('chat');
 Creator<int> _cont = Creator.value(10);
-Emitter _unreadStream = Emitter.stream((ref) => _db.where('read', isEqualTo: false).orderBy('date').snapshots(), keepAlive: true);
 
-
+Emitter _unreadStream = Emitter.stream((ref) => _db.where('read', isEqualTo: false).where('trainer', isEqualTo: false).orderBy('date').snapshots(), keepAlive: true);
 final _chatStream = Emitter.arg1<QuerySnapshot, String>((ref, userId, emit) async{
   final cancel = (_db.where('user', isEqualTo: userId).
-                      orderBy('date').
+                      orderBy('date', descending: true).
                       limit(ref.watch(_cont)).snapshots().
                       listen((event) => emit(event))
   ).cancel;

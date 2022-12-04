@@ -27,7 +27,7 @@ class AudioSystem {
       avAudioSessionCategoryOptions:
       AVAudioSessionCategoryOptions.allowBluetooth |
       AVAudioSessionCategoryOptions.defaultToSpeaker,
-      avAudioSessionMode: AVAudioSessionMode.spokenAudio,
+      avAudioSessionMode: AVAudioSessionMode.voiceChat,
       avAudioSessionRouteSharingPolicy:
       AVAudioSessionRouteSharingPolicy.defaultPolicy,
       avAudioSessionSetActiveOptions: AVAudioSessionSetActiveOptions.none,
@@ -57,7 +57,6 @@ class AudioSystem {
     recordON = false;
 
   }
-
 // -------  Here is the code to playback  ---
   void playSound() async{
     FlutterSoundPlayer player = FlutterSoundPlayer();
