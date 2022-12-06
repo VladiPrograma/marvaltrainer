@@ -148,7 +148,7 @@ class _MarvalChatTile extends StatelessWidget {
     return GestureDetector(
         onTap: () {
           messagesLogic.getUnreadById(context.ref, user.id).forEach((msg) { messagesLogic.read(msg); });
-          Navigator.popAndPushNamed(context, ChatScreen.routeName, arguments: ScreenArguments(user.id));
+          Navigator.popAndPushNamed(context, ChatScreen.routeName, arguments: ScreenArguments(userId: user.id));
         },
     child: Container(width: 100.w, height: 12.h,
         padding: EdgeInsets.symmetric(horizontal: 2.5.w),

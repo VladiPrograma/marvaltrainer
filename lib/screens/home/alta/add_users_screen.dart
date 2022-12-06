@@ -32,7 +32,7 @@ class AddUserScreen extends StatelessWidget {
   Widget build(BuildContext context) {
   return Scaffold(
       backgroundColor: kWhite,
-      drawer: const MarvalDrawer(name: 'Dar de alta',),
+      drawer: const MarvalDrawer(name: 'Usuarios',),
       body: SizedBox( width: 100.w, height: 100.h,
       child: SingleChildScrollView(
         scrollDirection: Axis.vertical,

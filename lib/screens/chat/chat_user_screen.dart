@@ -50,6 +50,7 @@ class ChatScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final args = ModalRoute.of(context)!.settings.arguments as ScreenArguments;
+    String userId = args.userId!;
     return WillPopScope(
       onWillPop: () async{
         Navigator.popAndPushNamed(context, ChatGlobalScreen.routeName);
@@ -84,7 +85,7 @@ class ChatScreen extends StatelessWidget {
                 Positioned(  top: 1.h, left: 8.w,
                     child: SafeArea(
                       child:  Watcher((context, ref, child) {
-                        UserHomeDTO user = userLogic.userHomeById(ref, args.userId) ?? UserHomeDTO.empty();
+                        UserHomeDTO user = userLogic.userHomeById(ref, userId) ?? UserHomeDTO.empty();
                         return _BoxUserData(user: user);
                       })
                 )),
@@ -107,7 +108,7 @@ class ChatScreen extends StatelessWidget {
                         child: ClipRRect(
                         borderRadius: BorderRadius.vertical( top: Radius.circular(15.w) ),
                         child: Watcher((context, ref, child) {
-                              List<Message> messages = messagesLogic.getChat(ref, args.userId);
+                              List<Message> messages = messagesLogic.getChat(ref, userId);
 
                               return ListView.builder(
                                 reverse: true,
@@ -132,7 +133,7 @@ class ChatScreen extends StatelessWidget {
                         child: SizedBox( width: 90.w,
                             child: Stack(
                               children: [
-                                _ChatTextField(userId: args.userId),
+                                _ChatTextField(userId: userId),
                                 //TIMER LABEL
                                 Watcher((context, ref, child){
                                   int secs = watchTimer(ref);

@@ -15,6 +15,7 @@ class SeeFormScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final args = ModalRoute.of(context)!.settings.arguments as ScreenArguments;
+    final userId = args.userId!;
     return Scaffold(
       drawer: const MarvalDrawer(name: "Usuarios",),
       backgroundColor: kWhite,
@@ -54,8 +55,8 @@ class SeeFormScreen extends StatelessWidget {
             SizedBox(height: 3.w,),
             Container(width: 90.w, height: 0.2.h, color: kBlack,),
             Watcher((context, ref, child){
-              List<String> questions = formAnswersLogic.getQuestions(ref, args.userId);
-              List<String> answers = formAnswersLogic.getAnswers(ref, args.userId);
+              List<String> questions = formAnswersLogic.getQuestions(ref, userId);
+              List<String> answers = formAnswersLogic.getAnswers(ref, userId);
               return SizedBox(width: 90.w, height: 81.5.h,
               child:  ListView.separated(
                   physics: const BouncingScrollPhysics(),

@@ -1,6 +1,7 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:marvaltrainer/firebase/users/model/user.dart';
+import 'package:marvaltrainer/screens/exercise/new_exercise_screen.dart';
 import 'package:marvaltrainer/screens/testing/testing_screen.dart';
 import 'package:marvaltrainer/widgets/cached_avatar_image.dart';
 
@@ -88,7 +89,7 @@ class MarvalDrawer extends StatelessWidget {
           ),
           /// Ejercicios
           GestureDetector(
-            onTap: () => removeScreens(HomeScreen.routeName),
+            onTap: () => removeScreens(NewExerciseScreen.routeName),
             child: ListTile(
               leading: Icon(CustomIcons.gym,color: name=="Ejercicios" ? kGreen : kBlack, size: 6.w,),
               title: TextH2('Ejercicios', size: 4, color: name=="Ejercicios" ? kGreen : kBlack),

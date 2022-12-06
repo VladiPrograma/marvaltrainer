@@ -19,6 +19,7 @@ class MarvalInputTextField extends StatelessWidget {
     this.initialValue,
     this.width,
     this.labelText,
+    this.labelIcon,
     this.onTap,
     this.validator,
     this.onSaved,
@@ -35,6 +36,7 @@ class MarvalInputTextField extends StatelessWidget {
   final int? maxLength;
   final String? initialValue;
   final String? labelText;
+  final Widget? labelIcon;
   final String? hintText;
   final TextInputType? keyboardType;
   final IconData? prefixIcon;
@@ -56,7 +58,7 @@ class MarvalInputTextField extends StatelessWidget {
               return Column(
                 children: [
                   /** Text field */
-                  Container(
+                  SizedBox(
                       width: width ?? 70.w,
                       child:  TextFormField(
                         controller: controller,
@@ -66,24 +68,34 @@ class MarvalInputTextField extends StatelessWidget {
                         obscureText: obscureText ?? false,
                         initialValue: initialValue,
                         maxLines: maxLines ?? 1,
-                        maxLength: maxLength ?? null,
+                        maxLength: maxLength,
                         style: TextStyle( fontFamily: p1, color: hasFocus ? kWhite : kBlack, fontSize: 4.w),
                         decoration: InputDecoration(
                             filled: true,
                             fillColor: hasFocus ? kGreen: kWhite,
                             label: hasFocus ?
                             Container(
-                                margin: EdgeInsets.only(bottom: 2.3.h),
-                                child: TextP1(
-                                    labelText ?? "",
-                                    color: kBlack
-                                )
-                            )
+                                margin: EdgeInsets.only(bottom: labelIcon!=null ? 3.5.h : 2.3.h),
+                                child: labelIcon != null ?
+                                Row( children: [
+                                    labelIcon!,
+                                    SizedBox(width: 2.w,),
+                                    TextP1( labelText ?? "", color: kBlack )
+                                ])
                                 :
-                            TextP1(
-                                labelText ?? "",
-                                color: kBlack
-                            ),
+                                TextP1( labelText ?? "", color: kBlack  ))
+                                : // NO Focus
+                            labelText != null ?
+                            labelIcon != null && controller!=null && controller!.text.isNotEmpty ?
+                              Row(children: [
+                                    labelIcon!,
+                                    SizedBox(width: 2.w,),
+                                    TextP1( labelText ?? "", color: kBlack )
+                              ])
+                                :
+                            TextP1(labelText!, color: kBlack)
+                                :
+                            const SizedBox.shrink(),
                             border: DecoratedInputBorder(
                               child:  OutlineInputBorder(
                                 borderSide: BorderSide.none,
@@ -110,8 +122,6 @@ class MarvalInputTextField extends StatelessWidget {
                         onSaved:(value){ isNotNull(onSaved) ? onSaved!(value) : null;},
                         onChanged: (value){isNotNull(onChanged) ? onChanged!(value):null;},
                         onTap: (){isNotNull(onTap) ? onTap!() : null;},
-
-
                       )),
                 ],
               );}));

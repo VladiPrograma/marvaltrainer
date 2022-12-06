@@ -137,7 +137,7 @@ class MarvalUserTile extends StatelessWidget {
   Widget build(BuildContext context) {
     double diff = (user.weight ?? 0) - (user.lastWeight ?? 0);
     void openProfilePage(BuildContext context, UserHomeDTO userDTO){
-      Navigator.pushNamed(context, ProfileScreen.routeName, arguments: ScreenArguments(user.id));
+      Navigator.pushNamed(context, ProfileScreen.routeName, arguments: ScreenArguments(userId: user.id));
     }
 
     return GestureDetector(

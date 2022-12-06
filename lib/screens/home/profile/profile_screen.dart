@@ -30,6 +30,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final args = ModalRoute.of(context)!.settings.arguments as ScreenArguments;
+    String userId = args.userId!;
     return Scaffold(
         drawer: const MarvalDrawer(name: "Usuarios",),
         backgroundColor: kWhite,
@@ -56,7 +57,7 @@ class ProfileScreen extends StatelessWidget {
              Positioned(  top: 0,
              child: SafeArea(
              child: SizedBox(width: 100.w,
-             child: ProfileUserData(userId: args.userId,),
+             child: ProfileUserData(userId: userId,),
              ))),
               /// Activities Background
              Positioned( top: 28.h,
@@ -75,7 +76,7 @@ class ProfileScreen extends StatelessWidget {
                )),
              )),
              // Activities Widget
-             Positioned( top: 28.h, child:  _Journal(userId: args.userId,) ),
+             Positioned( top: 28.h, child:  _Journal(userId: userId,) ),
        ])
       ),
     );
@@ -120,7 +121,7 @@ class ProfileUserData extends StatelessWidget {
                   // Form Icon
                   Padding(padding: EdgeInsets.only(top: 4.5.h),
                       child: GestureDetector(
-                        onTap: () => Navigator.pushNamed(context, SeeFormScreen.routeName, arguments: ScreenArguments(user.id)),
+                        onTap: () => Navigator.pushNamed(context, SeeFormScreen.routeName, arguments: ScreenArguments(userId: user.id)),
                         child: Icon(Icons.contact_page_rounded, color: kBlack, size: 14.w),
                       ))
                 ]),
