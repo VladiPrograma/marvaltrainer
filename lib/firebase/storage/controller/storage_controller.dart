@@ -34,6 +34,20 @@ class StorageController{
     return _service.uploadFile(filePath, storagePath); // Image Network Direction
   }
 
+  Future<String?> uploadExerciseImage(XFile xfile ) async{
+    const String parent = 'exercises';
+    const String slash = '/';
+    final String id = Timestamp.now().microsecondsSinceEpoch.toString();
+
+    final file = File(xfile.path);
+    Uint8List filePath = await xfile.readAsBytes();
+
+    final extension = path.extension(file.path);
+    final String storagePath = parent + slash + id + extension;
+
+    return _service.uploadFile(filePath, storagePath); // Image Network Direction
+  }
+
   Future<String?> uploadChatAudio (String userId, String audioPath ) async{
     const String parent = 'chat';
     const String slash = '/';

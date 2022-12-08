@@ -18,7 +18,7 @@ class ExerciseRepository{
 
   List<Exercise> get(Ref ref) {
     var query = ref.watch(_exerciseStream.asyncData).data as QuerySnapshot<Map<String, dynamic>>?;
-    return query?.docs.map((e) => Exercise.fromMap(e.data())).toList() ?? [];
+    return query?.docs.map((doc) => Exercise.fromMap(doc.data())).toList() ?? [];
   }
 
   void fetchMore(Ref ref, {int? n}) => ref.update<int>(_cont, (current) => current + (n ?? 10));

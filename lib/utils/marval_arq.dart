@@ -33,3 +33,12 @@ Map<String, dynamic>? toMap(DocumentSnapshot doc){
   try{  return doc.data() as Map<String, dynamic>; }
   catch(E){  logError(" DocumentSnapshot fails casting to Map<String, dynamic):\n $E"); return null; }
 }
+
+bool containsArray(List<Object> a, List<Object> b){
+  for (var element in b) {
+    if(!a.contains(element)){
+      return false;
+    }
+  }
+  return true;
+}

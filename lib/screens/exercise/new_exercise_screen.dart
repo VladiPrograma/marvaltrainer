@@ -28,7 +28,17 @@ import 'package:marvaltrainer/widgets/marval_elevated_button.dart';
 import 'package:marvaltrainer/widgets/marval_textfield.dart';
 import 'package:marvaltrainer/widgets/marval_drawer.dart';
 
+//@Smells
+void clearNewExerciseScreen(){
+  _exercise = Exercise.empty();
+  _tagMap.clear();
+  _mapControllers['name']!.clear();
+  _mapControllers['description']!.clear();
+  _mapControllers['link']!.clear();
+  _mapControllers['search']!.clear();
+}
 
+//@Smells
 Map<String, TextEditingController> _mapControllers = {
   'name' : TextEditingController(),
   'description' : TextEditingController(),
@@ -40,7 +50,7 @@ Creator<String> _searchCreator = Creator.value('');
 String getSearch(Ref ref)=> ref.watch(_searchCreator);
 void setSearch(Ref ref, String text) => ref.update<String>(_searchCreator, (str) => text);
 
-Exercise _exercise = Exercise.create('', '', '', '', []);
+Exercise _exercise = Exercise.empty();
 
 ///@TODO Modify dialogs form admit very long descriptions without textoverflow.
 class NewExerciseScreen extends StatelessWidget {
@@ -177,8 +187,7 @@ class NewExerciseScreen extends StatelessWidget {
                         if (_formKey.currentState!.validate()) {
                           _formKey.currentState!.save();
                            _tagMap.removeWhere((key, value) => !value);
-                           _exercise.tags = [..._tagMap.keys];
-                           logInfo(_exercise);
+                           _exercise = Exercise.create(_exercise.name, _exercise.link, _exercise.description, _exercise.imageUrl, [..._tagMap.keys]);
                           Navigator.pushNamed(context, AddImageToExerciseScreen.routeName, arguments: ScreenArguments(exercise: _exercise));
                         }
                       },
@@ -192,6 +201,7 @@ class NewExerciseScreen extends StatelessWidget {
         ));
   }
 }
+
 
 
 class TagListView extends StatelessWidget {

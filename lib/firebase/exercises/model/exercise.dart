@@ -1,5 +1,6 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:collection/collection.dart';
 
 class Exercise {
   String id;
@@ -20,7 +21,7 @@ class Exercise {
   });
 
   Exercise.create(this.name, this.link, this.description, this.imageUrl, this.tags)
-  :     id = Timestamp.now().microsecondsSinceEpoch.toString() + '_' + name;
+  :     id = Timestamp.now().microsecondsSinceEpoch.toString();
 
 
   Exercise.empty()
@@ -37,7 +38,7 @@ class Exercise {
         description = map["description"],
         imageUrl = map["image_url"],
         link = map["link"],
-        tags = List<String>.from(map["tags"]);
+        tags = List<String>.from(map["tags"]).sorted();
 
   Map<String, dynamic> toMap(){
     return {

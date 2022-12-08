@@ -1,6 +1,7 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:marvaltrainer/firebase/users/model/user.dart';
+import 'package:marvaltrainer/screens/exercise/exercise_screen.dart';
 import 'package:marvaltrainer/screens/exercise/new_exercise_screen.dart';
 import 'package:marvaltrainer/screens/testing/testing_screen.dart';
 import 'package:marvaltrainer/widgets/cached_avatar_image.dart';
@@ -17,18 +18,17 @@ import '../screens/home/home_screen.dart';
 import '../screens/settings/settings_screen.dart';
 import '../utils/extensions.dart';
 
+void removeScreens(BuildContext context, String routeName){
+  while(Navigator.canPop(context)) {
+    Navigator.pop(context);
+  }
+  Navigator.pushNamed(context, routeName);
+}
 class MarvalDrawer extends StatelessWidget {
   const MarvalDrawer({required this.name, Key? key}) : super(key: key);
   final String name;
   @override
   Widget build(BuildContext context) {
-
-    void removeScreens(String routeName){
-      while(Navigator.canPop(context)) {
-        Navigator.pop(context);
-      }
-      Navigator.pushNamed(context, routeName);
-    }
 
     return Drawer(
       backgroundColor: kWhite,
@@ -54,7 +54,7 @@ class MarvalDrawer extends StatelessWidget {
               }),
           /// Home
           GestureDetector(
-            onTap: () => removeScreens(HomeScreen.routeName),
+            onTap: () => removeScreens(context,HomeScreen.routeName),
             child: ListTile(
               leading: Icon(CustomIcons.address_book, color: name=="Usuarios" ? kGreen : kBlack, size: 6.w,),
               title: TextH2('Usuarios', size: 4, color: name=="Usuarios" ? kGreen : kBlack),
@@ -62,7 +62,7 @@ class MarvalDrawer extends StatelessWidget {
           ),
           /// Chat
           GestureDetector(
-            onTap: () => removeScreens(ChatGlobalScreen.routeName),
+            onTap: () => removeScreens(context,ChatGlobalScreen.routeName),
             child: ListTile(
               leading: Icon(CustomIcons.chat_empty, color: name=="Chat" ? kGreen : kBlack, size: 6.w,),
               title: Watcher((context, ref, _) {
@@ -81,7 +81,7 @@ class MarvalDrawer extends StatelessWidget {
           ),
           /// Habitos
           GestureDetector(
-            onTap: () => removeScreens(HabitsScreenGlobal.routeName),
+            onTap: () => removeScreens(context,HabitsScreenGlobal.routeName),
             child: ListTile(
               leading: Icon(CustomIcons.habits,color: name=="Habitos" ? kGreen : kBlack, size: 6.w,),
               title: TextH2('Habitos', size: 4, color: name=="Habitos" ? kGreen : kBlack),
@@ -89,7 +89,7 @@ class MarvalDrawer extends StatelessWidget {
           ),
           /// Ejercicios
           GestureDetector(
-            onTap: () => removeScreens(NewExerciseScreen.routeName),
+            onTap: () => removeScreens(context,ExerciseScreen.routeName),
             child: ListTile(
               leading: Icon(CustomIcons.gym,color: name=="Ejercicios" ? kGreen : kBlack, size: 6.w,),
               title: TextH2('Ejercicios', size: 4, color: name=="Ejercicios" ? kGreen : kBlack),
@@ -97,7 +97,7 @@ class MarvalDrawer extends StatelessWidget {
           ),
           /// Entrenos
           GestureDetector(
-            onTap: () => removeScreens(TestingScreen.routeName),
+            onTap: () => removeScreens(context,TestingScreen.routeName),
             child: ListTile(
               leading: Icon(CustomIcons.muscle_up ,color: name=="Entrenos" ? kGreen : kBlack, size: 6.w,),
               title: TextH2('Entrenos', size: 4, color: name=="Entrenos" ? kGreen : kBlack),
@@ -105,7 +105,7 @@ class MarvalDrawer extends StatelessWidget {
           ),
           /// Ajustes
           GestureDetector(
-            onTap: () => removeScreens(SettingScreen.routeName),
+            onTap: () => removeScreens(context,SettingScreen.routeName),
             child: ListTile(
               leading: Icon(Icons.settings_rounded,color: name=="Ajustes" ? kGreen : kBlack, size: 6.w,),
               title: TextH2('Ajustes', size: 4, color: name=="Ajustes" ? kGreen : kBlack),

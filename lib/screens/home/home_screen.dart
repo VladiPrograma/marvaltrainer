@@ -51,7 +51,7 @@ class HomeScreen extends StatelessWidget {
               Positioned(
                   top: 0,
                   child: SizedBox(width: 100.w, height: 20.h,
-                    child: Center(child: TextH1('Home', size: 13,
+                    child: Center(child: TextH1('MarvalFit', size: 13,
                       color: Colors.black.withOpacity(0.7),
                       shadows: [
                         BoxShadow(color: kWhite.withOpacity(0.4), offset: const Offset(0, 2), blurRadius: 15)
