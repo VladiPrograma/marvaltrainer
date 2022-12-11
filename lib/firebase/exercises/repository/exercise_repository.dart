@@ -26,7 +26,7 @@ class ExerciseRepository{
 
   Future<DocumentSnapshot> getDocument(String id) =>  _db.doc(id).get();
   Future<void> add(Exercise exercise) => _db.doc(exercise.id).set(exercise.toMap());
-  Future<void> update(String id, Map<String, Object> map) =>  _db.doc(id).update(map);
+  Future<void> update(String id, Map<String, dynamic> map) =>  _db.doc(id).update(map);
   Future<void> delete(String id) => _db.doc(id).delete();
 
 

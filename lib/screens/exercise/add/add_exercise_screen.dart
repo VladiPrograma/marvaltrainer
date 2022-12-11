@@ -12,7 +12,7 @@ import 'package:marvaltrainer/constants/global_variables.dart';
 import 'package:marvaltrainer/firebase/exercises/logic/exercise_logic.dart';
 import 'package:marvaltrainer/firebase/exercises/model/exercise.dart';
 import 'package:marvaltrainer/firebase/exercises/model/tags.dart';
-import 'package:marvaltrainer/screens/exercise/add_image_screen.dart';
+import 'package:marvaltrainer/screens/exercise/add/add_image_screen.dart';
 import 'package:marvaltrainer/utils/extensions.dart';
 import 'package:marvaltrainer/utils/marval_arq.dart';
 import 'package:marvaltrainer/widgets/inner_border.dart';
@@ -180,7 +180,7 @@ class NewExerciseScreen extends StatelessWidget {
                         onChanged: (value) =>  setSearch(context.ref, value),
                         ),
                   ),
-                  TagListView(),
+                  const _TagListView(),
                   SizedBox(height: 6.h,),
                   MarvalElevatedButton("Continuar",
                       onPressed: (){
@@ -204,8 +204,8 @@ class NewExerciseScreen extends StatelessWidget {
 
 
 
-class TagListView extends StatelessWidget {
-  const TagListView({Key? key}) : super(key: key);
+class _TagListView extends StatelessWidget {
+  const _TagListView({Key? key}) : super(key: key);
 
   List<String> getFilerTags(Ref ref){
     Tags tags = exerciseLogic.getTags(ref) ?? Tags.empty();

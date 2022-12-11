@@ -48,12 +48,7 @@ class ExerciseLogic{
     repo.update(exercise.id, {'tags' : FieldValue.arrayUnion( [tag])});
   }
   Future<void> update(Exercise exercise){
-    return repo.update(exercise.id,
-      {
-      'name' : exercise.name.toCamellCase(),
-      'image_url' : exercise.imageUrl,
-      'description' : exercise.description.capitalize(),
-      });
+    return repo.update(exercise.id, exercise.toMap());
   }
   Future<void> add(Exercise exercise) => repo.add(exercise);
   Future<void> delete(String id) => repo.delete(id);

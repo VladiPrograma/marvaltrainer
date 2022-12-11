@@ -1,47 +1,35 @@
-import 'dart:collection';
 import 'dart:io';
-import 'dart:math';
-
+import 'package:marvaltrainer/screens/exercise/exercise_home_screen.dart';
+import 'package:marvaltrainer/widgets/cached_image.dart';
+import 'package:sizer/sizer.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_native_splash/cli_commands.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:marvaltrainer/config/custom_icons.dart';
-import 'package:marvaltrainer/config/log_msg.dart';
+
 import 'package:marvaltrainer/config/screen_args_data.dart';
+import 'package:marvaltrainer/firebase/exercises/model/exercise.dart';
+
 import 'package:marvaltrainer/constants/alerts/snack_errors.dart';
 import 'package:marvaltrainer/constants/components.dart';
-import 'package:marvaltrainer/constants/global_variables.dart';
-import 'package:marvaltrainer/firebase/exercises/logic/exercise_logic.dart';
-import 'package:marvaltrainer/firebase/exercises/model/exercise.dart';
-import 'package:marvaltrainer/firebase/exercises/model/tags.dart';
-import 'package:marvaltrainer/screens/exercise/exercise_screen.dart';
-import 'package:marvaltrainer/screens/exercise/new_exercise_screen.dart';
-import 'package:marvaltrainer/screens/home/home_screen.dart';
-import 'package:marvaltrainer/utils/extensions.dart';
-import 'package:marvaltrainer/utils/marval_arq.dart';
-import 'package:marvaltrainer/widgets/inner_border.dart';
-import 'package:sizer/sizer.dart';
-
-import 'package:marvaltrainer/constants/string.dart';
 import 'package:marvaltrainer/constants/colors.dart';
 import 'package:marvaltrainer/constants/theme.dart';
+import 'package:marvaltrainer/constants/global_variables.dart';
 
-import 'package:marvaltrainer/firebase/habits/model/habits.dart';
+import 'package:marvaltrainer/screens/exercise/add/add_exercise_screen.dart';
+import 'package:marvaltrainer/screens/exercise/exercise_screen.dart';
 
 import 'package:marvaltrainer/widgets/marval_elevated_button.dart';
-import 'package:marvaltrainer/widgets/marval_textfield.dart';
 import 'package:marvaltrainer/widgets/marval_drawer.dart';
-import 'package:url_launcher/url_launcher.dart';
 
-Creator<XFile?> _fileCreator = Creator.value(null);
+Creator<XFile?> _fileCreator = Creator.value(null, keepAlive: true);
 void setImageFile(Ref ref, XFile image) => ref.update(_fileCreator, (p0) => image);
 XFile? getImageFile(Ref ref) => ref.watch(_fileCreator);
 
 ///@TODO Modify dialogs form admit very long descriptions without textoverflow.
-class AddImageToExerciseScreen extends StatelessWidget {
-  static String routeName = '/exercises/new/image';
-  const AddImageToExerciseScreen({Key? key}) : super(key: key);
+class EditImageToExerciseScreen extends StatelessWidget {
+  static String routeName = '/exercises/edit/image';
+  const EditImageToExerciseScreen({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     final args = ModalRoute.of(context)!.settings.arguments as ScreenArguments;
@@ -63,7 +51,14 @@ class AddImageToExerciseScreen extends StatelessWidget {
         }
       }
     }
-
+    Future<void> uploadNewImage(XFile file) async{
+      String? imageUrl = await storageController.uploadExerciseImage(file);
+      if(imageUrl!= null){
+        exercise.imageUrl = imageUrl;
+      }else{
+        ThrowSnackbar.imageError(context);
+      }
+    }
     return Scaffold(
         backgroundColor: kWhite,
         resizeToAvoidBottomInset: false,
@@ -82,7 +77,7 @@ class AddImageToExerciseScreen extends StatelessWidget {
                                 child: SizedBox(width: 10.w,
                                     child: Icon(Icons.keyboard_arrow_left, color: kBlack, size: 9.w)
                                 )),
-                            Center(child: SizedBox(width: 80.w, child: const TextH2( "Añadir Imagen", textAlign: TextAlign.center,))),
+                            Center(child: SizedBox(width: 80.w, child: const TextH2( "Editar Imagen", textAlign: TextAlign.center,))),
                           ]),
                       SizedBox(height: 2.h),
                       Watcher((context, ref, child){
@@ -96,19 +91,18 @@ class AddImageToExerciseScreen extends StatelessWidget {
                             },
                             child: Container(width: 75.w, height: 50.h,
                                 decoration: BoxDecoration(
-                                  color: _file == null ? kBlack : kWhite,
+                                  color: kWhite,
                                   borderRadius: BorderRadius.circular(5.w),
                                   boxShadow: [kMarvalHardShadow],
                                 ),
-                                child: _file == null ?
-                                Center(child: Icon(Icons.camera, color: kWhite, size: 20.w,))
-                                    :
-                                ClipRRect(
+                                child:  ClipRRect(
                                   borderRadius: BorderRadius.circular(5.w),
-                                  child: Image.file(
+                                  child: _file!=null ?
+                                  Image.file(
                                     File(_file.path),
                                     fit: BoxFit.contain,
-                                  ),
+                                  ):
+                                  CachedImage(url: exercise.imageUrl, size: 100)
                                 )
                             ));
                       }),
@@ -148,22 +142,14 @@ class AddImageToExerciseScreen extends StatelessWidget {
                          return  MarvalElevatedButton("Guardar ",
                              textSize: 4,
                              onPressed: ()async{
-                               if(_file!= null){
-                                 removeScreens(context, ExerciseScreen.routeName);
+                                 removeScreens(context, ExerciseHomeScreen.routeName);
                                  clearNewExerciseScreen();
-                                 String? imageUrl = await storageController.uploadExerciseImage(_file);
-                                  if(imageUrl!= null){
-                                    exercise.imageUrl = imageUrl;
-                                    exerciseLogic.add(exercise);
-
-                                  }else{
-                                    ThrowSnackbar.imageError(context);
-                                  }
-                               }
+                                 if(_file != null){
+                                   await uploadNewImage(_file);
+                                 }
+                                 exerciseLogic.update(exercise);
                              },
-                             backgroundColor: _file == null ? MaterialStateColor.resolveWith((states) =>  kGrey)
-                                 :
-                             MaterialStateColor.resolveWith((states){
+                             backgroundColor:   MaterialStateColor.resolveWith((states){
                                return states.contains(MaterialState.pressed) ? kGreenSec : kGreen  ;
                              })
                          );

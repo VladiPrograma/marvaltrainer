@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:marvaltrainer/screens/exercise/add_image_screen.dart';
+import 'package:marvaltrainer/screens/exercise/add/add_exercise_screen.dart';
+import 'package:marvaltrainer/screens/exercise/add/add_image_screen.dart';
+import 'package:marvaltrainer/screens/exercise/edit/edit_exercise_screen.dart';
+import 'package:marvaltrainer/screens/exercise/edit/edit_image_screen.dart';
+import 'package:marvaltrainer/screens/exercise/exercise_home_screen.dart';
 import 'package:marvaltrainer/screens/exercise/exercise_screen.dart';
-import 'package:marvaltrainer/screens/exercise/new_exercise_screen.dart';
 import 'package:marvaltrainer/screens/home/profile/profile_screen.dart';
 import 'package:marvaltrainer/screens/testing/testing_screen.dart';
 
@@ -37,6 +40,9 @@ final Map<String, WidgetBuilder> routes = {
   TestingScreen.routeName : (context) =>  TestingScreen(),
   NewExerciseScreen.routeName : (context) =>  NewExerciseScreen(),
   AddImageToExerciseScreen.routeName : (context) =>  AddImageToExerciseScreen(),
+  EditExerciseScreen.routeName : (context) =>  EditExerciseScreen(),
+  EditImageToExerciseScreen.routeName : (context) =>  EditImageToExerciseScreen(),
+  ExerciseHomeScreen.routeName : (context) =>  ExerciseHomeScreen(),
   ExerciseScreen.routeName : (context) => ExerciseScreen(),
 };
 
