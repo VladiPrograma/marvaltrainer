@@ -22,11 +22,10 @@ extension StringFormat on String{
   }
 
   String normalize(){
-    String res = toLowerCase();
-    res = res.replaceFirst(res.characters.first, res.characters.first.toUpperCase());
-    return res;
+    return replaceFirst(characters.first, characters.first.toUpperCase());
   }
 
+  //@ERROR take controll if x is null or empty or a  character without upperCase.
   String toCamellCase(){
     List<String> _list = toLowerCase().split(" ");
     String res = "";

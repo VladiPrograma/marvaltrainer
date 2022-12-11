@@ -99,19 +99,19 @@ class User {
   Map<String, dynamic> toMap(){
     return {
       'id': id, // UID
-      'name': name, // Vlad
-      'last_name': lastName, // Dumitru
-      'hobbie': hobbie, // Dumitru
+      'name': name.normalize(), // Vlad
+      'last_name': lastName.normalize(), // Dumitru
+      'hobbie': hobbie.normalize(), // Dumitru
       'objective': objective, // Dumitru
       'email': email,
-      'favorite_food' : favoriteFood,
+      'favorite_food' : favoriteFood.normalize(),
       'phone' : phone,
-      'city' : city,
+      'city' : city.normalize(),
       'birthdate' : birthdate,
       'height'  :height,
       'initial_weight' :initialWeight, // Dumitru
       'active': active, // Dumitru
-      'work': work, // Programador
+      'work': work.normalize(), // Programador
       'profile_image': profileImage, // Programador
       'last_weight': lastWeight, // 76.3
       'curr_weight': currWeight, // 77.4

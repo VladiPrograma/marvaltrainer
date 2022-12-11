@@ -34,6 +34,7 @@ Map<String, dynamic>? toMap(DocumentSnapshot doc){
   catch(E){  logError(" DocumentSnapshot fails casting to Map<String, dynamic):\n $E"); return null; }
 }
 
+/// Search
 bool containsArray(List<Object> a, List<Object> b){
   for (var element in b) {
     if(!a.contains(element)){
@@ -41,4 +42,13 @@ bool containsArray(List<Object> a, List<Object> b){
     }
   }
   return true;
+}
+
+List<String> getKeywords(String name){
+  if(name.length<3) throw ErrorText(' Name has to be more than 3 chars long');
+  List<String> res = [];
+  res.add(name.substring(0,1));
+  res.add(name.substring(0,2));
+  res.add(name.substring(0,3));
+  return res;
 }

@@ -1,6 +1,8 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
+import 'package:marvaltrainer/utils/extensions.dart';
+import 'package:marvaltrainer/utils/marval_arq.dart';
 
 class Exercise {
   String id;
@@ -43,11 +45,12 @@ class Exercise {
   Map<String, dynamic> toMap(){
     return {
       'id': id, // Vlad
-      'name': name, // Vlad
+      'name': name.normalize(), // Vlad
       'image_url': imageUrl, // Dumitru
       'link': link, // Dumitru
-      'description': description, // Dumitru
+      'description': description.normalize(), // Dumitru
       'tags': tags,
+      'keywords' : getKeywords(name.toLowerCase())
     };
   }
    @override

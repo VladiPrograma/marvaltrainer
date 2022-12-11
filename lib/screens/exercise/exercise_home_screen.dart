@@ -1,14 +1,16 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/cli_commands.dart';
 import 'package:marvaltrainer/config/custom_icons.dart';
+import 'package:marvaltrainer/config/log_msg.dart';
 import 'package:marvaltrainer/config/screen_args_data.dart';
 import 'package:marvaltrainer/firebase/exercises/model/exercise.dart';
 import 'package:marvaltrainer/screens/exercise/add/add_exercise_screen.dart';
 import 'package:marvaltrainer/screens/exercise/exercise_screen.dart';
+import 'package:marvaltrainer/utils/marval_arq.dart';
 import 'package:marvaltrainer/widgets/cached_image.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../screens/home/profile/profile_screen.dart';
 import '../../utils/extensions.dart';
 
 import '../../constants/colors.dart';
@@ -24,7 +26,11 @@ import '../../widgets/marval_drawer.dart';
 /// @TODO Add common Profile Photo to Storage and let URL on User.create
 /// @TODO Change the Details hobbie to User Hobbie
 
-
+ScrollController returnController(Ref ref){
+  ScrollController  res = ScrollController();
+  res.addListener((){ if(res.position.maxScrollExtent==res.offset){ exerciseLogic.fetchMore(ref, n: 10); }});
+  return res;
+}
 Creator<String> _searchCreator = Creator.value('');
 Creator<bool> _searchByTags = Creator.value(false);
 
@@ -112,6 +118,9 @@ class ExerciseHomeScreen extends StatelessWidget {
                             ),
                             onChanged: (value) {
                               context.ref.update(_searchCreator, (name) => value);
+                              if(value.length == 3){
+                                exerciseLogic.fetchReset(context.ref);
+                              }
                             })
                     ))
               ]),
@@ -127,13 +136,20 @@ class _UsersList extends StatelessWidget {
       bool searchByTags = ref.watch(_searchByTags);
       String search = ref.watch(_searchCreator);
       List<Exercise> exercises = [];
-      if(searchByTags){
-        exercises = exerciseLogic.searchByTags(ref, search) ?? [];
+
+      if(searchByTags && search.isNotEmpty){
+          List<String> tags = search.trim().split(',');
+          tags = tags.where((element) => element.isNotEmpty).map((e) => e.trim().capitalize()).toList();
+          exercises = exerciseLogic.getByAllTags(ref, tags);
       }else{
-        exercises = exerciseLogic.searchByName(ref, search) ?? [];
+       exercises = exerciseLogic.getByName(ref, search);
+       if(search.length>3){
+         exercises = exercises.where((exercise) => exercise.name.toLowerCase().contains(search.toLowerCase())).toList();
+       }
       }
       if(exercises.isEmpty) { return const SizedBox.shrink(); }
       return ListView.builder(
+          controller: returnController(ref),
           itemCount: exercises.length,
           itemBuilder: (context, index) {
             return ExerciseTile(exercise: exercises[index]);

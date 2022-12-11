@@ -131,7 +131,7 @@ class _LogInForm extends StatelessWidget {
                     // Backend
                     String? uid = await authUserLogic.signUp(context, email, true);
                     if(isNotNull(uid)){
-                      UserInitDTO userDTO = UserInitDTO(id: uid, name: name.normalize(), email: email, objective: _dropDownValue!);
+                      UserInitDTO userDTO = UserInitDTO(id: uid, name: name, email: email, objective: _dropDownValue!);
                       User user = userDTO.modelFromDTO();
                       userLogic.add(user);
                       clear(context);
