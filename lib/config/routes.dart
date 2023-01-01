@@ -5,14 +5,14 @@ import 'package:marvaltrainer/screens/exercise/edit/edit_exercise_screen.dart';
 import 'package:marvaltrainer/screens/exercise/edit/edit_image_screen.dart';
 import 'package:marvaltrainer/screens/exercise/exercise_home_screen.dart';
 import 'package:marvaltrainer/screens/exercise/exercise_screen.dart';
+import 'package:marvaltrainer/screens/habits/add/add_habit_screen.dart';
+import 'package:marvaltrainer/screens/habits/habit_screen.dart';
 import 'package:marvaltrainer/screens/home/profile/profile_screen.dart';
 import 'package:marvaltrainer/screens/workouts/add/add_workouts_to_train.dart';
 import 'package:marvaltrainer/screens/workouts/add/edit_training_screen.dart';
 import 'package:marvaltrainer/screens/workouts/training_screen.dart';
 
-import '../screens/habits/habit_screen.dart';
 import '../screens/habits/new_habit_screen.dart';
-import '../screens/habits/habits_screen_global.dart';
 import '../screens/home/alta/add_users_screen.dart';
 import '../screens/settings/labels/activate_users_screen.dart';
 import '../screens/settings/labels/change_password_screen.dart';
@@ -40,9 +40,8 @@ final Map<String, WidgetBuilder> routes = {
   ResetEmailScreen.routeName : (context) =>  const ResetEmailScreen(),
   ActivateUserScreen.routeName : (context) =>  const ActivateUserScreen(),
   // HABITS
-  HabitsScreenGlobal.routeName : (context) =>  const HabitsScreenGlobal(),
-  NewHabitScreen.routeName : (context) =>  NewHabitScreen(),
-  HabitScreen.routeName : (context) =>  HabitScreen(),
+  HabitsScreen.routeName : (context) =>  const HabitsScreen(),
+  AddHabitScreen.routeName : (context) =>  AddHabitScreen(),
   // EXERCISES
   NewExerciseScreen.routeName : (context) =>  NewExerciseScreen(),
   AddImageToExerciseScreen.routeName : (context) => const AddImageToExerciseScreen(),

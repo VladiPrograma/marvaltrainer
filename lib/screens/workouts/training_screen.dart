@@ -4,7 +4,7 @@ import 'package:marvaltrainer/config/custom_icons.dart';
 import 'package:marvaltrainer/config/screen_args_data.dart';
 import 'package:marvaltrainer/firebase/trainings/model/training.dart';
 import 'package:marvaltrainer/screens/workouts/add/edit_training_screen.dart';
-import 'package:marvaltrainer/utils/marval_arq.dart';
+import 'package:marvaltrainer/screens/workouts/controllers/training_controller.dart';
 import 'package:marvaltrainer/widgets/cached_avatar_image.dart';
 import 'package:marvaltrainer/widgets/users_selection_grid.dart';
 import 'package:sizer/sizer.dart';
@@ -21,35 +21,15 @@ import '../../widgets/inner_border.dart';
 import '../../widgets/marval_drawer.dart';
 
 
-
-Creator<String> _searchCreator = Creator.value('');
-Creator<String> _searchByUser = Creator.value('');
-Creator<bool> _hasUserFilter = Creator.value(false);
-
-void onTextFieldTap(Ref ref){
-  bool isActive = ref.watch(_hasUserFilter);
-  if(isActive){
-    dismissKeyboard();
-    ref.update(_searchByUser, (userId) => '');
-  }
-}
-
-void onPrefixIconTap(Ref ref, bool isActive){
-   _textEditingController.clear();
-   dismissKeyboard();
-   ref.update(_searchCreator, (p0) => '');
-   ref.update(_searchByUser, (userId) => '');
-   ref.update<bool>(_hasUserFilter, (value) => !value);
-}
-
 final TextEditingController _textEditingController = TextEditingController();
 void _openTrainingScreen(BuildContext context,Training training){
   Navigator.pushNamed(context, EditTrainingScreen.routeName, arguments: ScreenArguments(training: training));
 }
+
 class TrainingScreen extends StatelessWidget {
   const TrainingScreen({Key? key}) : super(key: key);
   static String routeName = "/workouts";
-
+  static TrainingController controller = TrainingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -86,7 +66,7 @@ class TrainingScreen extends StatelessWidget {
                       ),
                       child: Container( width: 100.w, height: 80.5.h,
                           color: kWhite,
-                          child: const _TrainingList()
+                          child:  _TrainingList(controller: controller,)
                       )),
                 ),
                 /// Filter by User
@@ -99,12 +79,12 @@ class TrainingScreen extends StatelessWidget {
                       child: Container( width:  75.w,
                           color: kWhite,
                           child: Watcher((context, ref, child) {
-                            String userId = ref.watch(_searchByUser);
-                            bool userFilter = ref.watch(_hasUserFilter);
+                            String userId = controller.getFilterId(ref);
+                            bool userFilter = controller.isFilterActive(ref);
                             if(userId.isEmpty && userFilter){
                               return UserSelectionGrid(
                                   // Get the first tap on the grid to dismiss the container and update creator
-                                  onTap: (value) => ref.update(_searchByUser, (userId) => value.first)
+                                  onTap: (value) => controller.updateFilterId(ref, value.first)
                               );
                             }
                             return const SizedBox.shrink();
@@ -116,9 +96,9 @@ class TrainingScreen extends StatelessWidget {
                     child: SizedBox(width: 75.w, height: 10.h,
                         child: TextField(
                             controller: _textEditingController,
-                            onTap: () => onTextFieldTap(context.ref),
+                            onTap: () => controller.onTextFieldTap(context.ref),
                             onChanged: (value) {
-                              context.ref.update(_searchCreator, (name) => value);
+                              controller.updateSearch(context.ref, value);
                               if(value.length == 3){
                                 exerciseLogic.fetchReset(context.ref);
                               }
@@ -147,9 +127,9 @@ class TrainingScreen extends StatelessWidget {
                                 hintStyle:  TextStyle(fontFamily: p1, color: kGrey, fontSize: 4.w),
 
                                 prefixIcon: Watcher((context, ref, child) {
-                                 bool isActive = ref.watch(_hasUserFilter);
+                                 bool isActive = controller.isFilterActive(ref);
                                   return GestureDetector(
-                                    onTap: () => onPrefixIconTap(context.ref, isActive),
+                                    onTap: () => controller.onPrefixIconTap(context.ref, isActive, _textEditingController),
                                     child: Padding(
                                       padding: EdgeInsets.all(3.w),
                                       child: Icon(CustomIcons.users, color: isActive ? kGreen : kGrey, size: 6.w,),
@@ -171,17 +151,19 @@ class TrainingScreen extends StatelessWidget {
 }
 
 class _TrainingList extends StatelessWidget {
-  const _TrainingList({Key? key}) : super(key: key);
+  const _TrainingList({required this.controller, Key? key}) : super(key: key);
+  final TrainingController controller;
   @override
   Widget build(BuildContext context) {
     return Watcher((context, ref, child){
       List<User> users = userLogic.getAll(ref) ?? [];
       List<Training> trainings = trainingLogic.getAll(ref) ?? [];
 
-      String search = ref.watch(_searchCreator);
-      String userId = ref.watch(_searchByUser);
-      bool isFilterActive = ref.watch(_hasUserFilter);
-      if(trainings.isEmpty || userId.isEmpty && isFilterActive) { return const SizedBox.shrink(); }
+      String search = controller.getSearchText(ref);
+      String userId = controller.getFilterId(ref);
+      bool isActive = controller.isFilterActive(ref);
+
+      if(trainings.isEmpty || userId.isEmpty && isActive) { return const SizedBox.shrink(); }
 
       if(userId.isNotEmpty){
         trainings = trainings.where((train) => train.users.contains(userId)).toList();
@@ -194,6 +176,7 @@ class _TrainingList extends StatelessWidget {
               return TrainingTile(users: users.where((user) => trainings[index].users.contains(user.id)).toList(), training: trainings[index]);
             });
       }
+
       trainings = trainings.where((train) => train.label.toLowerCase().contains(search.toLowerCase()) ).toList();
       return ListView.builder(
           itemCount: trainings.length,
@@ -259,9 +242,6 @@ class UsersListView extends StatelessWidget {
   final List<User> users;
   @override
   Widget build(BuildContext context) {
-    if(users.length == 1){
-      return CachedAvatarImage(url: users.first.profileImage, size: 4.5, );
-    }
     return ListView.builder(
         itemCount: users.length,
         scrollDirection: Axis.horizontal,

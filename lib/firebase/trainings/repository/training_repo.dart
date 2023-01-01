@@ -1,6 +1,5 @@
 import 'package:creator/creator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:marvaltrainer/config/log_msg.dart';
 import 'package:marvaltrainer/firebase/trainings/model/training.dart';
 
 final CollectionReference _db = FirebaseFirestore.instance.collection('workouts');

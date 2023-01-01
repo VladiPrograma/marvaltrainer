@@ -1,21 +1,22 @@
+import 'package:sizer/sizer.dart';
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
+
+import 'package:marvaltrainer/constants/colors.dart';
+import 'package:marvaltrainer/constants/global_variables.dart';
+import 'package:marvaltrainer/constants/theme.dart';
+
+import 'package:marvaltrainer/utils/extensions.dart';
 import 'package:marvaltrainer/firebase/users/model/user.dart';
-import 'package:marvaltrainer/screens/exercise/exercise_home_screen.dart';
-import 'package:marvaltrainer/screens/workouts/training_screen.dart';
 import 'package:marvaltrainer/widgets/cached_avatar_image.dart';
+import 'package:marvaltrainer/config/custom_icons.dart';
 
-import 'package:sizer/sizer.dart';
-
-import '../config/custom_icons.dart';
-import '../constants/colors.dart';
-import '../constants/global_variables.dart';
-import '../constants/theme.dart';
-import '../screens/chat/chat_global_screen.dart';
-import '../screens/habits/habits_screen_global.dart';
-import '../screens/home/home_screen.dart';
-import '../screens/settings/settings_screen.dart';
-import '../utils/extensions.dart';
+import 'package:marvaltrainer/screens/home/home_screen.dart';
+import 'package:marvaltrainer/screens/habits/habit_screen.dart';
+import 'package:marvaltrainer/screens/chat/chat_global_screen.dart';
+import 'package:marvaltrainer/screens/workouts/training_screen.dart';
+import 'package:marvaltrainer/screens/settings/settings_screen.dart';
+import 'package:marvaltrainer/screens/exercise/exercise_home_screen.dart';
 
 void removeScreens(BuildContext context, String routeName){
   while(Navigator.canPop(context)) {
@@ -80,7 +81,7 @@ class MarvalDrawer extends StatelessWidget {
           ),
           /// Habitos
           GestureDetector(
-            onTap: () => removeScreens(context,HabitsScreenGlobal.routeName),
+            onTap: () => removeScreens(context, HabitsScreen.routeName),
             child: ListTile(
               leading: Icon(CustomIcons.habits,color: name=="Habitos" ? kGreen : kBlack, size: 6.w,),
               title: TextH2('Habitos', size: 4, color: name=="Habitos" ? kGreen : kBlack),

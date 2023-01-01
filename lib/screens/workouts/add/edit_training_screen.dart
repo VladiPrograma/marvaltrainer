@@ -94,7 +94,6 @@ class EditTrainingScreen extends StatelessWidget {
                                       if(controller.hasChange(context.ref)){
                                         ThrowDialog.goBackWithoutSaving(
                                             context: context,
-                                            training: training,
                                             onAccept: () => isNew ? saveNewTraining(back: true) : updateTraining(ref, back: true),
                                             onCancel: () => goBack(context));
                                       }else{

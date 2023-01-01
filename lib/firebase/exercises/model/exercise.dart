@@ -53,14 +53,31 @@ class Exercise {
       'keywords' : getKeywords(name.toLowerCase())
     };
   }
-   @override
-  get hashCode => Object.hash(name, description, link, tags, imageUrl);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Exercise &&
+      runtimeType == other.runtimeType &&
+      id == other.id &&
+      name == other.name &&
+      description == other.description &&
+      link == other.link &&
+      imageUrl == other.imageUrl &&
+      eq(tags, other.tags);
+
+  @override
+  int get hashCode =>
+      id.hashCode ^
+      name.hashCode ^
+      description.hashCode ^
+      link.hashCode ^
+      imageUrl.hashCode ^
+      tags.hashCode;
 
   @override
   String toString() {
     return 'Exercise {id: $id, name: $name, description: $description, tags: $tags image : $imageUrl link: $link}';
   }
 
-  @override
-  bool operator ==(other) => other is Exercise && id == other.id;
 }

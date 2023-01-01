@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:marvaltrainer/config/log_msg.dart';
 import 'package:marvaltrainer/constants/colors.dart';
 import 'package:marvaltrainer/constants/string.dart';
+import 'package:marvaltrainer/firebase/habits/model/habits.dart';
 
 import 'package:marvaltrainer/firebase/messages/model/message.dart';
 import 'package:marvaltrainer/firebase/trainings/model/training.dart';
@@ -28,16 +29,15 @@ class ThrowDialog{
         });
   }
 
-  static void goBackWithoutSaving({required BuildContext context, required Training training, required Function onAccept, required Function onCancel}){
+  static void goBackWithoutSaving({required BuildContext context, required Function onAccept, required Function onCancel}){
     return MarvalDialogsAlert(context,
         height: 30,
         type: MarvalDialogAlertType.DELETE,
         title: r'Salir sin guardar ?',
-        richText: RichText(text:  TextSpan(text: r'Tus cambios se perderan y no se veran reflejados en el entrenamiento si sales sin guardar', style: TextStyle(color: kBlack, fontFamily: p2, fontSize: 3.8.w ))),
+        richText: RichText(text:  TextSpan(text: r'Tus cambios se perderan y no se veran reflejados si sales sin guardar', style: TextStyle(color: kBlack, fontFamily: p2, fontSize: 3.8.w ))),
         acceptText: r'Guardar',
         cancelText: r'Salir',
         onAccept: () => onAccept(),
         onCancel: () => onCancel());
   }
-
 }

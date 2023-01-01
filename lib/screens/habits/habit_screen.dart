@@ -1,274 +1,267 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
-
+import 'package:marvaltrainer/config/custom_icons.dart';
+import 'package:marvaltrainer/config/screen_args_data.dart';
 import 'package:marvaltrainer/constants/global_variables.dart';
-import 'package:marvaltrainer/constants/string.dart';
 import 'package:marvaltrainer/firebase/habits/model/habits.dart';
 import 'package:marvaltrainer/firebase/users/model/user.dart';
+import 'package:marvaltrainer/screens/habits/add/add_habit_screen.dart';
+import 'package:marvaltrainer/screens/habits/controllers/habit_controller.dart';
 import 'package:marvaltrainer/utils/extensions.dart';
 import 'package:marvaltrainer/widgets/cached_avatar_image.dart';
-import 'package:marvaltrainer/widgets/marval_elevated_button.dart';
-import 'package:marvaltrainer/widgets/marval_textfield.dart';
+import 'package:marvaltrainer/widgets/users_selection_grid.dart';
 import 'package:sizer/sizer.dart';
-import '../../constants/alerts/snack_errors.dart';
+
 import '../../constants/colors.dart';
+import '../../constants/string.dart';
 import '../../constants/theme.dart';
 
-import '../../utils/marval_arq.dart';
+import '../../widgets/inner_border.dart';
 import '../../widgets/marval_drawer.dart';
 
-//@SMELLS Look to dispose the keepAlive: TRUE
+final TextEditingController _textEditingController = TextEditingController();
+void _openHabitScreen(BuildContext context, Habit habit){
+  Navigator.pushNamed(context, AddHabitScreen.routeName, arguments: ScreenArguments(habit: habit));
+}
 
+class HabitsScreen extends StatelessWidget {
+  const HabitsScreen({Key? key}) : super(key: key);
+  static String routeName = "/habits";
 
-enum _Status {ALL, ASSIGNED, UNASSIGNED }
-enum _Save {NO, YES, PENDING}
-
-Creator<_Status> _statusCreator = Creator.value(_Status.ALL);
-Creator<_Save> _saveState = Creator.value(_Save.NO);
-
-
-///@TODO Modify dialogs form admit very long descriptions without textoverflow.
-class HabitScreen extends StatelessWidget {
-  HabitScreen({Key? key}) : super(key: key);
-  static String routeName = '/habits/edit';
-  final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
-    String titleByStatus(_Status status){
-      return status == _Status.ALL ? "Todos los usuarios" :
-      status == _Status.ASSIGNED ? "Usuarios asignados" :
-      "Usuarios no asignados";
-    }
-    List<User> filterByStatus(List<User> users, _Status status, Habit filterHabit){
-      List<User> res = users;
-      if(status == _Status.ASSIGNED){
-        res = List<User>.of(users.where((element){
-          return filterHabit.users.contains(element.id);
-        }));
-      }
-      if(status == _Status.UNASSIGNED){
-        res = List<User>.of(users.where((element){
-          return !filterHabit.users.contains(element.id);
-        }));
-      }
-      return res;
-    }
-    double getGridSize(int items){
-      int size = (items != 0 ? items : 3) ~/ 3;
-      return (size+1) * 15; //Gets the Grid Height Size
-    }
-
+    HabitController controller = HabitController();
     return Scaffold(
         backgroundColor: kWhite,
         resizeToAvoidBottomInset: false,
         drawer: const MarvalDrawer(name: 'Habitos',),
-        body: SizedBox( width: 100.w, height: 100.h,
-          child: SingleChildScrollView(
-            child: SafeArea(
-            child: Watcher((context, ref, child) {
-              Habit habit = habitsLogic.getSelect(ref) ?? Habit.empty();
-              return Column(
-                children:<Widget> [
-                  SizedBox(height: 2.h),
-                  // Title
-                  Row(
-                      children: [
-                        // Back Arrow
-                        GestureDetector(
-                            onTap: (){ Navigator.pop(context);},
-                            child: SizedBox(width: 10.w,
-                                child: Icon(Icons.keyboard_arrow_left,
-                                    color: kBlack, size: 9.w)
-                            )),
-                        // Title
-                        Center(child: SizedBox(width: 80.w,
-                            child: const  TextH2("Editar Habito", textAlign: TextAlign.center,))
-                        ),
-                        //Delete Icon
-                        GestureDetector(
-                            onTap: () async{
-                              if(habit.users.isEmpty){
-                                habitsLogic.delete(habit.id)
-                                .then((value) => Navigator.pop(context));
-                              }else{
-                                ThrowSnackbar.deleteHabitError(context);
-                              }
-                            },
-                            child: SizedBox( width: 7.w,
-                                child: Icon(
-                                    Icons.delete_rounded,
-                                    color: kBlack,
-                                    size: 7.w
-                                )
-                            )),
-                      ]),
-                  SizedBox(height: 3.h),
-                  Form( key: _formKey,
-                      child: Column(
-                        children: [
-                          Row(
-                              children: [
-                                Align( alignment: Alignment.centerLeft,
-                                    child: Padding(padding: EdgeInsets.only(left: 15.w),
-                                        child: MarvalInputTextField(
-                                          width: 40.w,
-                                          initialValue: habit.label,
-                                          labelText: "Nombre",
-                                          onSaved: (value) => habit.label = value ?? habit.label,
-                                          validator: (value){
-                                            if(isNullOrEmpty(value?.trim())){ return kEmptyValue; }
-                                            if(value!.length>25)    { return "{$kToLong 10";     }
-                                            return null;
-                                          },
-                                          onChanged: (value) => ref.update<_Save>(_saveState, (p0) => _Save.PENDING),
-                                        ))),
-                                SizedBox(width: 7.5.w,),
-                                // Save Button
-                                Watcher((context, ref, child){
-                                  _Save iconState = ref.watch(_saveState);
-                                  if(iconState == _Save.NO) return const SizedBox.shrink();
-                                  Color iconColor = iconState == _Save.YES ? kGreen : kRed;
-                                  return ElevatedButton(
-                                      onPressed: (){
-                                        if (_formKey.currentState!.validate()) {
-                                        _formKey.currentState!.save();
-                                        habitsLogic.updateLabels(habit).then((value) =>
-                                            context.ref.update(_saveState, (p0) => _Save.YES));
-                                      }},
-                                      style: ButtonStyle(
-                                        backgroundColor: MaterialStateProperty.all(iconColor),
-                                        elevation: MaterialStateProperty.all(2.w),
-                                        shadowColor: MaterialStateProperty.all(kBlack),
-                                      ),
-                                      child: SizedBox(width: 15.w, child: const Icon(Icons.save_alt_rounded, color: kWhite,))
-                                  );
-                                })
-                              ]),
-                          SizedBox(height: 3.h,),
-                          MarvalInputTextField(
-                            width: 70.w,
-                            initialValue: habit.name ,
-                            labelText: "Titulo",
-                            onSaved: (value) => habit.name = value ?? habit.name,
-                            validator: (value){
-                              if(isNullOrEmpty(value)){ return kEmptyValue; }
-                              if(value!.length>25)    { return "{$kToLong 25}";     }
-                              return null;
-                            },
-                            onChanged: (value) => ref.update<_Save>(_saveState, (p0) => _Save.PENDING),
-                          ),
-                          SizedBox(height: 3.h,),
-                          MarvalInputTextField(
-                            width: 70.w,
-                            maxLines: 6,
-                            initialValue:  habit.description,
-                            labelText: "Descripcion",
-                            onSaved: (value) => habit.description = value ?? habit.description,
-                            validator: (value){
-                              if(isNullOrEmpty(value)){ return kEmptyValue; }
-                              if(value!.length>1000)    { return "{$kToLong 1000";     }
-                              return null;
-                            },
-                            onChanged: (value) => ref.update<_Save>(_saveState, (p0) => _Save.PENDING),
-                          ),
-                          SizedBox(height: 3.h,),
-                        ],
+        body:   SizedBox( width: 100.w, height: 100.h,
+          child: Stack(
+              children: [
+                /// Grass Image
+                Positioned(
+                    top: 0,
+                    child: SizedBox(width: 100.w, height: 30.h,
+                      child: Image.asset('assets/images/grass.png', fit: BoxFit.cover,),
+                    )
+                ),
+                /// Home Text H1
+                Positioned(
+                    top: 0,
+                    child: SizedBox(width: 100.w, height: 20.h,
+                        child: Center(child: TextH1('Habitos', size: 13,
+                          color: Colors.black.withOpacity(0.7),
+                          shadows: [
+                            BoxShadow(color: kWhite.withOpacity(0.4), offset: const Offset(0, 2), blurRadius: 15)
+                          ],))
+                    )
+                ),
+                /// List Tiles
+                Positioned( bottom: 0,
+                  child: ClipRRect(
+                      borderRadius: BorderRadius.only(
+                          topRight:     Radius.circular(10.w),
+                          topLeft:      Radius.circular(10.w)
+                      ),
+                      child: Container( width: 100.w, height: 80.5.h,
+                          color: kWhite,
+                          child:  _HabitList(controller: controller,)
                       )),
-                  /// @OPTIONAL Nice animation in filter list when u press Icon Button
-                  Watcher((context, ref, child){
-                    _Status status = ref.watch(_statusCreator);
-                    String _text = titleByStatus(status);
-                    return Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          TextP1(_text),
-                          SizedBox(width: 4.w),
-                          GestureDetector(
-                              onTap: (){ ref.update<_Status>(_statusCreator, (p0){
-                                if(status == _Status.ALL) return _Status.ASSIGNED;
-                                if(status == _Status.ASSIGNED) return _Status.UNASSIGNED;
-                                return _Status.ALL;
-                              });
-                              },
-                              child: Icon(
-                                  status == _Status.ALL      ? Icons.check_box_outlined :
-                                  status == _Status.ASSIGNED ? Icons.check_box_rounded :
-                                  Icons.indeterminate_check_box_rounded,
-                                  color: status == _Status.ALL      ? kGrey :
-                                  status == _Status.ASSIGNED ? kGreen : kRed
-                              )),
-                        ]);
-                  }),
-                  SizedBox(height: 2.h,),
-                  SizedBox(width: 70.w,
-                      child: Watcher((context, ref, child) {
-                        List<User> users = userLogic.getActive(ref) ?? [];
-                        return Watcher((context, ref, child) {
-                          Habit? streamHabit = habitsLogic.getByID(habit.id, ref);
-                          final status = ref.watch(_statusCreator);
-                          List<User> filter = filterByStatus(users, status, streamHabit ?? habit);
-                          return SizedBox( height: getGridSize(filter.length).h,
-                              child: GridView.count(
-                                  crossAxisCount: 3,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  childAspectRatio: 0.8, /** Makes child non a Square */
-                                  children:List.generate(filter.length, (index) {
-                                    return _BasicUserTile(user: filter[index], habit: streamHabit ?? habit,);
-                                  })
-                              ));
-                        });
-                      })
-                  )],
-              );
-        }))),
-    ));
+                ),
+                //Filter by User
+                Positioned( top: 18.h, left: 12.5.w,
+                  child: ClipRRect(
+                      borderRadius: BorderRadius.only(
+                          bottomRight:     Radius.circular(10.w),
+                          bottomLeft:      Radius.circular(10.w)
+                      ),
+                      child: Container( width:  75.w,
+                          color: kWhite,
+                          child: Watcher((context, ref, child) {
+                            String userId = controller.getFilterId(ref);
+                            bool userFilter = controller.isFilterActive(ref);
+                            if(userId.isEmpty && userFilter){
+                              return UserSelectionGrid(
+                                // Get the first tap on the grid to dismiss the container and update creator
+                                  onTap: (value) => controller.updateFilterId(ref, value.first)
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          })
+                      )),
+                ),
+                ///TextField
+                Positioned( top: 16.5.h,  left: 12.5.w,
+                    child: SizedBox(width: 75.w, height: 10.h,
+                        child: TextField(
+                          controller: _textEditingController,
+                          onTap: () => controller.onTextFieldTap(context.ref),
+                          onChanged: (value) {
+                            controller.updateSearch(context.ref, value);
+                            if(value.length == 3){
+                              exerciseLogic.fetchReset(context.ref);
+                            }
+                          },
+                          cursorColor: kGreen,
+                          style: TextStyle(
+                              fontFamily: p1,
+                              color: kBlack,
+                              fontSize: 4.w
+                          ),
+                          decoration: InputDecoration(
+                              filled: true,
+                              fillColor: kWhite,
+                              border: DecoratedInputBorder(
+                                child:  OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                  borderRadius: BorderRadius.all(Radius.circular(4.w)),
+                                ),
+                                shadow: BoxShadow(
+                                  color: kBlack.withOpacity(0.45),
+                                  offset: Offset(0, 1.3.w),
+                                  blurRadius: 2.1.w,
+                                ),
+                              ),
+                              hintText: 'Buscar',
+                              hintStyle:  TextStyle(fontFamily: p1, color: kGrey, fontSize: 4.w),
+
+                              prefixIcon: Watcher((context, ref, child) {
+                                bool isActive = controller.isFilterActive(ref);
+                                return GestureDetector(
+                                  onTap: () => controller.onPrefixIconTap(context.ref, isActive, _textEditingController),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(3.w),
+                                    child: Icon(CustomIcons.users, color: isActive ? kGreen : kGrey, size: 6.w,),
+                                  ),
+                                );
+                              }),
+
+                              suffixIcon: GestureDetector(
+                                onTap: () => _openHabitScreen(context, Habit.empty()),
+                                child: Icon(CustomIcons.habits, color: kGrey, size: 7.w,),
+                              ),
+                              contentPadding: EdgeInsets.zero
+                          ),
+                        )
+                    ))
+              ]),
+        ));
   }
 }
 
-
-class _BasicUserTile extends StatelessWidget {
-  const _BasicUserTile({required this.user, required this.habit, Key? key}) : super(key: key);
-  final User user;
-  final Habit habit;
+class _HabitList extends StatelessWidget {
+  const _HabitList({required this.controller, Key? key}) : super(key: key);
+  final HabitController controller;
   @override
   Widget build(BuildContext context) {
-    Color getBorderColor(){
-      return habit.users.contains(user.id) ? kGreen : kRed.withOpacity(0);
-    }
-    return  GestureDetector(
-      onTap: () async {
-        habitsLogic.updateUser(habit, user.id);
-       //@Error change this.
-       //Planing planing = await Planing.getNewPlaning(user.id);
-       //planing.updateHabits(habit);
-      },
-      child: Column(
-        children: [
-    
-          Container(
-           decoration: BoxDecoration(
-             borderRadius: BorderRadius.circular(25.w),
-             border: Border.all(
-               color: getBorderColor(),
-               width: 0.6.w
-             ),
-             boxShadow: [
-               BoxShadow(
-                 color: kBlack.withOpacity(0.45),
-                 offset: Offset(0, 1.3.w),
-                 blurRadius: 2.1.w,
-               )]
-           ),
-           child: CachedAvatarImage(url: user.profileImage, size: 5)),
-          SizedBox(height: 0.5.h,),
-          Align(
-            alignment: AlignmentDirectional.bottomCenter,
-            child: TextP1("${user.name.removeIcon() } ${user.lastName}".maxLength(25),
-                size: 3,
-                maxLines: 1,
-                textAlign: TextAlign.center
-            ),
-          )
-        ]));
+    return Watcher((context, ref, child){
+      List<User> users = userLogic.getAll(ref) ?? [];
+      List<Habit> habits = habitsLogic.getAll(ref) ?? [];
+
+      String search = controller.getSearchText(ref);
+      String userId = controller.getFilterId(ref);
+      bool isActive = controller.isFilterActive(ref);
+
+      if(habits.isEmpty || userId.isEmpty && isActive) { return const SizedBox.shrink(); }
+
+      if(userId.isNotEmpty){
+        habits = habits.where((train) => train.users.contains(userId)).toList();
+        User user = users.firstWhere((user) => user.id == userId );
+        _textEditingController.text = '${user.name.removeIcon()}${user.lastName}';
+
+        return ListView.builder(
+            itemCount: habits.length,
+            itemBuilder: (context, index) {
+              return _HabitTile(users: users.where((user) => habits[index].users.contains(user.id)).toList(), habit: habits[index]);
+            });
+      }
+
+      habits = habits.where((train) => train.label.toLowerCase().contains(search.toLowerCase()) ).toList();
+
+      return ListView.builder(
+          physics: const BouncingScrollPhysics(),
+          itemCount: habits.length,
+          itemBuilder: (context, index) {
+            return _HabitTile(habit: habits[index], users: users.where((user) => habits[index].users.contains(user.id)).toList());
+          },
+      );
+    });
   }
 }
+
+class _HabitTile extends StatelessWidget {
+  const _HabitTile({required this.habit, required this.users, Key? key}) : super(key: key);
+  final Habit habit;
+  final List<User> users;
+  @override
+  Widget build(BuildContext context) {
+
+    return GestureDetector(
+        onTap: () => _openHabitScreen(context, habit),
+        child: Container(width: 100.w, height: 12.h,
+            margin: EdgeInsets.only(top: 1.5.w),
+            child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(width: 3.w,),
+                  /// USER DATA
+                  SizedBox( width: 60.w, height: 15.h,
+                      child:  Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            TextH2('${habit.label.getIcon()}${habit.label.removeIcon().trim()} - ${habit.name.trim()} '.maxLength(28), size: 3, ),
+                            SizedBox(height: 0.4.h,),
+                            Row( children: [
+                              Expanded(
+                                  child: TextP2(habit.description ,
+                                    size: 3,
+                                    maxLines: 3,
+                                    color: kBlack,
+                                    textAlign: TextAlign.start,
+                                  )
+                              )
+                            ]),
+                          ])),
+                  const Spacer(),
+                  Container(width: 30.w,
+                      padding: EdgeInsets.only(left: 1.5.w),
+                      decoration: BoxDecoration(
+                          color: kBlack.withOpacity(0.25),
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(3.w),
+                            topLeft: Radius.circular(3.w),
+                          )
+                      ),
+                      child: UsersListView(users: users)
+                  )
+                ])));
+  }
+}
+
+class UsersListView extends StatelessWidget {
+  const UsersListView({required this.users, Key? key}) : super(key: key);
+  final List<User> users;
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+        itemCount: users.length,
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        padding: EdgeInsets.symmetric(horizontal: 5.w),
+        itemBuilder: (context, index) {
+          return Align(
+              widthFactor: 0.53,
+              child: Container(
+                  padding: EdgeInsets.all(0.7.w),
+                  decoration: BoxDecoration(
+                      color: kWhite,
+                      borderRadius: BorderRadius.circular(100.w)
+                  ),
+                  child: CachedAvatarImage(url: users[index].profileImage, size: 4.5, )));
+        });
+  }
+}
+
+
+

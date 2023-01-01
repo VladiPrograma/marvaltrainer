@@ -36,6 +36,7 @@ Map<String, dynamic>? toMap(DocumentSnapshot doc){
 }
 
 /// Search
+Function eq = const ListEquality().equals;
 bool containsArray(List<Object> a, List<Object> b){
   for (var element in b) {
     if(!a.contains(element)){
@@ -44,16 +45,19 @@ bool containsArray(List<Object> a, List<Object> b){
   }
   return true;
 }
+void dismissKeyboard() => FocusManager.instance.primaryFocus?.unfocus();
 
 List<String> getKeywords(String name){
   if(name.length<3) throw ErrorText(' Name has to be more than 3 chars long');
+  int length = name.length;
   List<String> res = [];
-  res.add(name.substring(0,1));
-  res.add(name.substring(0,2));
-  res.add(name.substring(0,3));
+  length>1 ? res.add(name.substring(0,1)) : null;
+  length>2 ? res.add(name.substring(0,2)) : null;
+  length>3 ? res.add(name.substring(0,3)) : null;
+  length>4 ? res.add(name.substring(0,4)) : null;
+  length>5 ? res.add(name.substring(0,5)) : null;
+  length>6 ? res.add(name.substring(0,6)) : null;
   return res;
 }
-void dismissKeyboard() => FocusManager.instance.primaryFocus?.unfocus();
 
 
-Function eq = const ListEquality().equals;

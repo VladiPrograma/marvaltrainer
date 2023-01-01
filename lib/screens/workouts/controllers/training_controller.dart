@@ -1,7 +1,9 @@
 import 'package:collection/collection.dart';
 import 'package:creator/creator.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:marvaltrainer/firebase/trainings/model/training.dart';
 import 'package:marvaltrainer/firebase/trainings/model/workout.dart';
+import 'package:marvaltrainer/utils/marval_arq.dart';
 
 Creator<Training> _trainingCreator = Creator.value(Training.empty(), keepAlive: true);
 Creator<Training> _initialTrainingCreator = Creator.value(Training.empty());
@@ -10,6 +12,9 @@ Creator<bool> _updateCreator = Creator.value(false);
 // For MarvalTextFields
 Creator<bool> _onChangeUpdateCreator = Creator.value(false);
 
+Creator<String> _searchCreator = Creator.value('');
+Creator<String> _searchByUser = Creator.value('');
+Creator<bool> _filterCreator = Creator.value(false);
 
 class TrainingController {
 
@@ -61,5 +66,29 @@ class TrainingController {
     index!=-1 ? training.workouts[index] = workout : training.workouts.add(workout);
     ref.update<bool>(_updateCreator, (value) => !value);
   }
+  bool isFilterActive(Ref ref) => ref.watch(_filterCreator);
+  String getFilterId(Ref ref) => ref.watch(_searchByUser);
+  String getSearchText(Ref ref) => ref.watch(_searchCreator);
+
+  void updateSearch(Ref ref, String newValue) => ref.update(_searchCreator, (value) => newValue);
+  void updateFilterId(Ref ref, String userId) => ref.update(_searchByUser, (value) => userId);
+
+  void onTextFieldTap(Ref ref){
+    bool isActive = ref.watch(_filterCreator);
+    if(isActive){
+      dismissKeyboard();
+      ref.update(_searchByUser, (userId) => '');
+    }
+  }
+
+  void onPrefixIconTap(Ref ref, bool isActive, TextEditingController textEditingController){
+    textEditingController.clear();
+    dismissKeyboard();
+    ref.update(_searchCreator, (p0) => '');
+    ref.update(_searchByUser, (userId) => '');
+    ref.update<bool>(_filterCreator, (value) => !value);
+  }
+  
+  
 
 }
