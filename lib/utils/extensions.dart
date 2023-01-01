@@ -25,6 +25,9 @@ extension StringFormat on String{
     return replaceFirst(characters.first, characters.first.toUpperCase());
   }
 
+  isNumeric() => num.tryParse(this) != null;
+
+
   //@ERROR take controll if x is null or empty or a  character without upperCase.
   String toCamellCase(){
     List<String> _list = toLowerCase().split(" ");

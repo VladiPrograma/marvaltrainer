@@ -58,7 +58,7 @@ enum MarvalDialogAlertType {
   ACCEPT,
   ACTIVATE
 }
-void MarvalDialogsAlert(BuildContext context, {required MarvalDialogAlertType type, String? title, String? acceptText, String?  cancelText, required double height, RichText? richText, Function()? onAccept}){
+void MarvalDialogsAlert(BuildContext context, {required MarvalDialogAlertType type, String? title, String? acceptText, String?  cancelText, required double height, RichText? richText, Function()? onAccept, Function()? onCancel}){
   late IconData _icon;
   late String _textButton;
   late Color _textColor;
@@ -68,17 +68,20 @@ void MarvalDialogsAlert(BuildContext context, {required MarvalDialogAlertType ty
     _textButton = acceptText ?? "Aceptar";
     _textColor = kBlue;
     _buttonColor = kBlueThi;
-  }else if(type == MarvalDialogAlertType.DELETE){
+  }
+  else if(type == MarvalDialogAlertType.DELETE){
     _icon = CustomIcons.alert;
     _textButton =acceptText ?? "Eliminar";
     _textColor = kRed;
     _buttonColor = kRedThi;
-  }else{
+  }
+  else{
     _icon = CustomIcons.info;
     _textButton = acceptText ?? "Activar";
     _textColor = kGreen;
     _buttonColor = kGreenThi;
   }
+
   showDialog(
     context: context,
     barrierDismissible: true,
@@ -99,23 +102,22 @@ void MarvalDialogsAlert(BuildContext context, {required MarvalDialogAlertType ty
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(_icon, color: _textColor, size: 10.w,),
-                Spacer(),
+                const Spacer(),
                 TextH2(title ?? "", color: _textColor,),
-                Spacer(),
+                const Spacer(),
               ],
             ),
             SizedBox(height: 2.h,),
-            richText ?? SizedBox(),
-            Spacer(),
+            richText ?? const SizedBox.shrink(),
+            const Spacer(),
             Row(
               children: [
-                TextButton(onPressed: (){Navigator.pop(context);}, child: TextH2(cancelText ?? "Cancelar", size: 4, color: _textColor,)),
-                Spacer(),
                 TextButton(
-                    onPressed: (){
-                      Navigator.pop(context);
-                      if(isNotNull(onAccept)){  onAccept!();  }
-                    },
+                    onPressed: () =>  onCancel!=null ? onCancel() : null,
+                    child: TextH2(cancelText ?? "Cancelar", size: 4, color: _textColor,)),
+                const Spacer(),
+                TextButton(
+                    onPressed: () =>  onAccept!=null ? onAccept() : null,
                     child: Container(
                         padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.3.h),
                         decoration: BoxDecoration(

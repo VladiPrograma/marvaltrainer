@@ -6,7 +6,9 @@ import 'package:marvaltrainer/screens/exercise/edit/edit_image_screen.dart';
 import 'package:marvaltrainer/screens/exercise/exercise_home_screen.dart';
 import 'package:marvaltrainer/screens/exercise/exercise_screen.dart';
 import 'package:marvaltrainer/screens/home/profile/profile_screen.dart';
-import 'package:marvaltrainer/screens/testing/testing_screen.dart';
+import 'package:marvaltrainer/screens/workouts/add/add_workouts_to_train.dart';
+import 'package:marvaltrainer/screens/workouts/add/edit_training_screen.dart';
+import 'package:marvaltrainer/screens/workouts/training_screen.dart';
 
 import '../screens/habits/habit_screen.dart';
 import '../screens/habits/new_habit_screen.dart';
@@ -24,25 +26,33 @@ import '../screens/home/home_screen.dart';
 
 final Map<String, WidgetBuilder> routes = {
   LoginScreen.routeName : (context) =>  const LoginScreen(),
+  // HOME & USERS
   HomeScreen.routeName : (context) =>  const HomeScreen(),
-  ProfileScreen.routeName : (context) =>  const ProfileScreen(),
   AddUserScreen.routeName : (context) =>  const AddUserScreen(),
+  ProfileScreen.routeName : (context) =>  const ProfileScreen(),
+  SeeFormScreen.routeName : (context) =>  const SeeFormScreen(),
+  // CHAT
   ChatGlobalScreen.routeName : (context) =>  const ChatGlobalScreen(),
   ChatScreen.routeName : (context) =>  const ChatScreen(),
+  // SETTINGS
   SettingScreen.routeName : (context) =>  const SettingScreen(),
   ResetPasswordScreen.routeName : (context) =>  const ResetPasswordScreen(),
   ResetEmailScreen.routeName : (context) =>  const ResetEmailScreen(),
   ActivateUserScreen.routeName : (context) =>  const ActivateUserScreen(),
-  SeeFormScreen.routeName : (context) =>  const SeeFormScreen(),
+  // HABITS
   HabitsScreenGlobal.routeName : (context) =>  const HabitsScreenGlobal(),
   NewHabitScreen.routeName : (context) =>  NewHabitScreen(),
   HabitScreen.routeName : (context) =>  HabitScreen(),
-  TestingScreen.routeName : (context) =>  TestingScreen(),
+  // EXERCISES
   NewExerciseScreen.routeName : (context) =>  NewExerciseScreen(),
-  AddImageToExerciseScreen.routeName : (context) =>  AddImageToExerciseScreen(),
+  AddImageToExerciseScreen.routeName : (context) => const AddImageToExerciseScreen(),
   EditExerciseScreen.routeName : (context) =>  EditExerciseScreen(),
-  EditImageToExerciseScreen.routeName : (context) =>  EditImageToExerciseScreen(),
-  ExerciseHomeScreen.routeName : (context) =>  ExerciseHomeScreen(),
-  ExerciseScreen.routeName : (context) => ExerciseScreen(),
+  EditImageToExerciseScreen.routeName : (context) => const EditImageToExerciseScreen(),
+  ExerciseHomeScreen.routeName : (context) =>  const ExerciseHomeScreen(),
+  ExerciseScreen.routeName : (context) => const ExerciseScreen(),
+  // WORKOUTS
+  AddWorkoutToTrain.routeName : (context) => const AddWorkoutToTrain(),
+  TrainingScreen.routeName : (context) => const TrainingScreen(),
+  EditTrainingScreen.routeName : (context) =>  EditTrainingScreen(),
 };
 

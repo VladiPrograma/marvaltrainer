@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:marvaltrainer/config/log_msg.dart';
+import 'package:marvaltrainer/constants/string.dart';
 import 'package:marvaltrainer/utils/extensions.dart';
 
-import '../config/log_msg.dart';
-import '../constants/string.dart';
 
 bool isNull(item) => item==null;
 
@@ -52,3 +53,7 @@ List<String> getKeywords(String name){
   res.add(name.substring(0,3));
   return res;
 }
+void dismissKeyboard() => FocusManager.instance.primaryFocus?.unfocus();
+
+
+Function eq = const ListEquality().equals;
