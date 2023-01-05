@@ -103,7 +103,7 @@ class NewExerciseScreen extends StatelessWidget {
                             maxLines: 6,
                             hintText: "Descripcion",
                             labelText: "Descripcion",
-                            labelIcon: Icon(CustomIcons.bolt, color: kGreen, size: 8.w,),
+                            labelIcon: Icon(CustomIcons.lightning_bolt, color: kGreen, size: 8.w,),
                             controller: _mapControllers['description'],
                             onSaved: (value) => _exercise.description = value ?? '',
                             validator: (value){

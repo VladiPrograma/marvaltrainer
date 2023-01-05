@@ -181,6 +181,7 @@ class _DateLine extends StatelessWidget {
 enum TextFieldState { INIT, TEXT, RECORDING, RECORD_END}
 Creator<TextFieldState> stateCreator = Creator.value(TextFieldState.INIT);
 TextFieldState watchState(Ref ref) => ref.watch(stateCreator);
+
 void updateState(Ref ref, TextFieldState state){
   if(state == TextFieldState.INIT){
     _controller.text = '';
@@ -208,6 +209,15 @@ class _ChatTextField extends StatelessWidget {
               updateState(ref, TextFieldState.INIT);
             }else if(state == TextFieldState.INIT && value.isNotEmpty){
               updateState(ref, TextFieldState.TEXT);
+            }
+          },
+          onEditingComplete: () async {
+            TextFieldState state = watchState(ref);
+            if (isNotEmpty(_controller.text) && state == TextFieldState.TEXT) {
+              Message message = Message.create(_controller.text, MessageType.TEXT,  userId);
+              messagesLogic.add(ref, message);
+              sharedController.setLastMessage(ref, userId, message);
+              updateState(ref, TextFieldState.INIT);
             }
           },
           enabled: watchState(ref) != TextFieldState.RECORDING || watchState(ref) != TextFieldState.RECORD_END,
@@ -241,8 +251,8 @@ class _ChatTextField extends StatelessWidget {
                 },
                 child: Container(padding: EdgeInsets.all(3.w),
                 child:state == TextFieldState.INIT || state == TextFieldState.TEXT
-                    ? Icon( CustomIcons.camera,color:  kBlack, size: 7.w )
-                    : Icon( Icons.delete_rounded, color: kRed, size: 7.w
+                    ? Icon( CustomIcons.camera, color:  kBlack, size: 7.w )
+                    : Icon( CustomIcons.trash, color: kRed, size: 7.w
                 ),
               ));
             }),
@@ -412,7 +422,7 @@ class _ImageBox extends StatelessWidget {
                   child: CachedNetworkImage(
                       imageUrl: message.content,
                       fadeInCurve: Curves.easeInOutExpo,
-                      placeholder: (context, url) => Center(child: Icon(CustomIcons.camera_retro, size: 8.w, color: kWhite)),
+                      placeholder: (context, url) => Center(child: Icon(CustomIcons.camera, size: 8.w, color: kWhite)),
                       errorWidget: (context, url, error) =>
                           Container(
                               decoration: BoxDecoration(
@@ -423,7 +433,7 @@ class _ImageBox extends StatelessWidget {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    Icon(CustomIcons.camera_retro, size: 8.w, color: kRed),
+                                    Icon(Icons.camera_alt_rounded, size: 8.w, color: kRed),
                                     SizedBox(height: 1.h,),
                                     const TextP1("Fallo en la descarga", color: kRed, size: 3,)
                                   ])),

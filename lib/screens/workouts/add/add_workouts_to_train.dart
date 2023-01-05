@@ -1,3 +1,4 @@
+import 'package:marvaltrainer/widgets/load_indicator.dart';
 import 'package:sizer/sizer.dart';
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
@@ -19,9 +20,9 @@ import 'package:marvaltrainer/firebase/exercises/model/exercise.dart';
 import 'package:marvaltrainer/firebase/trainings/model/training.dart';
 import 'package:marvaltrainer/screens/workouts/controllers/training_controller.dart';
 
-ScrollController returnController(Ref ref){
+ScrollController returnController(Ref ref, int size){
   ScrollController  res = ScrollController();
-  res.addListener((){ if(res.position.maxScrollExtent==res.offset){ exerciseLogic.fetchMore(ref, n: 10); }});
+  res.addListener((){ if(res.position.maxScrollExtent==res.offset){ exerciseLogic.fetchMore(ref, size);}});
   return res;
 }
 Creator<String> _searchCreator = Creator.value('');
@@ -147,11 +148,13 @@ class _ExerciseList extends StatelessWidget {
     }
     return Watcher((context, ref, child){
       List<Exercise> exercises = getByFilter(ref);
+      final bool hasMoreData = exerciseLogic.hasMore(ref);
       if(exercises.isEmpty) { return const SizedBox.shrink(); }
       return ListView.builder(
-          controller: returnController(ref),
-          itemCount: exercises.length,
+          controller: returnController(ref, exercises.length),
+          itemCount: hasMoreData ? exercises.length+1 : exercises.length,
           itemBuilder: (context, index) {
+            if(index == exercises.length && hasMoreData){ return const  LoadIndicator(); }
             Workout? workout = training.workouts.firstWhereOrNull((element) => element.exercise == exercises[index].id);
             workout ??= Workout.empty(exercise: exercises[index].id, name: exercises[index].name);
             return _ExpandableTile(exercise: exercises[index], workout: workout);
@@ -265,7 +268,6 @@ class _WorkoutFormLabelState extends State<WorkoutFormLabel> {
                     widget.formKey.currentState!.save();
                     widget.expandableController.expanded = false;
                     widget.controller.addWorkout(context.ref, workout);
-                    //workoutsController.add(context.ref, workout);
                     FocusManager.instance.primaryFocus?.unfocus();
                   }
                 },

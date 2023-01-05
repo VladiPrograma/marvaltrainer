@@ -22,17 +22,17 @@ extension StringFormat on String{
   }
 
   String normalize(){
-    return replaceFirst(characters.first, characters.first.toUpperCase());
+    return isNotEmpty ? replaceFirst(characters.first, characters.first.toUpperCase()) : this;
   }
 
   isNumeric() => num.tryParse(this) != null;
 
 
-  //@ERROR take controll if x is null or empty or a  character without upperCase.
   String toCamellCase(){
-    List<String> _list = toLowerCase().split(" ");
+    if(isEmpty) return this;
+    List<String> list = toLowerCase().split(" ");
     String res = "";
-    for(String x in _list){
+    for(String x in list){
       res+= x.replaceFirst(x.characters.first, x.characters.first.toUpperCase());
       res+=" ";
     }

@@ -297,7 +297,7 @@ class _WorkoutTile extends StatelessWidget {
     return Row(
         children: [
           SizedBox(width: 4.w,
-              child: Icon(Icons.bolt, color: kWhite, size: 4.w,)
+              child: WorkoutTypeIcon(type: workout.type)
           ),
           SizedBox(width: 2.w,),
           SizedBox(width: 30.w,
@@ -327,3 +327,17 @@ class _WorkoutTile extends StatelessWidget {
   }
 }
 
+class WorkoutTypeIcon extends StatelessWidget {
+  const WorkoutTypeIcon({required this.type, Key? key}) : super(key: key);
+  final WorkoutType type;
+  @override
+  Widget build(BuildContext context) {
+    if(type == WorkoutType.BabyReps){
+      return Icon(CustomIcons.baby, color: kWhite, size: 4.w,);
+    }
+    if(type == WorkoutType.DropSet){
+      return Icon(CustomIcons.feather_wing, color: kWhite, size: 4.w,);
+    }
+    return Icon(CustomIcons.lightning_bolt, color: kWhite, size: 4.w,);
+  }
+}

@@ -17,9 +17,9 @@ import 'package:marvaltrainer/widgets/marval_dialogs.dart';
 import '../logic/journal_creator.dart';
 
 ///HABIT LABELS
-ScrollController _returnController(Ref ref){
+ScrollController _returnController(Ref ref, int size){
   ScrollController  res = ScrollController();
-  res.addListener((){ if(res.position.maxScrollExtent==res.offset){ dailyLogic.fetchMore(ref, n:31); }});
+  res.addListener((){ if(res.position.maxScrollExtent == res.offset){ dailyLogic.fetch(ref, 31); }});
   return res;
 }
 //@TODO Make access to see all the habits include the non current ones .
@@ -84,7 +84,7 @@ class HabitLabel extends StatelessWidget {
         SizedBox(width: 6.w,),
         GestureDetector(
             onTap: () {
-              dailyLogic.fetchMore(context.ref, n:31);
+              dailyLogic.fetch(context.ref, 31);
               updateHabitsCreator(habit, context.ref);
             },
             child:Container(width: 50.w, height: 12.w,
@@ -124,12 +124,12 @@ class _CalendarList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Watcher((context, ref, child){
-            List<Daily> dailys = dailyLogic.get(ref, userId);
+            final List<Daily> dailys = dailyLogic.get(ref, userId);
             final DateTime lastDate   = dailys.isEmpty ? DateTime.now() : dailys.first.date;
             final int monthDifference = dailys.isEmpty ? 0 : dailys.last.date.monthDifference(lastDate);
             return SizedBox(width: 100.w, height: 72.h,
                 child: ListView.separated(
-                  controller: _returnController(ref),
+                  controller: _returnController(ref, dailys.length),
                   itemCount: monthDifference+2,
                   itemBuilder: (context, index){
                     if(index==0){ return JournalTitle(name: habit.name, onTap: (){ updateHabitsCreator(null, context.ref);}); }

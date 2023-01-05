@@ -21,7 +21,7 @@ final _chatStream = Emitter.arg1<QuerySnapshot, String>((ref, userId, emit) asyn
 class MessageRepository{
 
   void fetchMore(Ref ref, {int? n}) => ref.update<int>(_cont, (current) => current + (n ?? 10));
-  void resetCont(Ref ref) => ref.update(_cont, (p0) => 10);
+  void fetchReset(Ref ref) => ref.update<int>(_cont, (current) => 10);
 
   List<Message> getChat(Ref ref, String userId){
     var query = ref.watch(_chatStream(userId).asyncData).data as QuerySnapshot<Map<String, dynamic>>?;

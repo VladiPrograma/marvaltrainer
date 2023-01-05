@@ -7,6 +7,7 @@ class MessagesLogic{
   MessageRepository repo = MessageRepository();
 
   void fetchMore(Ref ref, {int? n}) => repo.fetchMore(ref, n: n);
+  void fetchReset(Ref ref) => repo.fetchReset(ref);
   List<Message> get(Ref ref, String userId) => repo.getChat(ref, userId);
 
   List<Message> getUnread(Ref ref) => repo.getUnread(ref);

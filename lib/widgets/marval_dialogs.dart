@@ -70,7 +70,7 @@ void MarvalDialogsAlert(BuildContext context, {required MarvalDialogAlertType ty
     _buttonColor = kBlueThi;
   }
   else if(type == MarvalDialogAlertType.DELETE){
-    _icon = CustomIcons.alert;
+    _icon = CustomIcons.exclamation;
     _textButton =acceptText ?? "Eliminar";
     _textColor = kRed;
     _buttonColor = kRedThi;

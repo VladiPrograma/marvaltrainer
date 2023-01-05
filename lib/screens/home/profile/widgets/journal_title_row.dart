@@ -1,5 +1,6 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
+import 'package:marvaltrainer/config/custom_icons.dart';
 import 'package:marvaltrainer/utils/marval_arq.dart';
 import 'package:sizer/sizer.dart';
 

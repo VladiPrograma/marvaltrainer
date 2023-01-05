@@ -5,9 +5,11 @@ import 'package:marvaltrainer/firebase/gallery/repository/gallery_repo.dart';
 
 class GalleryLogic{
   GalleryRepo repo = GalleryRepo();
-  void fetchMore(Ref ref, {int? n}){
-    repo.fetchMore(ref, n: n);
-  }
+
+  void fetchMore(Ref ref, int limit) => repo.fetchMore(ref, limit);
+  void fetch(Ref ref, int n) => repo.fetch(ref, n);
+
+  bool hasMore(Ref ref) => repo.hasMore(ref);
   List<Gallery> get(Ref ref, String userId) => repo.get(ref,userId);
 
   Gallery? getLast(Ref ref, String userId){

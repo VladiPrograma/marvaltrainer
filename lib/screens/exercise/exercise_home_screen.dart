@@ -7,8 +7,8 @@ import 'package:marvaltrainer/config/screen_args_data.dart';
 import 'package:marvaltrainer/firebase/exercises/model/exercise.dart';
 import 'package:marvaltrainer/screens/exercise/add/add_exercise_screen.dart';
 import 'package:marvaltrainer/screens/exercise/exercise_screen.dart';
-import 'package:marvaltrainer/utils/marval_arq.dart';
 import 'package:marvaltrainer/widgets/cached_image.dart';
+import 'package:marvaltrainer/widgets/load_indicator.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../utils/extensions.dart';
@@ -26,9 +26,9 @@ import '../../widgets/marval_drawer.dart';
 /// @TODO Add common Profile Photo to Storage and let URL on User.create
 /// @TODO Change the Details hobbie to User Hobbie
 
-ScrollController returnController(Ref ref){
+ScrollController returnController(Ref ref, int size){
   ScrollController  res = ScrollController();
-  res.addListener((){ if(res.position.maxScrollExtent==res.offset){ exerciseLogic.fetchMore(ref, n: 10); }});
+  res.addListener((){ if(res.position.maxScrollExtent==res.offset){ exerciseLogic.fetchMore(ref, size);}});
   return res;
 }
 Creator<String> _searchCreator = Creator.value('');
@@ -147,11 +147,14 @@ class _UsersList extends StatelessWidget {
          exercises = exercises.where((exercise) => exercise.name.toLowerCase().contains(search.toLowerCase())).toList();
        }
       }
+      final bool hasMoreData = exerciseLogic.hasMore(ref);
+      logInfo('HasMoreData: $hasMoreData');
       if(exercises.isEmpty) { return const SizedBox.shrink(); }
       return ListView.builder(
-          controller: returnController(ref),
-          itemCount: exercises.length,
+          controller: returnController(ref, exercises.length),
+          itemCount: exercises.length+1,
           itemBuilder: (context, index) {
+            if(index == exercises.length ){ return hasMoreData ? const  LoadIndicator() : SizedBox(height: 2.h,); }
             return ExerciseTile(exercise: exercises[index]);
           });
     });

@@ -1,5 +1,6 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
+import 'package:marvaltrainer/config/custom_icons.dart';
 import 'package:marvaltrainer/config/screen_args_data.dart';
 import 'package:marvaltrainer/constants/alerts/show_dialog.dart';
 
@@ -95,17 +96,17 @@ class AddHabitScreen extends StatelessWidget {
                                 goBack(context);
                               }
                             },
-                            child: SizedBox(width: 10.w,
+                            child: SizedBox(width: 20.w,
                                 child: Icon(Icons.keyboard_arrow_left,
                                     color: kBlack, size: 9.w)
                             )),
                         // Title
-                        Center(child: SizedBox(width: 80.w,
+                        Center(child: SizedBox(width: 60.w,
                             child:   TextH2(title, textAlign: TextAlign.center,))
                         ),
                         //Delete Icon
                         if(!isNew)
-                          SizedBox( width: 10.w,
+                          SizedBox( width: 20.w,
                             child: Watcher((context, ref, child) {
                               controller.getUpdates(ref);
                               controller.getOnChangeUpdates(ref);
@@ -115,7 +116,7 @@ class AddHabitScreen extends StatelessWidget {
 
                               return GestureDetector(
                                   onTap: () => updateHabit(context.ref, back: false),
-                                  child: Icon(Icons.save_rounded,
+                                  child: Icon(CustomIcons.save,
                                       color: kRed, size: 8.w));
                             }),
                           )

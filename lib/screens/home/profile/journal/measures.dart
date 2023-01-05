@@ -4,15 +4,16 @@ import 'package:marvaltrainer/constants/global_variables.dart';
 import 'package:marvaltrainer/firebase/measures/model/measures.dart';
 import 'package:marvaltrainer/screens/home/profile/widgets/journal_title_row.dart';
 import 'package:marvaltrainer/utils/extensions.dart';
+import 'package:marvaltrainer/widgets/load_indicator.dart';
 import 'package:sizer/sizer.dart';
 
 import 'package:marvaltrainer/constants/colors.dart';
 import 'package:marvaltrainer/constants/theme.dart';
 
 //@TODO Make one scrollController method to dont need the same method in every list.
-ScrollController _returnController(Ref ref){
+ScrollController _returnController(Ref ref, int size){
   ScrollController  res = ScrollController();
-  res.addListener((){ if(res.position.maxScrollExtent==res.offset){ measuresLogic.fetchMore(ref, n:2); }});
+  res.addListener((){ if(res.position.maxScrollExtent==res.offset){measuresLogic.fetchMore(ref, size);}});
   return res;
 }
 
@@ -21,19 +22,19 @@ class MeasureList extends StatelessWidget {
   final String userId;
   @override
   Widget build(BuildContext context) {
-    return SizedBox(width: 100.w, height: 76.h,
+    return SizedBox(width: 100.w, height: 72.h,
         child: Watcher((context, ref, child) {
-          List<Measures>? measures = measuresLogic.getList(ref, userId);
+          final List<Measures> measures = measuresLogic.getList(ref, userId);
+          final bool hasMoreData = measuresLogic.hasMore(ref);
           return ListView.builder(
-              controller: _returnController(ref),
-              itemCount: measures!.length+1,
+              controller: _returnController(ref, measures.length),
+              itemCount: hasMoreData ? measures.length+2 : measures.length + 1,
               scrollDirection: Axis.vertical,
               itemBuilder: (context, index) {
                 /// Title
                 if(index==0){ return const JournalTitle(name: "     Medidas"); }
-                return Container( width: 90.w,
-                    margin: EdgeInsets.only(bottom: 3.h),
-                    child: MeasureLabel(measure: measures[index-1],));
+                if(index == measures.length+1 && hasMoreData){ return const  LoadIndicator(); }
+                return  MeasureLabel(measure: measures[index-1]);
               });
         }));
   }
@@ -45,8 +46,8 @@ class MeasureLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String aestheticDate = '${measure.date.day} ${measure.date.toStringMonth().toLowerCase()} ${measure.date.year}';
-    return Container( width: 80.w,
-        margin: EdgeInsets.all(8.w),
+    return Container(
+        margin: EdgeInsets.symmetric(horizontal: 12.w, vertical: 2.h),
         padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
         decoration: BoxDecoration(
             boxShadow: [BoxShadow(

@@ -139,7 +139,7 @@ class TrainingScreen extends StatelessWidget {
 
                                 suffixIcon: GestureDetector(
                                   onTap: () => _openTrainingScreen(context, Training.empty()),
-                                  child: Icon(CustomIcons.gym, color: kGrey, size: 7.w,),
+                                  child: Icon(CustomIcons.gym, color: kGreen, size: 7.w,),
                                 ),
                                 contentPadding: EdgeInsets.zero
                             ),

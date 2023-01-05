@@ -56,7 +56,7 @@ class MarvalDrawer extends StatelessWidget {
           GestureDetector(
             onTap: () => removeScreens(context,HomeScreen.routeName),
             child: ListTile(
-              leading: Icon(CustomIcons.address_book, color: name=="Usuarios" ? kGreen : kBlack, size: 6.w,),
+              leading: Icon(CustomIcons.users, color: name=="Usuarios" ? kGreen : kBlack, size: 6.w,),
               title: TextH2('Usuarios', size: 4, color: name=="Usuarios" ? kGreen : kBlack),
             ),
           ),
@@ -64,7 +64,7 @@ class MarvalDrawer extends StatelessWidget {
           GestureDetector(
             onTap: () => removeScreens(context,ChatGlobalScreen.routeName),
             child: ListTile(
-              leading: Icon(CustomIcons.chat_empty, color: name=="Chat" ? kGreen : kBlack, size: 6.w,),
+              leading: Icon(CustomIcons.chat, color: name=="Chat" ? kGreen : kBlack, size: 5.w,),
               title: Watcher((context, ref, _) {
                 int unread = messagesLogic.getUnread(ref).length;
                 if(unread > 999) unread = 999;
@@ -83,7 +83,7 @@ class MarvalDrawer extends StatelessWidget {
           GestureDetector(
             onTap: () => removeScreens(context, HabitsScreen.routeName),
             child: ListTile(
-              leading: Icon(CustomIcons.habits,color: name=="Habitos" ? kGreen : kBlack, size: 6.w,),
+              leading: Icon(CustomIcons.leaf, color: name=="Habitos" ? kGreen : kBlack, size: 5.w,),
               title: TextH2('Habitos', size: 4, color: name=="Habitos" ? kGreen : kBlack),
             ),
           ),
@@ -91,7 +91,7 @@ class MarvalDrawer extends StatelessWidget {
           GestureDetector(
             onTap: () => removeScreens(context,ExerciseHomeScreen.routeName),
             child: ListTile(
-              leading: Icon(CustomIcons.gym,color: name=="Ejercicios" ? kGreen : kBlack, size: 6.w,),
+              leading: Icon(CustomIcons.gym, color: name=="Ejercicios" ? kGreen : kBlack, size: 7.w,),
               title: TextH2('Ejercicios', size: 4, color: name=="Ejercicios" ? kGreen : kBlack),
             ),
           ),
@@ -99,7 +99,7 @@ class MarvalDrawer extends StatelessWidget {
           GestureDetector(
             onTap: () => removeScreens(context,TrainingScreen.routeName),
             child: ListTile(
-              leading: Icon(CustomIcons.muscle_up ,color: name=="Entrenos" ? kGreen : kBlack, size: 6.w,),
+              leading: Icon(CustomIcons.lift ,color: name=="Entrenos" ? kGreen : kBlack, size: 7.w,),
               title: TextH2('Entrenos', size: 4, color: name=="Entrenos" ? kGreen : kBlack),
             ),
           ),
@@ -107,7 +107,7 @@ class MarvalDrawer extends StatelessWidget {
           GestureDetector(
             onTap: () => removeScreens(context,SettingScreen.routeName),
             child: ListTile(
-              leading: Icon(Icons.settings_rounded,color: name=="Ajustes" ? kGreen : kBlack, size: 6.w,),
+              leading: Icon(Icons.settings_rounded,color: name=="Ajustes" ? kGreen : kBlack, size: 7.w,),
               title: TextH2('Ajustes', size: 4, color: name=="Ajustes" ? kGreen : kBlack),
             ),
           ),

@@ -23,7 +23,7 @@ void MarvalSnackBar(BuildContext context, SNACKTYPE type, {String? title, String
      _backgroundColor = kRedThi;
      _iconColor = kRed;
      _barColor = [kRed, kRedSec];
-     _icon = CustomIcons.alert;
+     _icon = CustomIcons.exclamation;
    }else{
      _backgroundColor = kGreenThi;
      _iconColor = kGreen;

@@ -32,7 +32,7 @@ class ProfileScreen extends StatelessWidget {
     final args = ModalRoute.of(context)!.settings.arguments as ScreenArguments;
     String userId = args.userId!;
     return Scaffold(
-        drawer: const MarvalDrawer(name: "Usuarios",),
+        drawer: const MarvalDrawer(name: r'Usuarios',),
         backgroundColor: kWhite,
         body:  SizedBox( width: 100.w, height: 100.h,
           child: Stack(
@@ -55,9 +55,9 @@ class ProfileScreen extends StatelessWidget {
              )),
              /// User Box Data
              Positioned(  top: 0,
-             child: SafeArea(
-             child: SizedBox(width: 100.w,
-             child: ProfileUserData(userId: userId,),
+               child: SafeArea(
+               child: SizedBox(width: 100.w,
+               child: ProfileUserData(userId: userId,),
              ))),
               /// Activities Background
              Positioned( top: 28.h,

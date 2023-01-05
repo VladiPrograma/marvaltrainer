@@ -36,7 +36,7 @@ const _settings = [
 const _settings_icons = [
   CustomIcons.mail,
   CustomIcons.lock,
-  CustomIcons.loop,
+  CustomIcons.users,
   Icons.exit_to_app_rounded
 ];
 

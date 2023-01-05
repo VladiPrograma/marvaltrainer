@@ -75,7 +75,7 @@ class _LogInForm extends StatelessWidget {
               labelText   : 'Nombre',
               hintText    : "Mario Valgañon",
               controller  : _nameController,
-              prefixIcon  : CustomIcons.person,
+              prefixIcon  : CustomIcons.user,
               keyboardType: TextInputType.name,
               onSaved     : (value)=> name = value!,
               validator   : (value){

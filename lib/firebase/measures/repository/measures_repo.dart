@@ -2,7 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:creator/creator.dart';
 import 'package:marvaltrainer/firebase/measures/model/measures.dart';
 
-Creator<int> _page = Creator.value(3);
+Creator<int> _page = Creator.value(1);
+Creator<bool> _hasMore = Creator.value(true);
 final _db = Emitter.arg1<CollectionReference, String>((ref, userId, emit) =>
     emit(FirebaseFirestore.instance.collection("users/$userId/activities")));
 final _measureStream = Emitter.arg1<QuerySnapshot, String>((ref, userId, emit) async{
@@ -16,13 +17,30 @@ final _measureStream = Emitter.arg1<QuerySnapshot, String>((ref, userId, emit) a
 });
 
 class MeasuresRepo{
-  final CollectionReference _db = FirebaseFirestore.instance.collection('users/');
-  void fetchMore(Ref ref, {int? n}) =>
-      ref.update<int>(_page, (current) => current + (n ?? 3));
+  void fetchMore(Ref ref, int size){
+    if(hasMore(ref)){
+      ref.update<int>(_page, (current) => current + 1 );
+    }
+  }
+  // Add an exact number to the fetch cont
+  void fetch(Ref ref, int n) => ref.update<int>(_page, (current) => current + n);
+
+  int getSize(Ref ref) => ref.watch(_page);
+
+  void ifHasMore(Ref ref, int size){
+    int cont = getSize(ref);
+    cont<=size ? more(ref) : noMore(ref);
+  }
+
+  bool hasMore(Ref ref) => ref.watch(_hasMore);
+  void  noMore(Ref ref) => ref.update(_hasMore, (p0) => false);
+  void  more(Ref ref) => ref.update(_hasMore, (p0) => true);
 
   List<Measures> get(Ref ref, String userId){
     var query = ref.watch(_measureStream(userId).asyncData).data as QuerySnapshot<Map<String, dynamic>>?;
-    return query?.docs.map((e) => Measures.fromMap(e.data())).toList() ?? [];
+    final res = query?.docs.map((e) => Measures.fromMap(e.data())).toList() ?? [];
+    ifHasMore(ref, res.length);
+    return res;
   }
   Future<void> add(String userID, Measures measure) =>
       FirebaseFirestore.instance.collection('users/$userID/activities/').add(measure.toMap());

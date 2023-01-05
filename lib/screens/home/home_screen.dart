@@ -1,5 +1,6 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
+import 'package:marvaltrainer/config/custom_icons.dart';
 import 'package:marvaltrainer/config/screen_args_data.dart';
 import 'package:marvaltrainer/firebase/users/repository/trainer_users_repo.dart';
 import 'package:marvaltrainer/screens/home/alta/add_users_screen.dart';
@@ -19,13 +20,7 @@ import '../../widgets/marval_drawer.dart';
 import '../../widgets/cached_avatar_image.dart';
 
 
-/// @TODO Configure in Firebase The Reset Password Email
-/// @TODO Add common Profile Photo to Storage and let URL on User.create
-/// @TODO Change the Details hobbie to User Hobbie
-
-
 Creator<String> _searchCreator = Creator.value('');
-
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -98,11 +93,12 @@ class HomeScreen extends StatelessWidget {
                         hintStyle:  TextStyle(fontFamily: p1, color: kGrey, fontSize: 4.w),
                         prefixIcon: Icon(Icons.search_rounded, color: kGrey,size: 8.w,),
                         suffixIcon: GestureDetector(
-                          onTap: (){
-                            //@TODO Add push page animation, from bottom to start.
-                            Navigator.pushNamed(context, AddUserScreen.routeName);
-                          },
-                          child: Icon(Icons.add_reaction, color: kGreen, size: 7.w,),
+                          onTap: () => Navigator.pushNamed(context, AddUserScreen.routeName),
+                          child: ClipRRect(
+                              borderRadius: BorderRadius.circular(30.w),
+                              child: Container(color: kWhite,
+                              child: Icon(CustomIcons.user_add,  color: kGreen, size: 6.w,))
+                          ),
                         ),
                         contentPadding: EdgeInsets.zero
                     ),
@@ -120,10 +116,10 @@ class _UsersList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Watcher((context, ref, child){
-      // Get User mapped and filtered by search.
-      List<UserHomeDTO> users = userLogic.getUserHome(ref, ref.watch(_searchCreator)) ?? [];
+      List<UserHomeDTO> users = userLogic.getUserHome(ref, ref.watch(_searchCreator));
       return ListView.builder(
         itemCount: users.length,
+        itemExtent: 12.h,
         itemBuilder: (context, index) {
           return MarvalUserTile(user: users[index]);
       });

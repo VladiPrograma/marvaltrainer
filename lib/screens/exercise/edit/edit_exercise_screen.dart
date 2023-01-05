@@ -89,7 +89,7 @@ class EditExerciseScreen extends StatelessWidget {
                             hintText: "Descripcion",
                             labelText: "Descripcion",
                             initialValue: exercise.description,
-                            labelIcon: Icon(CustomIcons.bolt, color: kGreen, size: 8.w,),
+                            labelIcon: Icon(CustomIcons.lightning_bolt, color: kGreen, size: 8.w,),
                             onSaved: (value) => exercise.description = value ?? '',
                             validator: (value){
                               if(isNullOrEmpty(value)){ return kEmptyValue; }

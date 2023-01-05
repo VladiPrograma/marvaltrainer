@@ -98,9 +98,10 @@ class HabitsScreen extends StatelessWidget {
                           onTap: () => controller.onTextFieldTap(context.ref),
                           onChanged: (value) {
                             controller.updateSearch(context.ref, value);
-                            if(value.length == 3){
-                              exerciseLogic.fetchReset(context.ref);
-                            }
+                            //@WTF
+                            // if(value.length == 3){
+                            //   exerciseLogic.fetchReset(context.ref);
+                            // }
                           },
                           cursorColor: kGreen,
                           style: TextStyle(
@@ -138,7 +139,7 @@ class HabitsScreen extends StatelessWidget {
 
                               suffixIcon: GestureDetector(
                                 onTap: () => _openHabitScreen(context, Habit.empty()),
-                                child: Icon(CustomIcons.habits, color: kGrey, size: 7.w,),
+                                child: Icon(CustomIcons.leaf, color: kGreen, size: 5.w,),
                               ),
                               contentPadding: EdgeInsets.zero
                           ),

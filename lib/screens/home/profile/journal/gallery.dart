@@ -1,3 +1,4 @@
+import 'package:marvaltrainer/widgets/load_indicator.dart';
 import 'package:sizer/sizer.dart';
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +10,6 @@ import 'package:marvaltrainer/firebase/gallery/model/gallery.dart';
 import 'package:marvaltrainer/screens/home/profile/widgets/journal_title_row.dart';
 
 import 'package:marvaltrainer/constants/colors.dart';
-import 'package:marvaltrainer/constants/components.dart';
 import 'package:marvaltrainer/constants/global_variables.dart';
 import 'package:marvaltrainer/constants/theme.dart';
 
@@ -17,9 +17,9 @@ import 'package:marvaltrainer/constants/theme.dart';
 
 import 'package:marvaltrainer/utils/marval_arq.dart';
 
-ScrollController _returnController(Ref ref){
+ScrollController _returnController(Ref ref, int size){
   ScrollController  res = ScrollController();
-  res.addListener((){ if(res.position.maxScrollExtent==res.offset){ galleryLogic.fetchMore(ref); }});
+  res.addListener((){ if(res.position.maxScrollExtent==res.offset){ galleryLogic.fetchMore(ref, size); }});
   return res;
 }
 
@@ -28,16 +28,18 @@ class GalleryList extends StatelessWidget {
   final String userId;
   @override
   Widget build(BuildContext context) {
-    return SizedBox(width: 100.w, height: 76.h,
+    return SizedBox(width: 100.w, height: 72.h,
         child: Watcher((context, ref, child) {
           List<Gallery> images = galleryLogic.get(ref, userId);
+          bool hasMoreData= galleryLogic.hasMore(ref);
           return ListView.builder(
-              controller: _returnController(ref),
-              itemCount: images.length+1,
+              controller: _returnController(ref, images.length),
+              itemCount: hasMoreData ? images.length+2 : images.length + 1,
               scrollDirection: Axis.vertical,
               itemBuilder: (context, index) {
                 /// Title
                 if(index==0){ return const JournalTitle(name: "Fotos del usuario"); }
+                if(index == images.length+1 && hasMoreData){ return const  LoadIndicator(); }
                 return GalleryLabel(gallery: images[index-1]);
               });
         }));
@@ -50,7 +52,7 @@ class GalleryLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     String aestheticDate = '${gallery.date.day} ${gallery.date.toStringMonth().toLowerCase()} ${gallery.date.year}';
     return  Container(
-        margin: EdgeInsets.symmetric(horizontal: 15.w, vertical: 1.7.h),
+        margin: EdgeInsets.symmetric(horizontal: 15.w, vertical: 1.3.h),
         padding: EdgeInsets.symmetric( vertical: 2.h),
         decoration: BoxDecoration(
             boxShadow: [BoxShadow(

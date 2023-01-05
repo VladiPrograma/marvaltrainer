@@ -11,12 +11,14 @@ const int max_load_capacity = 5000;
 class ExerciseLogic{
   final ExerciseRepository _repo = ExerciseRepository();
 
-  void fetchMore(Ref ref, {int? n}) => _repo.fetchMore(ref, n: n);
+  bool hasMore(Ref ref) => _repo.hasMore(ref);
+
+  void fetchMore(Ref ref, int limit) => _repo.fetchMore(ref, limit);
+  void fetch(Ref ref, int n) => _repo.fetch(ref, n);
   void fetchReset(Ref ref) => _repo.resetCont(ref);
+
   List<Exercise> get( Ref ref) => _repo.get(ref).toList();
-
   List<Exercise> getByName(Ref ref, String search) => _repo.getByName(ref, search);
-
   List<Exercise> getByTag(Ref ref, String search) => _repo.getByTag(ref, search);
   
   List<Exercise> getByAllTags(Ref ref, List<String> tags){
@@ -27,7 +29,8 @@ class ExerciseLogic{
         Tags myTags = _repo.getTags(ref);
         if(myTags.values.contains(tags[1])){
           if(_repo.getCont(ref) < max_load_capacity){
-            _repo.fetchMore(ref, n: max_load_capacity);
+            _repo.fetch(ref, max_load_capacity);
+            _repo.noMore(ref);
           }
           res = res.where((exercise) => containsArray(exercise.tags, tags)).toList();
           return res.isEmpty ? getByAllTags(ref, tags.sublist(0, tags.length-1)) : res;    

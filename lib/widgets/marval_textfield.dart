@@ -64,6 +64,13 @@ class MarvalInputTextField extends StatelessWidget {
                         controller: controller,
                         readOnly: readOnly ?? false,
                         cursorColor: kWhite,
+                        textInputAction: TextInputAction.next,
+                        onEditingComplete: (){
+                          if(FocusScope.of(context).canRequestFocus){
+                            FocusScope.of(context).nextFocus();
+                            FocusScope.of(context).nextFocus();
+                          }
+                        },
                         keyboardType: keyboardType ?? TextInputType.text,
                         obscureText: obscureText ?? false,
                         initialValue: initialValue,

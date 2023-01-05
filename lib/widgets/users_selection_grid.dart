@@ -14,7 +14,7 @@ import 'package:marvaltrainer/utils/extensions.dart';
 /// * Gets the Grid Height Size *
 double _getGridSize(int items){
   int size = (items != 0 ? items : 3) ~/ 3;
-  return (size+1) * 15; 
+  return (size+1) * 13;
 }
 
 Creator<_FilterOption> _filterCreator = Creator.value(_FilterOption .ALL);
