@@ -17,6 +17,7 @@ Creator<bool> _filterCreator = Creator.value(false);
 class HabitController {
 
   Habit get(Ref ref) => ref.watch(_habitCreator);
+  Habit getInit(Ref ref) => ref.watch(_initialHabitCreator);
 
   void dispose(Ref ref){
     ref.dispose(_habitCreator);
@@ -30,7 +31,6 @@ class HabitController {
     ref.update<Habit>(_initialHabitCreator, (p0) => Habit.clone(habit));
     update(ref);
   }
-
 
   void updateUsers(Ref ref, Habit habit, List<String> users){
     habit.users = users;

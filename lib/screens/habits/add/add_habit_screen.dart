@@ -1,12 +1,15 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:marvaltrainer/config/custom_icons.dart';
+import 'package:marvaltrainer/config/log_msg.dart';
 import 'package:marvaltrainer/config/screen_args_data.dart';
 import 'package:marvaltrainer/constants/alerts/show_dialog.dart';
 
 import 'package:marvaltrainer/constants/global_variables.dart';
 import 'package:marvaltrainer/constants/string.dart';
+import 'package:marvaltrainer/firebase/habits/dto/habits_resume.dart';
 import 'package:marvaltrainer/firebase/habits/model/habits.dart';
+import 'package:marvaltrainer/firebase/plan/model/plan.dart';
 import 'package:marvaltrainer/firebase/users/model/user.dart';
 import 'package:marvaltrainer/screens/habits/controllers/habit_controller.dart';
 import 'package:marvaltrainer/screens/habits/habit_screen.dart';
@@ -43,7 +46,16 @@ class AddHabitScreen extends StatelessWidget {
       removeScreens(context, HabitsScreen.routeName);
     }
 
+
+
     void saveHabit(Ref ref){
+      List<String> initUsers = controller.getInit(ref).users;
+      List<String> usersToUpdate = combineDifferent(initUsers, habit.users);
+      logInfo(usersToUpdate);
+      for (var userId in usersToUpdate) {
+        //planLogic.add(Plan(userId: userId, habits: [], trainings: [], startDate: DateTime.now(), stepGoal: 10000));
+        planLogic.addHabit(ref, userId, HabitsResumeDTO.fromHabit(habit) );
+      }
       controller.initialValue(ref, habit);
       controller.update(ref);
     }

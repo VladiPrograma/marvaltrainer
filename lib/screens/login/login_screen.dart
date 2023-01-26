@@ -185,7 +185,7 @@ class ResetPasswordButton extends StatelessWidget {
               height: 48,
               form: _form,
               richText: _richText,
-              onSucess: (){ resetPassword(context, _email!); }
+              onSuccess: (){ resetPassword(context, _email!); }
           );
         });
   }

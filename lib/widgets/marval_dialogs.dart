@@ -135,7 +135,7 @@ void MarvalDialogsAlert(BuildContext context, {required MarvalDialogAlertType ty
   );
 }
 
-void MarvalDialogsInput(BuildContext context, { required String title, required double height, required Form form, required RichText richText, Function()? onSucess}){
+void MarvalDialogsInput(BuildContext context, { required String title, required double height, required Form form, required RichText richText, Function()? onSuccess}){
   showDialog(
     context: context,
     barrierDismissible: true,
@@ -175,7 +175,7 @@ void MarvalDialogsInput(BuildContext context, { required String title, required 
                       GlobalKey<FormState> _formKey = form.key as GlobalKey<FormState>;
                       if (_formKey.currentState!.validate()) {
                           _formKey.currentState!.save();
-                          if(isNotNull(onSucess)){ onSucess!(); }
+                          if(isNotNull(onSuccess)){ onSuccess!(); }
                           Navigator.pop(context);
                       }},
                     child: Container(

@@ -19,6 +19,7 @@ Creator<bool> _filterCreator = Creator.value(false);
 class TrainingController {
 
   Training get(Ref ref) => ref.watch(_trainingCreator);
+  Training getInit(Ref ref) => ref.watch(_initialTrainingCreator);
 
   void dispose(Ref ref){
     ref.dispose(_trainingCreator);

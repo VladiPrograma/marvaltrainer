@@ -60,4 +60,16 @@ List<String> getKeywords(String name){
   return res;
 }
 
-
+List<String> combineDifferent(List<String> arr1, List<String> arr2) {
+  Set<String> uniqueValues = {};
+  uniqueValues.addAll(arr1);
+  for(String value in arr2) {
+    if(!arr1.contains(value)) {
+      uniqueValues.add(value);
+    }else{
+      uniqueValues.remove(value);
+    }
+  }
+  // Return the set as a list
+  return uniqueValues.toList();
+}

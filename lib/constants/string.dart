@@ -24,8 +24,6 @@ const String kContainsDigit ='Debe contener al menos 1 digito.';
 
 
 
-/// BD String constants
-const String userID = 'USERID_000';
 
 /// Log ASCII Line Art
 const String logSuccessPrefix = ":.:.:.:.:.: ";

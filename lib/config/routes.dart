@@ -12,7 +12,6 @@ import 'package:marvaltrainer/screens/workouts/add/add_workouts_to_train.dart';
 import 'package:marvaltrainer/screens/workouts/add/edit_training_screen.dart';
 import 'package:marvaltrainer/screens/workouts/training_screen.dart';
 
-import '../screens/habits/new_habit_screen.dart';
 import '../screens/home/alta/add_users_screen.dart';
 import '../screens/settings/labels/activate_users_screen.dart';
 import '../screens/settings/labels/change_password_screen.dart';

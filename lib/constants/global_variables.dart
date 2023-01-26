@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:creator/creator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:marvaltrainer/firebase/exercises/logic/exercise_logic.dart';
+import 'package:marvaltrainer/firebase/plan/logic/plan_logic.dart';
 import 'package:marvaltrainer/firebase/trainings/logic/training_logic.dart';
 
 import 'package:marvaltrainer/utils/marval_arq.dart';
@@ -32,6 +33,7 @@ final HabitsLogic habitsLogic  = HabitsLogic();
 final MessagesLogic messagesLogic  = MessagesLogic();
 final ExerciseLogic exerciseLogic  = ExerciseLogic();
 final TrainingLogic trainingLogic  = TrainingLogic();
+final PlanLogic planLogic  = PlanLogic();
 final StorageController storageController  = StorageController();
 final SharedPreferencesController sharedController = SharedPreferencesController();
 //final AddWorkoutsController workoutsController  = AddWorkoutsController();

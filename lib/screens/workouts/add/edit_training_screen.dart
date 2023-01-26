@@ -1,7 +1,9 @@
 import 'dart:ui';
 import 'package:marvaltrainer/constants/alerts/show_dialog.dart';
 import 'package:marvaltrainer/constants/alerts/snack_errors.dart';
+import 'package:marvaltrainer/firebase/trainings/dto/TrainingResumeDTO.dart';
 import 'package:marvaltrainer/firebase/trainings/logic/training_logic.dart';
+import 'package:marvaltrainer/utils/marval_arq.dart';
 import 'package:sizer/sizer.dart';
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +34,7 @@ class EditTrainingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TrainingController controller = TrainingController();
+
     final args = ModalRoute.of(context)!.settings.arguments as ScreenArguments;
 
     Training training = args.training!;
@@ -46,6 +49,13 @@ class EditTrainingScreen extends StatelessWidget {
     }
 
     void saveTraining(Ref ref){
+        List<String> initUsers = controller.getInit(ref).users;
+        List<String> usersToUpdate = combineDifferent(initUsers, training.users);
+        logInfo(usersToUpdate);
+        for (var userId in usersToUpdate) {
+          //planLogic.add(Plan(userId: userId, habits: [], trainings: [], startDate: DateTime.now(), stepGoal: 10000));
+          planLogic.addTraining(ref, userId, TrainingResumeDTO.fromTraining(training));
+        }
       controller.initialValue(ref, training);
       controller.update(ref);
     }
@@ -119,7 +129,7 @@ class EditTrainingScreen extends StatelessWidget {
 
                                       return GestureDetector(
                                           onTap: () => updateTraining(context.ref, back: false),
-                                          child: Icon(Icons.save_rounded,
+                                          child: Icon(CustomIcons.save,
                                               color: kRed, size: 8.w));
                                     }),
                                   )
