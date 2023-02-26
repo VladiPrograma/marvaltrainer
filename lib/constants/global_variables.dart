@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:creator/creator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:marvaltrainer/firebase/dailys/model/cardio.dart';
 import 'package:marvaltrainer/firebase/exercises/logic/exercise_logic.dart';
 import 'package:marvaltrainer/firebase/plan/logic/plan_logic.dart';
 import 'package:marvaltrainer/firebase/trainings/logic/training_logic.dart';
@@ -68,3 +69,17 @@ List _queryToUserList(var query){
  return list;
 }
 
+Map<CardioType, String> cardioNames = {
+ CardioType.WALK : "🚶Andar",
+ CardioType.RUN : "🏃Correr",
+ CardioType.CICLING : "🚴Bici",
+ CardioType.SWIM : "🏊Nadar",
+ CardioType.DANCE : "🕺Bailar",
+ CardioType.OTHER : "🏓Otro",
+};
+Map<CardioMeasure, String> cardioMeasureNames = {
+ CardioMeasure.CAL : "Cal",
+ CardioMeasure.MINS : "Mins",
+ CardioMeasure.STEPS : "Pasos",
+ CardioMeasure.KM : "Km",
+};

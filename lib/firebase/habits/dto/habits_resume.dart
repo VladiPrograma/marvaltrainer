@@ -8,9 +8,9 @@ class HabitsResumeDTO{
   HabitsResumeDTO({ required this.label, required this.description, required this.name});
 
   HabitsResumeDTO.fromHabit(Habit habit):
-   name = habit.name,
-   description = habit.description,
-   label = habit.label;
+        name = habit.name,
+        description = habit.description,
+        label = habit.label;
 
   Map<String, dynamic> toMap(){
     return {
@@ -27,11 +27,11 @@ class HabitsResumeDTO{
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is HabitsResumeDTO &&
-          runtimeType == other.runtimeType &&
-          name == other.name &&
-          label == other.label &&
-          description == other.description;
+          other is HabitsResumeDTO &&
+              runtimeType == other.runtimeType &&
+              name == other.name &&
+              label == other.label &&
+              description == other.description;
 
   @override
   int get hashCode =>

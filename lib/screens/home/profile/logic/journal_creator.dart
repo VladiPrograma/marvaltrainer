@@ -1,5 +1,6 @@
 import 'package:creator/creator.dart';
 import 'package:marvaltrainer/firebase/habits/dto/habits_daily.dart';
+import 'package:marvaltrainer/firebase/habits/dto/habits_resume.dart';
 
 enum JournalState {DIARY, HABITS, GALLERY, MEASURES, LIST  }
 List<String>   journalNames = ['Diario', 'Habitos', 'Galeria', 'Medidas'];
@@ -14,11 +15,11 @@ JournalState watchJournal(Ref ref){
   return ref.watch(_journalCreator);
 }
 
-Creator<DailyHabitsDTO?> _habitsCreator = Creator.value(null);
+Creator<HabitsResumeDTO?> _habitsCreator = Creator.value(null);
 
-void updateHabitsCreator(DailyHabitsDTO? habit, Ref ref ){
-  ref.update<DailyHabitsDTO?>(_habitsCreator, (p0) => habit);
+void updateHabitsCreator(HabitsResumeDTO? habit, Ref ref ){
+  ref.update<HabitsResumeDTO?>(_habitsCreator, (p0) => habit);
 }
-DailyHabitsDTO? watchHabitsCreator(Ref ref){
+HabitsResumeDTO? watchHabitsCreator(Ref ref){
   return ref.watch(_habitsCreator);
 }

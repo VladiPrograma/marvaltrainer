@@ -1,4 +1,7 @@
+import 'package:marvaltrainer/firebase/dailys/model/activity.dart';
+import 'package:marvaltrainer/firebase/dailys/model/cardio.dart';
 import 'package:marvaltrainer/firebase/habits/dto/habits_daily.dart';
+import 'package:marvaltrainer/firebase/habits/dto/habits_resume.dart';
 
 class Daily{
   String id;
@@ -7,8 +10,15 @@ class Daily{
   double weight;
   DateTime date;
   List<String> habits;
-  List<DailyHabitsDTO> habitsFromPlaning;
+  List<HabitsResumeDTO> habitsFromPlaning;
   List<Activity> activities;
+  List<Cardio> cardio;
+
+
+  @override
+  String toString() {
+    return 'Daily{id: $id, sleep: $sleep, steps: $steps, weight: $weight, date: $date, habits: $habits, habitsFromPlaning: $habitsFromPlaning, activities: $activities, cardio: $cardio}';
+  }
 
   Daily({
     required this.id,
@@ -19,16 +29,30 @@ class Daily{
     required this.habitsFromPlaning,
     required this.activities,
     required this.steps,
+    required this.cardio,
   });
-Daily.fromMap(Map<String, dynamic> map):
-  id = map['id'],
-  sleep = map['sleep'],
-  steps = map['steps'],
-  weight = map['weight'],
-  date = map['date'].toDate(),
-  habits = List<String>.from(map["habits"] ?? ""),
-  activities = List<Map<String, dynamic>>.from(map["activities"] ?? []).map((e) => Activity.fromMap(e)).toList(),
-  habitsFromPlaning = List<Map<String, dynamic>>.from(map["habits_from_planing"] ?? []).map((e) => DailyHabitsDTO.fromMap(e)).toList();
+
+  Daily.empty():
+        id = '',
+        sleep = 0,
+        steps = 0,
+        weight = 0,
+        date = DateTime.now(),
+        habits = [],
+        cardio = [],
+        activities = [],
+        habitsFromPlaning = [];
+
+  Daily.fromMap(Map<String, dynamic> map):
+        id = map['id'],
+        sleep = map['sleep'],
+        steps = map['steps'],
+        weight = map['weight'],
+        date = map['date'].toDate(),
+        habits = List<String>.from(map["habits"] ?? ""),
+        habitsFromPlaning =  List<Map<String, dynamic>>.from(map["habits_from_planing"] ?? []).map((e) => HabitsResumeDTO.fromMap(e)).toList(),
+        cardio =  List<Map<String, dynamic>>.from(map["cardio"] ?? []).map((e) => Cardio.fromMap(e)).toList(),
+        activities =  List<Map<String, dynamic>>.from(map["activities"] ?? []).map((e) => Activity.fromMap(e)).toList();
 
   Map<String, dynamic> toMap(){
     return {
@@ -38,45 +62,35 @@ Daily.fromMap(Map<String, dynamic> map):
       'weight' : weight,
       'date' : date,
       'habits' : habits,
-      'habits_from_planing' : habitsFromPlaning,
-      'activities' : activities,
-    };
-  }
-}
-
-class Activity{
-  String id;
-  bool completed;
-  String reference;
-  String icon;
-  String label;
-  String type;
-
-  Activity({required this.id, required this.icon, required this.label, required this.type, required this.completed, required this.reference});
-
-  Activity.fromMap(Map<String, dynamic> map)
-      : id = map["id"],
-        completed = map["completed"] ?? false,
-        reference = map["reference"] ?? "",
-        icon = map["icon"] ?? "",
-        label = map["label"] ?? "",
-        type = map["type"] ?? "";
-
-  Map<String, dynamic> toMap(){
-    return {
-      'id' : id,
-      'completed': completed,
-      'reference': reference,
-      'icon' : icon,
-      'label': label,
-      'type': type,
+      'habits_from_planing': habitsFromPlaning.map((e) => e.toMap()).toList(),
+      'cardio': cardio.map((e) => e.toMap()).toList(),
+      'activities': activities.map((e) => e.toMap()).toList(),
     };
   }
 
   @override
-  String toString(){
-    return 'Habit: $id [ completed: $completed, reference $reference, icon: $icon , label: $label, type $type]';
-  }
+  bool operator ==(Object other) =>
+      other is Daily &&
+          id == other.id &&
+          sleep == other.sleep &&
+          cardio == other.cardio &&
+          steps == other.steps &&
+          weight == other.weight &&
+          date == other.date &&
+          habits == other.habits &&
+          activities == other.activities;
 
+  @override
+  int get hashCode =>
+      id.hashCode ^
+      sleep.hashCode ^
+      steps.hashCode ^
+      weight.hashCode ^
+      date.hashCode ^
+      cardio.hashCode ^
+      habits.hashCode ^
+      activities.hashCode;
 }
+
+
 

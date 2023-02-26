@@ -5,6 +5,7 @@ import 'package:marvaltrainer/constants/global_variables.dart';
 import 'package:marvaltrainer/constants/theme.dart';
 import 'package:marvaltrainer/firebase/dailys/model/daily.dart';
 import 'package:marvaltrainer/firebase/habits/dto/habits_daily.dart';
+import 'package:marvaltrainer/firebase/habits/dto/habits_resume.dart';
 import 'package:marvaltrainer/firebase/habits/model/habits.dart';
 import 'package:marvaltrainer/screens/home/profile/widgets/journal_title_row.dart';
 import 'package:marvaltrainer/utils/extensions.dart';
@@ -31,7 +32,7 @@ class HabitList extends StatelessWidget {
     return SizedBox(width: 100.w, height: 72.h,
     child: Watcher((context, ref, child) {
       Daily? daily = dailyLogic.getLast(ref, userId);
-      DailyHabitsDTO? habit = watchHabitsCreator(ref);
+      HabitsResumeDTO? habit = watchHabitsCreator(ref);
       if(isNull(habit)){
         return ListView.separated(
             itemCount: (daily?.habitsFromPlaning.length ?? 0) + 1,
@@ -53,7 +54,7 @@ class HabitList extends StatelessWidget {
 }
 class HabitLabel extends StatelessWidget {
   const HabitLabel({ required this.habit, Key? key}) : super(key: key);
-  final DailyHabitsDTO habit;
+  final HabitsResumeDTO habit;
   @override
   Widget build(BuildContext context) {
     return   Row(
@@ -110,7 +111,7 @@ class HabitLabel extends StatelessWidget {
 
 class _CalendarList extends StatelessWidget {
   const _CalendarList({required this.userId, required this.habit, Key? key}) : super(key: key);
-  final DailyHabitsDTO habit;
+  final HabitsResumeDTO habit;
   final String userId;
   List<bool> getCalendarHabitList(List<Daily> list, DateTime date, String habit){
     // Get the dailys for this month.
